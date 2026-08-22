@@ -16,7 +16,7 @@ The project therefore focuses on developing a buy-vs-lease decision-support tool
 
 ### **Primary Users**
 
-Young, financially independent individuals or couples (25–35 years old) in Hanoi who are considering whether to buy or rent a home in one of five inner districts (Thanh Xuân, Đống Đa, Cầu Giấy, Nam Từ Liêm, Hà Đông).
+Young, financially independent individuals or couples (25–35 years old) in Hanoi who are considering whether to buy or rent a home in one of five inner districts (Thanh Xuân, Đống Đa, Cầu Giấy, Hoàng Mai, Hà Đông).
 
 These users:
 
