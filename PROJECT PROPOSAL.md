@@ -16,11 +16,11 @@ The project therefore focuses on developing a buy-vs-lease decision-support tool
 
 ### **Primary Users**
 
-Young, financially independent individuals or couples (25–35 years old) in Hanoi who are considering whether to buy or rent a home in one of five inner districts (Thanh Xuân, Đống Đa, Cầu Giấy, Hoàng Mai, Hà Đông).
+Young, financially independent individuals or couples (25–35 years old) in Hanoi who are considering whether to buy or rent a home in one of three inner districts (Tây Hồ, Cầu Giấy, Hà Đông), each representing a distinct price tier — premium, average, and low respectively.
 
 These users:
 
-* have initial savings of 500 triệu – 1.5 tỷ VNĐ, often from personal savings and/or family support;
+* have initial savings, often from personal savings and/or family support;
 * have a mid-to-high household income (30–60 triệu VNĐ/month);
 * are comfortable with technology and prefer to research before deciding;
 * value work-life balance rather than living solely to repay debt;
@@ -80,7 +80,7 @@ The result may include:
 * suggested price range for the target property;
 * equivalent monthly rent for the same property;
 * monthly installment (PMT) if bought;
-* **Recommendation**: Rent / Buy / Buy + Rent out;
+* **Recommendation**: Rent / Buy;
 * concrete **Safety Margin** (VNĐ/month) after the chosen option;
 * (Phase 2) comparison across 3 market scenarios;
 * (Phase 2) % Buy wins / % Rent wins / % bankrupt from Monte Carlo.
@@ -105,7 +105,7 @@ The project directly involves core personal-finance concepts:
 
 ## **9. Feasibility**
 
-The MVP can focus on the Base Case engine, a static reference price table for the 5 target districts, and a rule-based recommendation engine — without needing Market Scenarios, Monte Carlo, or a full dashboard. These advanced layers can be added once the core recommendation loop works end-to-end.
+The MVP can focus on the Base Case engine, a static reference price table for the 3 target districts, and a rule-based recommendation engine — without needing Market Scenarios, Monte Carlo, or a full dashboard. These advanced layers can be added once the core recommendation loop works end-to-end.
 
 ## **10. Revision Notes**
 
@@ -115,5 +115,4 @@ After reviewing the initial concept, the group clarified that:
 * the core problem is the fear of losing control of monthly cash flow, not simply "which number is bigger";
 * market scenarios and Monte Carlo should act as a **supporting evidence layer** behind the core recommendation engine, not the main user experience;
 * "enjoying life" (living-cost margin) needs to be an explicit constraint inside the recommendation logic, not an afterthought;
-* the target user has been narrowed from "young households" (Week 1) to a specific demographic/income/location profile (Week 2);
-* both the **decision outcome** and the **confidence/control outcome** should eventually be validated with real users.
+* the target user has been narrowed from "young households" (Week 1) to a specific demographic/income/location profile (Week 2), with the target area further locked to 3 districts (Tây Hồ, Cầu Giấy, Hà Đông) representing premium/average/low price tiers, replacing the earlier 5-district framing.
