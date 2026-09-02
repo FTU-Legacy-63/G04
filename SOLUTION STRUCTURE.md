@@ -33,7 +33,7 @@ The recommendation loop remains the core process, while market-scenario and Mont
 ### **Property/Area Information**
 
 * District (3 target districts: Tây Hồ, Cầu Giấy, Hà Đông — representing premium/average/low price tiers)
-* **Vành đai zone** (ring-road zone, e.g. within Beltway 2, between Beltway 2–3, between Beltway 3–3.5) — a second location filter alongside district, since price also varies meaningfully by distance from the center within the same district
+* ** zone** (ring-road zone, e.g. within Beltway 2, between Beltway 2–3, between Beltway 3–3.5) — a second location filter alongside district, since price also varies meaningfully by distance from the center within the same district
 * Property type: fixed to 2-bedroom apartment (2PN) — no other property type in scope
 * Size (m²) — 3 size bands: small (45–59m²), medium (60–79m²), large (80–100m²)
 * Reference price/m² by **district × Beltway zone × size band**
@@ -41,14 +41,16 @@ The recommendation loop remains the core process, while market-scenario and Mont
 
 ### **User Financial Information**
 
-* Monthly household income
+* Monthly household income 
 * Current savings (→ down payment)
 * Fixed monthly living costs
+* Existing monthly debt/obligations (default 0 if not entered)
+* Loan term (loan_term_months)
 
 ### **Engine/Recommendation Information**
 
 * PMT (monthly installment)
-* Recommendation category (Rent / Buy / Buy + Rent out / Not affordable)
+* Recommendation category (Rent / Buy / Not affordable)
 * Concrete safety margin (VNĐ/month)
 
 Not every market-scenario or dashboard element needs to appear in the MVP.
@@ -94,7 +96,7 @@ The current concept can be organized into three main areas:
 
 ## **8. MVP Scope**
 
-Recommended first working scope:
+Recommended first working scope: a listing-level dataset (PROJECT_MASTER + per-district buy/rent listing tabs) for the 3 target districts, each with a candidate-matching engine (falling back to a static district/size-band average only when no real listings exist for a target)
 
 * 3 target districts (Tây Hồ – premium, Cầu Giấy – average, Hà Đông – low), each with a static reference price table segmented by vành đai zone and by the 3 size bands;
 * Price Range calculation (size band × reference price/m² for the selected district/Beltway zone × market margin);
@@ -119,7 +121,7 @@ After the MVP works, expansion may include:
 
 ## **10. Fallback Scope**
 
-If implementation becomes too complex:
+If implementation becomes too complex: drop listing-level matching and use a single static reference price table per district/size-band (accept a wider error margin) — note this is a step down from the listing-level architecture already built, not the current default;
 
 * drop the Beltway filter and use a single averaged reference price per district (accept a wider error margin);
 * fewer than 3 districts, or a single averaged reference price per district (accept a wider error margin);
@@ -177,7 +179,7 @@ These hypotheses still need to be validated through user observation and testing
 **Output:** Price, rent, and macro reference data
 
 * collect buy/rent prices for the 3 target districts (Tây Hồ, Cầu Giấy, Hà Đông), segmented by Beltway zone and by size band (45–59m² / 60–79m² / 80–100m²), for 2-bedroom apartments only;
-* collect historical bank loan interest rates, historical rent inflation by year, and reference yields for investment channels (savings/gold/stocks) — mandatory input for Coordinator's scenario numbers and Finance's dual-investment calculation;
+* collect historical bank loan interest rates and historical rent inflation by year — mandatory input for Coordinator's scenario numbers;
 * deliver raw figures first, even in rough form, before Coordinator locks scenario numbers — the critical dependency for this week.
 
 ### **Nguyễn Hải Sơn — Finance**
@@ -187,7 +189,6 @@ These hypotheses still need to be validated through user observation and testing
 * PMT / monthly installment;
 * debt-to-income ratio;
 * remaining cash flow after housing cost (Buy vs Rent);
-* dual-investment value if Renting (investing the price difference);
 * net worth at end of period for both options;
 * apply Coordinator's recommendation thresholds into the actual formulas.
 
