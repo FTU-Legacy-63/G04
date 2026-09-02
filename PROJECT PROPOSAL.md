@@ -39,7 +39,7 @@ Typical flow:
 2. Choose a specific budget within the suggested price range.
 3. Enter income, savings, and monthly living costs.
 4. Run the simulation engine.
-5. Receive a recommendation (Rent / Buy / Buy + Rent out) with a concrete safety margin.
+5. Receive a recommendation (Rent / Buy) with a concrete safety margin.
 6. Adjust budget or area to see how the recommendation changes.
 7. Use the safety margin figure to plan their actual finances.
 
@@ -116,3 +116,4 @@ After reviewing the initial concept, the group clarified that:
 * market scenarios and Monte Carlo should act as a **supporting evidence layer** behind the core recommendation engine, not the main user experience;
 * "enjoying life" (living-cost margin) needs to be an explicit constraint inside the recommendation logic, not an afterthought;
 * the target user has been narrowed from "young households" (Week 1) to a specific demographic/income/location profile (Week 2), with the target area further locked to 3 districts (Tây Hồ, Cầu Giấy, Hà Đông) representing premium/average/low price tiers, replacing the earlier 5-district framing.
+* "buy + rent out" has been deferred out of current scope — the recommendation engine currently only has formulas for Rent vs Buy; a buy-to-let branch would require additional rental-yield and management-cost logic not yet designed.
