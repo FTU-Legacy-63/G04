@@ -1,0 +1,92 @@
+project_id,project_name,district_old,ward_old,ward_2025,beltway_zone,address_street
+CG001,113 Trung Kinh Apartment,Cau Giay,Yen Hoa,Yen Hoa,2.5-3,Nguyen Nhu Uyen
+CG002,15T Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Nguyen Thi Dinh
+CG003,17T10 Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Nguyen Thi Dinh
+CG004,17T11 Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Nguyen Thi Dinh
+CG005,17T7 Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Hoang Dao Thuy
+CG006,17T9 Hoang Dao Thuy Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Nguyen Thi Thap
+CG007,173 Xuan Thuy Apartment,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Xuan Thuy
+CG008,18T1 Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Le Van Luong
+CG009,30 Pham Van Dong Apartment,Cau Giay,Dich Vong Hau,Nghia Do,2.5-3,Pham Van Dong
+CG010,335 Cau Giay Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Xuan Thuy
+CG011,4F Trung Yen Apartment,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Vu Pham Ham
+CG012,A10 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG013,A14A1 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG014,A14B1 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG015,A14B2 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG016,A6 Nam Trung Yen Apartment,Cau Giay,Yen Hoa,Yen Hoa,2.5-3,Mac Thai To
+CG017,An Lac Apartment,Cau Giay,Cau Dien,Tu Liem,3-3.5,My Dinh 1
+CG018,AZ Lam Vien Complex,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Nguyen Phong Sac
+CG019,B10A Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG020,B10B Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG021,B11 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Mac Thai Tong
+CG022,B3B Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Dinh Nup
+CG023,B3D Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Quoc Tri
+CG024,B6 Nam Trung Yen Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG025,Bamboo Airways Tower (FLC Twin Tower),Cau Giay,Dich Vong,Cau Giay,2-2.5,Cau Giay
+CG026,Cau Giay Center Point,Cau Giay,Quan Hoa,Nghia Do,2-2.5,Cau Giay
+CG027,CC1 Ha Do Parkside,Cau Giay,Dich Vong,Cau Giay,2-2.5,Khuc Thua Du
+CG028,Chelsea Park,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Trung Kinh
+CG029,Chelsea Residences,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Ha Yen Quyet
+CG030,CT6 Constrexim Apartment,Cau Giay,Yen Hoa,Cau Giay,2.5-3,Duong Dinh Nghe
+CG031,D11 Sunrise Building Apartment,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Tran Thai Tong
+CG032,D22 Border Guard Command Apartment,Cau Giay,Mai Dich,Tu Liem,3-3.5,Tran Binh
+CG033,Discovery Complex,Cau Giay,Dich Vong,Cau Giay,2.5-3,Cau Giay
+CG034,Dong Do Apartment,Cau Giay,Nghia Do,Nghia Do,2.5-3,Nghia Do
+CG035,E3 Vu Pham Ham Apartment,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Vu Pham Ham
+CG036,Epic Tower,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Duy Tan
+CG037,Eurowindow Multi Complex,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Tran Duy Hung
+CG038,F4 Yen Hoa,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Trung Kinh
+CG039,F5 Yen Hoa,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Trung Kinh
+CG040,Golden Park Tower,Cau Giay,Yen Hoa,Cau Giay,2-2.5,Pham Van Bach
+CG041,Green Park Tower,Cau Giay,Yen Hoa,Cau Giay,2-2.5,Duong Dinh Nghe
+CG042,Ha Do Park View,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG043,Hancorp Plaza,Cau Giay,Dich Vong,Cau Giay,2.5-3,Tran Dang Ninh
+CG044,Hanoi Paragon,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Tran Quoc Vuong
+CG045,Hanoi Signature,Cau Giay,Nghia Do,Nghia Do,2-2.5,Nguyen Van Huyen
+CG046,Hoa Binh International Towers,Cau Giay,Nghia Do,Nghia Do,2.5-3,Hoang Quoc Viet
+CG047,Hoang Ngan Plaza,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Hoang Ngan
+CG048,Hoang Sam Apartment - 151 Hoang Quoc Viet,Cau Giay,Nghia Do,Nghia Do,2-2.5,Hoang Sam
+CG049,Home City Trung Kinh,Cau Giay,Yen Hoa,Yen Hoa,2.5-3,Trung Kinh
+CG050,Indochina Plaza Hanoi,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Xuan Thuy
+CG051,Institute of Police Science and Strategy Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Tu Mo
+CG052,Luxury Park Views,Cau Giay,Yen Hoa,Cau Giay,2-2.5,Duong Dinh Nghe
+CG053,Mipec Rubik 360,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Xuan Thuy
+CG054,MHDI 60 Hoang Quoc Viet Apartment,Cau Giay,Nghia Do,Nghia Do,2.5-3,Hoang Quoc Viet
+CG055,N01-D17 Duy Tan Apartment,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Tran Thai Tong
+CG056,N03 Tran Quy Kien Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Tran Quy Kien
+CG057,N04B1 Thanh Thai Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG058,N05 Tran Quy Kien Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Tran Dang Ninh
+CG059,N06B1 Thanh Thai Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG060,N07 Thanh Thai Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG061,N07 Tran Quy Kien Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Tran Quy Kien
+CG062,N09 Thanh Thai Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG063,N105 Nguyen Phong Sac Apartment,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Nguyen Phong Sac
+CG064,N11A Tran Quy Kien Apartment,Cau Giay,Dich Vong,Cau Giay,2.5-3,Tran Quy Kien
+CG065,N2B Hoang Minh Giam Apartment,Cau Giay,Nhan Chinh,Yen Hoa,2.5-3,Hoang Minh Giam
+CG066,N3A Le Van Luong Apartment,Cau Giay,Nhan Chinh,Yen Hoa,2.5-3,Le Van Luong
+CG067,N4A Le Van Luong Apartment,Cau Giay,Nhan Chinh,Yen Hoa,2.5-3,Le Van Luong
+CG068,N6E Trung Hoa - Nhan Chinh Apartment,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Thi Thap
+CG069,Richland Southern,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Xuan Thuy
+CG070,Sky Park Residence,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Ton That Thuyet
+CG071,Star Tower,Cau Giay,Yen Hoa,Cau Giay,2.5-3,Duong Dinh Nghe
+CG072,Sun Feliza Suites,Cau Giay,Dich Vong Hau,Cau Giay,2.5-3,Xuan Thuy
+CG073,Thang Long Number One,Cau Giay,Trung Hoa,Dai Mo,3-3.5,Khuat Duy Tien
+CG074,The Nine Apartment,Cau Giay,Mai Dich,Phu Dien,3-3.5,Pham Van Dong
+CG075,The Park Home,Cau Giay,Dich Vong,Cau Giay,2.5-3,Thanh Thai
+CG076,Thuong Mai University Southwest Apartment,Cau Giay,Mai Dich,Tu Liem,3-3.5,Le Duc Tho
+CG077,Trang An Complex,Cau Giay,Nghia Do,Nghia Do,2-2.5,Phung Chi Kien
+CG078,Trung Kinh Central Point,Cau Giay,Yen Hoa,Yen Hoa,2.5-3,Trung Kinh
+CG079,Trung Yen I High-Rise Apartment,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Trung Kinh
+CG080,Trung Yen Plaza,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Trung Hoa
+CG081,Udic Complex,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Hoang Dao Thuy
+CG082,Vinaconex 1,Cau Giay,Trung Hoa,Dai Mo,3-3.5,Khuat Duy Tien
+CG083,Vinaconex 3,Cau Giay,Dich Vong,Cau Giay,2-2.5,Khuc Thua Du
+CG084,Vimeco I (Pham Hung),Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Pham Hung
+CG085,Vimeco II (Nguyen Chanh),Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Nguyen Chanh
+CG086,Vinhomes D'Capitale,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,Tran Duy Hung
+CG087,Watermark,Cau Giay,Nghia Do,Tay Ho,1-2,Lac Long Quan
+CG088,Yen Hoa Condominium,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Yen Hoa
+CG089,Yen Hoa Park View,Cau Giay,Yen Hoa,Yen Hoa,2-2.5,Vu Pham Ham
+CG090,Yen Hoa Sunshine,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,Tran Kim Xuyen
+CG091,Yen Hoa Thang Long Apartment,Cau Giay,Yen Hoa,Yen Hoa,2.5-3,Mac Thai To

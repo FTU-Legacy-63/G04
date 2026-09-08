@@ -1,0 +1,106 @@
+listing_id,project_id,district_old,ward_old,ward_2025,beltway_zone,area_m2,size_band,bedrooms,bathrooms,total_price_billion_vnd_input,total_price_vnd,price_m2_vnd,project_name
+BCG0002,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,7.6,7600000000.0,84444444.44,Vimeco II (Nguyen Chanh)
+BCG0004,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,96.0,Large,2.0,2.0,7.8,7800000000.0,81250000.0,Vimeco II (Nguyen Chanh)
+BCG0005,CG037,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,86.0,Large,2.0,2.0,8.9,8900000000.0,103488372.09,Eurowindow Multi Complex
+BCG0009,CG023,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,60.0,Medium,2.0,1.0,3.99,3990000000.0,66500000.0,B3D Nam Trung Yen Apartment
+BCG0013,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,50.0,Small,2.0,1.0,4.0,4000000000.0,80000000.0,A14B1 Nam Trung Yen Apartment
+BCG0014,CG021,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,61.4,Medium,2.0,1.0,4.7,4700000000.0,76547231.27,B11 Nam Trung Yen Apartment
+BCG0017,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,63.0,Medium,2.0,2.0,8.0,8000000000.0,126984126.98,Vinhomes D'Capitale
+BCG0021,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,9.8,9800000000.0,136111111.11,Vinhomes D'Capitale
+BCG0025,CG013,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,55.0,Small,2.0,1.0,4.6,4600000000.0,83636363.64,A14A1 Nam Trung Yen Apartment
+BCG0032,CG090,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,71.0,Medium,2.0,1.0,6.6,6600000000.0,92957746.48,Yen Hoa Sunshine
+BCG0034,CG019,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,65.0,Medium,2.0,2.0,5.0,5000000000.0,76923076.92,B10A Nam Trung Yen Apartment
+BCG0042,CG090,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,93.0,Large,2.0,2.0,9.0,9000000000.0,96774193.55,Yen Hoa Sunshine
+BCG0046,CG051,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,80.0,Large,2.0,2.0,6.7,6700000000.0,83750000.0,Institute of Police Science and Strategy Apartment
+BCG0051,CG051,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,78.0,Medium,2.0,2.0,6.8,6800000000.0,87179487.18,Institute of Police Science and Strategy Apartment
+BCG0054,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,7.2,7200000000.0,102857142.86,Vinhomes D'Capitale
+BCG0064,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,56.0,Small,2.0,1.0,5.0,5000000000.0,89285714.29,A14B1 Nam Trung Yen Apartment
+BCG0070,CG037,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,98.0,Large,2.0,2.0,8.5,8500000000.0,86734693.88,Eurowindow Multi Complex
+BCG0072,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,7.59,7590000000.0,84333333.33,Vimeco II (Nguyen Chanh)
+BCG0076,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,68.0,Medium,2.0,2.0,7.9,7900000000.0,116176470.59,Vinhomes D'Capitale
+BCG0082,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,7.0,7000000000.0,77777777.78,Vimeco II (Nguyen Chanh)
+BCG0083,CG019,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,65.0,Medium,2.0,2.0,5.35,5350000000.0,82307692.31,B10A Nam Trung Yen Apartment
+BCG0084,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,54.0,Small,2.0,1.0,5.5,5500000000.0,101851851.85,Vinhomes D'Capitale
+BCG0086,CG022,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,64.0,Medium,2.0,1.0,4.1,4100000000.0,64062500.0,B3B Nam Trung Yen Apartment
+BCG0087,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,9.8,9800000000.0,136111111.11,Vinhomes D'Capitale
+BCG0088,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,74.0,Medium,2.0,2.0,9.0,9000000000.0,121621621.62,Vinhomes D'Capitale
+BCG0095,CG019,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,69.0,Medium,2.0,1.0,5.6,5600000000.0,81159420.29,B10A Nam Trung Yen Apartment
+BCG0097,CG090,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,62.0,Medium,2.0,1.0,5.65,5650000000.0,91129032.26,Yen Hoa Sunshine
+BCG0104,CG003,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,65.0,Medium,2.0,1.0,5.5,5500000000.0,84615384.62,17T10 Trung Hoa - Nhan Chinh Apartment
+BCG0110,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,55.0,Small,2.0,1.0,5.0,5000000000.0,90909090.91,A14B1 Nam Trung Yen Apartment
+BCG0111,CG090,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,78.0,Medium,2.0,2.0,7.35,7350000000.0,94230769.23,Yen Hoa Sunshine
+BCG0113,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,51.0,Small,2.0,1.0,4.2,4200000000.0,82352941.18,Vinhomes D'Capitale
+BCG0116,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,8.0,8000000000.0,111111111.11,Vinhomes D'Capitale
+BCG0117,CG015,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,5.25,5250000000.0,72916666.67,A14B2 Nam Trung Yen Apartment
+BCG0123,CG019,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,50.0,Small,2.0,1.0,4.0,4000000000.0,80000000.0,B10A Nam Trung Yen Apartment
+BCG0127,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,76.0,Medium,2.0,2.0,7.2,7200000000.0,94736842.11,Vinhomes D'Capitale
+BCG0129,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,62.0,Medium,2.0,2.0,4.35,4350000000.0,70161290.32,A14B1 Nam Trung Yen Apartment
+BCG0133,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,55.0,Small,2.0,1.0,5.15,5150000000.0,93636363.64,A14B1 Nam Trung Yen Apartment
+BCG0139,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,45.0,Small,2.0,1.0,4.6,4600000000.0,102222222.22,Vinhomes D'Capitale
+BCG0140,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,7.6,7600000000.0,84444444.44,Vimeco II (Nguyen Chanh)
+BCG0141,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,62.0,Medium,2.0,1.0,4.2,4200000000.0,67741935.48,A14B1 Nam Trung Yen Apartment
+BCG0142,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,58.53,Small,2.0,2.0,5.5,5500000000.0,93968904.84,A14B1 Nam Trung Yen Apartment
+BCG0143,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,89.0,Large,2.0,2.0,7.0,7000000000.0,78651685.39,Vimeco II (Nguyen Chanh)
+BCG0149,CG051,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,92.0,Large,2.0,2.0,6.8,6800000000.0,73913043.48,Institute of Police Science and Strategy Apartment
+BCG0153,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,88.4,Large,2.0,2.0,7.0,7000000000.0,79185520.36,Vimeco II (Nguyen Chanh)
+BCG0155,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,73.0,Medium,2.0,2.0,9.0,9000000000.0,123287671.23,Vinhomes D'Capitale
+BCG0156,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,45.0,Small,2.0,1.0,3.78,3780000000.0,84000000.0,A14B1 Nam Trung Yen Apartment
+BCG0159,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,7.5,7500000000.0,83333333.33,Vimeco II (Nguyen Chanh)
+BCG0160,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,58.0,Small,2.0,2.0,4.3,4300000000.0,74137931.03,A14B1 Nam Trung Yen Apartment
+BCG0173,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,61.2,Medium,2.0,1.0,5.0,5000000000.0,81699346.41,A14B1 Nam Trung Yen Apartment
+BCG0183,CG012,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,66.0,Medium,2.0,1.0,6.8,6800000000.0,103030303.03,A10 Nam Trung Yen Apartment
+BCG0184,CG019,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,65.0,Medium,2.0,2.0,5.2,5200000000.0,80000000.0,B10A Nam Trung Yen Apartment
+BCG0185,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,55.0,Small,2.0,1.0,4.6,4600000000.0,83636363.64,A14B1 Nam Trung Yen Apartment
+BCG0186,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,77.0,Medium,2.0,2.0,8.2,8200000000.0,106493506.49,Vinhomes D'Capitale
+BCG0188,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,7.5,7500000000.0,107142857.14,Vinhomes D'Capitale
+BCG0189,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,71.0,Medium,2.0,2.0,8.5,8500000000.0,119718309.86,Vinhomes D'Capitale
+BCG0191,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,51.0,Small,2.0,1.0,4.35,4350000000.0,85294117.65,Vinhomes D'Capitale
+BCG0194,CG073,Cau Giay,Trung Hoa,Dai Mo,3-3.5,91.0,Large,2.0,2.0,8.0,8000000000.0,87912087.91,Thang Long Number One
+BCG0202,CG081,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,90.0,Large,2.0,2.0,9.0,9000000000.0,100000000.0,Udic Complex
+BCG0204,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,8.0,8000000000.0,111111111.11,Vinhomes D'Capitale
+BCG0206,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,58.0,Small,2.0,2.0,5.2,5200000000.0,89655172.41,A14B1 Nam Trung Yen Apartment
+BCG0207,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,58.53,Small,2.0,2.0,5.35,5350000000.0,91406116.52,A14B1 Nam Trung Yen Apartment
+BCG0218,CG068,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,55.0,Small,2.0,1.0,3.59,3590000000.0,65272727.27,N6E Trung Hoa - Nhan Chinh Apartment
+BCG0224,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,88.4,Large,2.0,2.0,7.2,7200000000.0,81447963.8,Vimeco II (Nguyen Chanh)
+BCG0225,CG024,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,1.0,5.6,5600000000.0,80000000.0,B6 Nam Trung Yen Apartment
+BCG0229,CG051,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,80.0,Large,2.0,2.0,6.8,6800000000.0,85000000.0,Institute of Police Science and Strategy Apartment
+BCG0230,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,75.0,Medium,2.0,2.0,7.1,7100000000.0,94666666.67,Vinhomes D'Capitale
+BCG0232,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,73.0,Medium,2.0,2.0,10.0,10000000000.0,136986301.37,Vinhomes D'Capitale
+BCG0237,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,8.0,8000000000.0,111111111.11,Vinhomes D'Capitale
+BCG0238,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,9.8,9800000000.0,136111111.11,Vinhomes D'Capitale
+BCG0239,CG090,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,77.0,Medium,2.0,2.0,7.35,7350000000.0,95454545.45,Yen Hoa Sunshine
+BCG0240,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,68.0,Medium,2.0,2.0,7.0,7000000000.0,102941176.47,Vinhomes D'Capitale
+BCG0242,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,60.0,Medium,2.0,2.0,4.0,4000000000.0,66666666.67,A14B1 Nam Trung Yen Apartment
+BCG0243,CG005,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,65.0,Medium,2.0,2.0,5.6,5600000000.0,86153846.15,17T7 Trung Hoa - Nhan Chinh Apartment
+BCG0244,CG004,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,68.0,Medium,2.0,2.0,5.5,5500000000.0,80882352.94,17T11 Trung Hoa - Nhan Chinh Apartment
+BCG0249,CG024,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,4.0,4000000000.0,57142857.14,B6 Nam Trung Yen Apartment
+BCG0251,CG080,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,95.0,Large,2.0,2.0,8.5,8500000000.0,89473684.21,Trung Yen Plaza
+BCG0257,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,60.0,Medium,2.0,2.0,4.0,4000000000.0,66666666.67,A14B1 Nam Trung Yen Apartment
+BCG0258,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,46.0,Small,2.0,1.0,3.8,3800000000.0,82608695.65,A14B1 Nam Trung Yen Apartment
+BCG0262,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,73.0,Medium,2.0,2.0,8.2,8200000000.0,112328767.12,Vinhomes D'Capitale
+BCG0263,CG014,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,58.0,Small,2.0,1.0,5.25,5250000000.0,90517241.38,A14B1 Nam Trung Yen Apartment
+BCG0264,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,69.0,Medium,2.0,2.0,7.9,7900000000.0,114492753.62,Vinhomes D'Capitale
+BCG0267,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,60.0,Medium,2.0,1.0,5.4,5400000000.0,90000000.0,Vinhomes D'Capitale
+BCG0270,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,77.0,Medium,2.0,2.0,8.2,8200000000.0,106493506.49,Vinhomes D'Capitale
+BCG0271,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,77.0,Medium,2.0,2.0,8.2,8200000000.0,106493506.49,Vinhomes D'Capitale
+BCG0272,CG024,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,60.0,Medium,2.0,2.0,5.3,5300000000.0,88333333.33,B6 Nam Trung Yen Apartment
+BCG0275,CG020,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,5.9,5900000000.0,84285714.29,B10B Nam Trung Yen Apartment
+BCG0279,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,8.6,8600000000.0,122857142.86,Vinhomes D'Capitale
+BCG0281,CG008,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,70.0,Medium,2.0,2.0,5.9,5900000000.0,84285714.29,18T1 Trung Hoa - Nhan Chinh Apartment
+BCG0283,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,7.0,7000000000.0,100000000.0,Vinhomes D'Capitale
+BCG0284,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,72.0,Medium,2.0,2.0,8.3,8300000000.0,115277777.78,Vinhomes D'Capitale
+BCG0285,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,68.0,Medium,2.0,2.0,7.1,7100000000.0,104411764.71,Vinhomes D'Capitale
+BCG0289,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,96.0,Large,2.0,2.0,7.5,7500000000.0,78125000.0,Vimeco II (Nguyen Chanh)
+BCG0292,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,94.0,Large,2.0,2.0,8.0,8000000000.0,85106382.98,Vimeco II (Nguyen Chanh)
+BCG0293,CG080,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,95.0,Large,2.0,2.0,8.5,8500000000.0,89473684.21,Trung Yen Plaza
+BCG0294,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,73.0,Medium,2.0,2.0,9.7,9700000000.0,132876712.33,Vinhomes D'Capitale
+BCG0296,CG004,Cau Giay,Trung Hoa,Yen Hoa,2-2.5,67.0,Medium,2.0,2.0,6.25,6250000000.0,93283582.09,17T11 Trung Hoa - Nhan Chinh Apartment
+BCG0297,CG085,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,94.0,Large,2.0,2.0,7.6,7600000000.0,80851063.83,Vimeco II (Nguyen Chanh)
+BCG0300,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,62.0,Medium,2.0,2.0,8.9,8900000000.0,143548387.1,Vinhomes D'Capitale
+BCG0301,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,74.0,Medium,2.0,2.0,9.6,9600000000.0,129729729.73,Vinhomes D'Capitale
+BCG0302,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,85.3,Large,2.0,2.0,8.1,8100000000.0,94958968.35,Vinhomes D'Capitale
+BCG0303,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,64.0,Medium,2.0,2.0,8.5,8500000000.0,132812500.0,Vinhomes D'Capitale
+BCG0304,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,50.0,Small,2.0,1.0,4.5,4500000000.0,90000000.0,Vinhomes D'Capitale
+BCG0305,CG021,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,61.4,Medium,2.0,1.0,4.5,4500000000.0,73289902.28,B11 Nam Trung Yen Apartment
+BCG0306,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,67.8,Medium,2.0,2.0,8.3,8300000000.0,122418879.06,Vinhomes D'Capitale
+BCG0307,CG086,Cau Giay,Trung Hoa,Yen Hoa,2.5-3,70.0,Medium,2.0,2.0,8.3,8300000000.0,118571428.57,Vinhomes D'Capitale
