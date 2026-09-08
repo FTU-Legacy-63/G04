@@ -104,20 +104,6 @@ không tải được.
 - **Nguyễn Hải Sơn** — tìm và cào data `MUA_RAW_HD`/`THUE_RAW_HD` \+
   `MUA_RAW_TH`/`THUE_RAW_TH` (out of scope for MVP).
 
-Các phần còn lại (viết code, viết test, port bản JS/standalone...) vẫn cần
-điền tên thật nếu muốn ghi nhận đầy đủ trong báo cáo giữa kỳ.
-
-## 9\. Next steps
-
-1. Có 1 thành viên đọc lại toàn văn 4 bài báo/báo cáo problem evidence
-   (`docs/sources.md` mục 2) trước khi trích dẫn chính thức trong báo cáo;
-   cân nhắc làm thêm 1 khảo sát/phỏng vấn nhanh để có bằng chứng riêng cho
-   Cầu Giấy nếu có thời gian.
-2. Nhóm quyết định: giữ bộ `FIN_ASSUMPTIONS` hiện tại (đã có nguồn MB Bank
-   xác nhận đầy đủ) hay chuyển sang bộ VCB của Phạm Nam Phương — và cân nhắc
-   bổ sung phí trả nợ trước hạn thật (1% năm 1–5, miễn phí từ năm 6) vào
-   `loan_calc.py` (`docs/assumptions.md` mục 1).
-3. Điền tên owner thật cho phần viết code/test/port JS còn thiếu trong các
    bảng "Owner" ở `docs/`.
 4. Tự kiểm tra repo theo `../assessment/midterm-checklist.md` (file của môn
    học, chưa có trong repo này) trước khi trình bày giữa kỳ.
