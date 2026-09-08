@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinFlow — Buy vs Rent, Cau Giay</title>
+<script>
+// Net worth chart (Step 4) needs Chart.js, loaded from a CDN — the one thing on
+// this page that needs internet. A single CDN can be blocked by a firewall, an
+// ad-blocker, or a regional outage even when the rest of the internet works, so
+// this tries three different CDNs in sequence and only gives up if all three
+// fail. window.chartLoadPromise resolves true as soon as one succeeds, or false
+// once all three have failed — the chart code (in the main script below) awaits
+// this instead of assuming Chart.js is ready immediately.
+window.loadChartJs = function () {
+  var sources = [
+    "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js",
+    "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js",
+    "https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js"
+  ];
+  return new Promise(function (resolve) {
+    var i = 0;
+    function tryNext() {
+      if (i >= sources.length) { resolve(false); return; }
+      var s = document.createElement("script");
+      s.src = sources[i++];
+      s.onload = function () { resolve(true); };
+      s.onerror = function () { tryNext(); };
+      document.head.appendChild(s);
+    }
+    tryNext();
+  });
+};
+window.chartLoadPromise = window.loadChartJs();
+</script>
+<style>
+  :root {
+    --paper: #F5F6F2;
+    --surface: #FFFFFF;
+    --ink: #1C2B24;
+    --ink-soft: #55645C;
+    --ink-faint: #8B958E;
+    --line: #D8DCD4;
+    --jade: #1F7A5C;
+    --jade-soft: #E3F1EA;
+    --slate: #2A5C8A;
+    --slate-soft: #E4EDF5;
+    --brick: #A8402F;
+    --brick-soft: #F6E3E0;
+    --amber: #8A6D1D;
+    --amber-soft: #FBF1D6;
+    --step-off: #C7CCC3;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+  }
+
+  header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+
+  header p {
+    color: var(--ink-soft);
+    margin: 0 0 32px;
+    font-size: 15px;
+  }
+
+  /* ---------- Layout: sticky 2-column on wide screens ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .steps-col { min-width: 0; }
+
+  .result-rail {
+    position: sticky;
+    top: 20px;
+  }
+
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
+
+  @media (max-width: 900px) {
+    .layout { display: block; }
+    .result-rail { position: static; margin-top: 0; }
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+  }
+
+  section.step {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 28px;
+    margin-bottom: 20px;
+  }
+
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--jade-soft);
+    color: var(--jade);
+    font-weight: 800;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .step-head h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  label .unit-hint {
+    font-weight: 500;
+    color: var(--ink-faint);
+    font-size: 12.5px;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+  }
+
+  select:focus, input:focus {
+    outline: 2px solid var(--jade);
+    outline-offset: 1px;
+    border-color: var(--jade);
+  }
+
+  .hint { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+
+  .row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .row .field { flex: 1; min-width: 160px; }
+
+  button {
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: #0f1a14; }
+  .btn-primary:disabled { background: var(--step-off); cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+  /* ---------- Step 2: BUY / RENT columns ---------- */
+  .unit-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) {
+    .unit-columns { grid-template-columns: 1fr; }
+  }
+
+  .unit-col-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .unit-col-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .unit-col-title.buy-tag { color: var(--jade); }
+  .unit-col-title.rent-tag { color: var(--slate); }
+
+  .sort-select {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 12.5px;
+  }
+
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  .listing-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    background: var(--surface);
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .listing-card:hover { border-color: var(--jade); }
+  .listing-card.selected {
+    border-color: var(--jade);
+    background: var(--jade-soft);
+  }
+  .unit-col[data-kind="rent"] .listing-card.selected {
+    border-color: var(--slate);
+    background: var(--slate-soft);
+  }
+
+  .listing-name { font-weight: 700; font-size: 14.5px; margin-bottom: 3px; }
+  .listing-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+  .listing-address { font-size: 12px; color: var(--ink-faint); line-height: 1.4; }
+
+  .empty-state, .preview-placeholder {
+    padding: 18px 14px;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+  }
+
+  /* ---------- Selected-unit summary (after both chosen) ---------- */
+  .selected-summary {
+    border: 1px solid var(--jade);
+    background: var(--jade-soft);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .unit-col[data-kind="rent"] .selected-summary {
+    border-color: var(--slate);
+    background: var(--slate-soft);
+  }
+  .selected-summary .info { min-width: 0; }
+  .selected-summary .listing-name { margin-bottom: 4px; }
+
+  /* ---------- Result cards ---------- */
+  .results-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .result-card {
+    border-radius: 10px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .result-card.win { border-color: var(--jade); background: var(--jade-soft); }
+  .result-card.win.rent-win { border-color: var(--slate); background: var(--slate-soft); }
+  .result-card.fail { background: var(--brick-soft); border-color: var(--brick); }
+
+  .result-card h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .stat-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13.5px;
+    padding: 4px 0;
+  }
+  .stat-line .stat-label { color: var(--ink-soft); }
+  .stat-line .stat-value { font-weight: 700; text-align: right; }
+
+  .error-text { font-size: 13.5px; line-height: 1.5; }
+
+  .margin-bar { margin-top: 10px; }
+  .margin-bar-track {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.08);
+    overflow: visible;
+    margin-bottom: 6px;
+  }
+  .margin-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--jade);
+  }
+  .margin-bar-fill.unsafe { background: var(--brick); }
+  .margin-bar-threshold {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 14px;
+    background: var(--ink);
+    opacity: 0.55;
+  }
+  .margin-bar-caption {
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 10px;
+  }
+
+  /* ---------- Decision banner ---------- */
+  .verdict {
+    padding: 16px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .verdict.win-buy { background: var(--jade); color: #fff; }
+  .verdict.win-rent { background: var(--slate); color: #fff; }
+  .verdict.fail { background: var(--brick); color: #fff; }
+  .verdict .verdict-reason {
+    display: block;
+    font-weight: 500;
+    font-size: 13px;
+    margin-top: 4px;
+    opacity: 0.9;
+  }
+
+  .error-banner {
+    background: var(--brick-soft);
+    border: 1px solid var(--brick);
+    color: var(--brick);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+
+  /* ---------- Chart + disclaimer ---------- */
+  .chart-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px 8px;
+    margin-bottom: 18px;
+    background: var(--surface);
+  }
+  .chart-card h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+  }
+  .chart-wrap { position: relative; height: 300px; margin-top: 10px; }
+
+  .disclaimer {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--amber);
+    background: var(--amber-soft);
+    border: 1px solid #E3D18E;
+    border-radius: 8px;
+    padding: 10px 12px;
+    line-height: 1.5;
+    margin: 10px 0 6px;
+  }
+  .disclaimer .icon { flex-shrink: 0; }
+
+  /* ---------- Result rail (sticky / mobile inline preview) ---------- */
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .preview-card h4 {
+    margin: 0 0 14px;
+    font-size: 12.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+  }
+  .preview-block { margin-bottom: 14px; }
+  .preview-label { font-size: 11.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px; }
+  .preview-value { font-size: 14px; font-weight: 700; }
+  .preview-hint { font-size: 13px; color: var(--ink-soft); margin: 0; }
+  .mini-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .mini-card .tag { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); }
+  .mini-card .name { font-size: 13.5px; font-weight: 700; margin: 2px 0; }
+  .mini-card .price { font-size: 13px; color: var(--ink-soft); }
+
+  .mobile-only.preview-card { margin: -4px 0 20px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>FinFlow — Buy vs Rent</h1>
+    <p>Compare the true cost of buying vs renting an apartment in Cau Giay — demo</p>
+  </header>
+
+  <div id="global-error" class="error-banner" style="display:none;"></div>
+
+  <div class="layout">
+    <main class="steps-col">
+
+      <!-- STEP 1 -->
+      <section class="step" id="step1">
+        <div class="step-head"><div class="step-num">1</div><h2>Select area &amp; size</h2></div>
+
+        <div class="row">
+          <div class="field">
+            <label for="ward_old">Ward (old)</label>
+            <select id="ward_old"></select>
+          </div>
+          <div class="field">
+            <label for="size_band">Size</label>
+            <select id="size_band">
+              <option value="Small">Small (45–59 m²)</option>
+              <option value="Medium" selected>Medium (60–79 m²)</option>
+              <option value="Large">Large (80–100 m²)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <div class="result-preview-mount mobile-only preview-card"></div>
+
+      <!-- STEP 2 -->
+      <section class="step" id="step2">
+        <div class="step-head"><div class="step-num">2</div><h2>Choose a BUY unit and a RENT unit</h2></div>
+
+        <div class="unit-columns">
+          <div class="unit-col" data-kind="buy" id="buy-col">
+            <div class="unit-col-head">
+              <span class="unit-col-title buy-tag">Buy</span>
+              <select class="sort-select" id="buy-sort">
+                <option value="price_asc">Price: Low → High</option>
+                <option value="price_desc">Price: High → Low</option>
+                <option value="name_asc">Name: A → Z</option>
+                <option value="name_desc">Name: Z → A</option>
+                <option value="area_desc">Area: Large → Small</option>
+                <option value="area_asc">Area: Small → Large</option>
+              </select>
+            </div>
+            <div id="buy-list-wrap"></div>
+          </div>
+
+          <div class="unit-col" data-kind="rent" id="rent-col">
+            <div class="unit-col-head">
+              <span class="unit-col-title rent-tag">Rent</span>
+              <select class="sort-select" id="rent-sort">
+                <option value="price_asc">Price: Low → High</option>
+                <option value="price_desc">Price: High → Low</option>
+                <option value="name_asc">Name: A → Z</option>
+                <option value="name_desc">Name: Z → A</option>
+                <option value="area_desc">Area: Large → Small</option>
+                <option value="area_asc">Area: Small → Large</option>
+              </select>
+            </div>
+            <div id="rent-list-wrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="result-preview-mount mobile-only preview-card"></div>
+
+      <!-- STEP 3 -->
+      <section class="step" id="step3">
+        <div class="step-head"><div class="step-num">3</div><h2>Financial profile</h2></div>
+
+        <div class="row">
+          <div class="field">
+            <label for="income1">Income 1 <span class="unit-hint">(million VND / month)</span></label>
+            <input type="number" id="income1" min="0" step="any" placeholder="e.g. 25">
+          </div>
+          <div class="field">
+            <label for="income2">Income 2 <span class="unit-hint">(million VND / month)</span></label>
+            <input type="number" id="income2" min="0" step="any" placeholder="e.g. 15">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="savings">Savings <span class="unit-hint">(million VND)</span></label>
+          <input type="number" id="savings" min="0" step="any" placeholder="e.g. 2000">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="living_cost">Minimum living cost <span class="unit-hint">(million VND / month)</span></label>
+            <input type="number" id="living_cost" min="0" step="any" placeholder="e.g. 8">
+          </div>
+          <div class="field">
+            <label for="existing_debt">Existing debt <span class="unit-hint">(million VND / month)</span></label>
+            <input type="number" id="existing_debt" min="0" step="any" value="0">
+            <div class="hint">Leave as 0 if you have no other debt payments.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="loan_term_months">Loan term <span class="unit-hint">(months)</span></label>
+          <input type="number" id="loan_term_months" min="1" step="1" value="360">
+        </div>
+
+        <button class="btn-primary" id="calculate-btn" disabled>Calculate</button>
+        <div class="hint" id="calculate-hint" style="margin-top:10px;">Select a BUY and a RENT unit in Step 2 first.</div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step" id="step4" style="display:none;">
+        <div class="step-head"><div class="step-num">4</div><h2>Result</h2></div>
+        <div id="results-area"></div>
+      </section>
+
+    </main>
+
+    <aside class="result-rail desktop-only">
+      <div class="result-preview-mount preview-card"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// EMBEDDED DATA — generated once from DATA_DEMO.xlsx (already joined with
+// PROJECT_MASTER.address_street, padding rows skipped) so this page needs
+// NO server and NO Python to run: everything below runs entirely in the
+// browser. Just open this HTML file (double-click works) — it keeps working
+// with no internet connection at all, except for the Chart.js <script src=...>
+// tag at the top of this file, which needs internet the first time to draw
+// the Net worth chart (every other feature works fully offline).
+// ============================================================
+const BUY_LISTINGS = [{"listing_id":"BCG0001","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":73.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7200000000.0,"price_m2_vnd":98630136.99},{"listing_id":"BCG0002","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7600000000.0,"price_m2_vnd":84444444.44},{"listing_id":"BCG0003","project_id":"CG062","project_name":"N09 Thanh Thai Apartment","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8750000000.0,"price_m2_vnd":97222222.22},{"listing_id":"BCG0004","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":96.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7800000000.0,"price_m2_vnd":81250000.0},{"listing_id":"BCG0005","project_id":"CG037","project_name":"Eurowindow Multi Complex","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Duy Hung","total_price_vnd":8900000000.0,"price_m2_vnd":103488372.09},{"listing_id":"BCG0006","project_id":"CG011","project_name":"4F Trung Yen Apartment","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","total_price_vnd":5600000000.0,"price_m2_vnd":90322580.65},{"listing_id":"BCG0007","project_id":"CG039","project_name":"F5 Yen Hoa","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","total_price_vnd":6000000000.0,"price_m2_vnd":85714285.71},{"listing_id":"BCG0008","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":85.6,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":7600000000.0,"price_m2_vnd":88785046.73},{"listing_id":"BCG0009","project_id":"CG023","project_name":"B3D Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Quoc Tri","total_price_vnd":3990000000.0,"price_m2_vnd":66500000.0},{"listing_id":"BCG0010","project_id":"CG066","project_name":"N3A Le Van Luong Apartment","area_m2":54.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Le Van Luong","total_price_vnd":4300000000.0,"price_m2_vnd":79629629.63},{"listing_id":"BCG0011","project_id":"CG083","project_name":"Vinaconex 3","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Khuc Thua Du","total_price_vnd":5100000000.0,"price_m2_vnd":85000000.0},{"listing_id":"BCG0012","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":6000000000.0,"price_m2_vnd":85714285.71},{"listing_id":"BCG0013","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4000000000.0,"price_m2_vnd":80000000.0},{"listing_id":"BCG0014","project_id":"CG021","project_name":"B11 Nam Trung Yen Apartment","area_m2":61.4,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai Tong","total_price_vnd":4700000000.0,"price_m2_vnd":76547231.27},{"listing_id":"BCG0015","project_id":"CG087","project_name":"Watermark","area_m2":99.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","total_price_vnd":11690000000.0,"price_m2_vnd":118080808.08},{"listing_id":"BCG0016","project_id":"CG069","project_name":"Richland Southern","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7800000000.0,"price_m2_vnd":89655172.41},{"listing_id":"BCG0017","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":63.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8000000000.0,"price_m2_vnd":126984126.98},{"listing_id":"BCG0018","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":4300000000.0,"price_m2_vnd":86000000.0},{"listing_id":"BCG0019","project_id":"CG016","project_name":"A6 Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":3500000000.0,"price_m2_vnd":58333333.33},{"listing_id":"BCG0020","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":11000000000.0,"price_m2_vnd":118279569.89},{"listing_id":"BCG0021","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9800000000.0,"price_m2_vnd":136111111.11},{"listing_id":"BCG0022","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6600000000.0,"price_m2_vnd":110000000.0},{"listing_id":"BCG0023","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":3890000000.0,"price_m2_vnd":70727272.73},{"listing_id":"BCG0024","project_id":"CG089","project_name":"Yen Hoa Park View","area_m2":84.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","total_price_vnd":10500000000.0,"price_m2_vnd":125000000.0},{"listing_id":"BCG0025","project_id":"CG013","project_name":"A14A1 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4600000000.0,"price_m2_vnd":83636363.64},{"listing_id":"BCG0026","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6000000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0027","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":5500000000.0,"price_m2_vnd":84615384.62},{"listing_id":"BCG0028","project_id":"CG069","project_name":"Richland Southern","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7500000000.0,"price_m2_vnd":83333333.33},{"listing_id":"BCG0029","project_id":"CG017","project_name":"An Lac Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Cau Dien","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"My Dinh 1","total_price_vnd":5000000000.0,"price_m2_vnd":76923076.92},{"listing_id":"BCG0030","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":4000000000.0,"price_m2_vnd":80000000.0},{"listing_id":"BCG0031","project_id":"CG075","project_name":"The Park Home","area_m2":80.36,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8500000000.0,"price_m2_vnd":105774016.92},{"listing_id":"BCG0032","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","total_price_vnd":6600000000.0,"price_m2_vnd":92957746.48},{"listing_id":"BCG0033","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":11000000000.0,"price_m2_vnd":112244897.96},{"listing_id":"BCG0034","project_id":"CG019","project_name":"B10A Nam Trung Yen Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5000000000.0,"price_m2_vnd":76923076.92},{"listing_id":"BCG0035","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":5800000000.0,"price_m2_vnd":82857142.86},{"listing_id":"BCG0036","project_id":"CG070","project_name":"Sky Park Residence","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":9500000000.0,"price_m2_vnd":133802816.9},{"listing_id":"BCG0037","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":6600000000.0,"price_m2_vnd":94285714.29},{"listing_id":"BCG0038","project_id":"CG069","project_name":"Richland Southern","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7650000000.0,"price_m2_vnd":87931034.48},{"listing_id":"BCG0039","project_id":"CG038","project_name":"F4 Yen Hoa","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","total_price_vnd":6950000000.0,"price_m2_vnd":79885057.47},{"listing_id":"BCG0040","project_id":"CG076","project_name":"Thuong Mai University Southwest Apartment","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Le Duc Tho","total_price_vnd":6000000000.0,"price_m2_vnd":70588235.29},{"listing_id":"BCG0041","project_id":"CG059","project_name":"N06B1 Thanh Thai Apartment","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":6850000000.0,"price_m2_vnd":100735294.12},{"listing_id":"BCG0042","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","total_price_vnd":9000000000.0,"price_m2_vnd":96774193.55},{"listing_id":"BCG0043","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6200000000.0,"price_m2_vnd":103333333.33},{"listing_id":"BCG0044","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6000000000.0,"price_m2_vnd":103448275.86},{"listing_id":"BCG0045","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":89.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":7000000000.0,"price_m2_vnd":78651685.39},{"listing_id":"BCG0046","project_id":"CG051","project_name":"Institute of Police Science and Strategy Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tu Mo","total_price_vnd":6700000000.0,"price_m2_vnd":83750000.0},{"listing_id":"BCG0047","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":53.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","total_price_vnd":6650000000.0,"price_m2_vnd":125471698.11},{"listing_id":"BCG0048","project_id":"CG075","project_name":"The Park Home","area_m2":82.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8800000000.0,"price_m2_vnd":107317073.17},{"listing_id":"BCG0049","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8000000000.0,"price_m2_vnd":114285714.29},{"listing_id":"BCG0050","project_id":"CG067","project_name":"N4A Le Van Luong Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Le Van Luong","total_price_vnd":4900000000.0,"price_m2_vnd":89090909.09},{"listing_id":"BCG0051","project_id":"CG051","project_name":"Institute of Police Science and Strategy Apartment","area_m2":78.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tu Mo","total_price_vnd":6800000000.0,"price_m2_vnd":87179487.18},{"listing_id":"BCG0052","project_id":"CG076","project_name":"Thuong Mai University Southwest Apartment","area_m2":67.65,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Le Duc Tho","total_price_vnd":5200000000.0,"price_m2_vnd":76866223.21},{"listing_id":"BCG0053","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0054","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7200000000.0,"price_m2_vnd":102857142.86},{"listing_id":"BCG0055","project_id":"CG043","project_name":"Hancorp Plaza","area_m2":97.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Dang Ninh","total_price_vnd":7000000000.0,"price_m2_vnd":72164948.45},{"listing_id":"BCG0056","project_id":"CG074","project_name":"The Nine Apartment","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","total_price_vnd":8900000000.0,"price_m2_vnd":115584415.58},{"listing_id":"BCG0057","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92119866.81},{"listing_id":"BCG0058","project_id":"CG041","project_name":"Green Park Tower","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Duong Dinh Nghe","total_price_vnd":6700000000.0,"price_m2_vnd":95714285.71},{"listing_id":"BCG0059","project_id":"CG075","project_name":"The Park Home","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8400000000.0,"price_m2_vnd":105000000.0},{"listing_id":"BCG0060","project_id":"CG091","project_name":"Yen Hoa Thang Long Apartment","area_m2":99.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":6600000000.0,"price_m2_vnd":66666666.67},{"listing_id":"BCG0061","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":51.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":4600000000.0,"price_m2_vnd":90196078.43},{"listing_id":"BCG0062","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":94202898.55},{"listing_id":"BCG0063","project_id":"CG017","project_name":"An Lac Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Cau Dien","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"My Dinh 1","total_price_vnd":5000000000.0,"price_m2_vnd":76923076.92},{"listing_id":"BCG0064","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":56.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5000000000.0,"price_m2_vnd":89285714.29},{"listing_id":"BCG0065","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10080000000.0,"price_m2_vnd":155076923.08},{"listing_id":"BCG0066","project_id":"CG070","project_name":"Sky Park Residence","area_m2":64.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":7000000000.0,"price_m2_vnd":109375000.0},{"listing_id":"BCG0067","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7000000000.0,"price_m2_vnd":98591549.3},{"listing_id":"BCG0068","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":56.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":4200000000.0,"price_m2_vnd":75000000.0},{"listing_id":"BCG0069","project_id":"CG070","project_name":"Sky Park Residence","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":8200000000.0,"price_m2_vnd":115492957.75},{"listing_id":"BCG0070","project_id":"CG037","project_name":"Eurowindow Multi Complex","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Duy Hung","total_price_vnd":8500000000.0,"price_m2_vnd":86734693.88},{"listing_id":"BCG0071","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":3.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7650000000.0,"price_m2_vnd":112500000.0},{"listing_id":"BCG0072","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7590000000.0,"price_m2_vnd":84333333.33},{"listing_id":"BCG0073","project_id":"CG055","project_name":"N01-D17 Duy Tan Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Thai Tong","total_price_vnd":3180000000.0,"price_m2_vnd":63600000.0},{"listing_id":"BCG0074","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8200000000.0,"price_m2_vnd":117142857.14},{"listing_id":"BCG0075","project_id":"CG028","project_name":"Chelsea Park","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","total_price_vnd":9000000000.0,"price_m2_vnd":90000000.0},{"listing_id":"BCG0076","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7900000000.0,"price_m2_vnd":116176470.59},{"listing_id":"BCG0077","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0078","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6800000000.0,"price_m2_vnd":97142857.14},{"listing_id":"BCG0079","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":5600000000.0,"price_m2_vnd":93333333.33},{"listing_id":"BCG0080","project_id":"CG032","project_name":"D22 Border Guard Command Apartment","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Tran Binh","total_price_vnd":6150000000.0,"price_m2_vnd":72352941.18},{"listing_id":"BCG0081","project_id":"CG075","project_name":"The Park Home","area_m2":81.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":9600000000.0,"price_m2_vnd":118518518.52},{"listing_id":"BCG0082","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7000000000.0,"price_m2_vnd":77777777.78},{"listing_id":"BCG0083","project_id":"CG019","project_name":"B10A Nam Trung Yen Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5350000000.0,"price_m2_vnd":82307692.31},{"listing_id":"BCG0084","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":54.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":5500000000.0,"price_m2_vnd":101851851.85},{"listing_id":"BCG0085","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7400000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0086","project_id":"CG022","project_name":"B3B Nam Trung Yen Apartment","area_m2":64.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Dinh Nup","total_price_vnd":4100000000.0,"price_m2_vnd":64062500.0},{"listing_id":"BCG0087","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9800000000.0,"price_m2_vnd":136111111.11},{"listing_id":"BCG0088","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9000000000.0,"price_m2_vnd":121621621.62},{"listing_id":"BCG0089","project_id":"CG075","project_name":"The Park Home","area_m2":81.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":7800000000.0,"price_m2_vnd":96296296.3},{"listing_id":"BCG0090","project_id":"CG087","project_name":"Watermark","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","total_price_vnd":11300000000.0,"price_m2_vnd":115306122.45},{"listing_id":"BCG0091","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6800000000.0,"price_m2_vnd":97142857.14},{"listing_id":"BCG0092","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10500000000.0,"price_m2_vnd":112903225.81},{"listing_id":"BCG0093","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":79.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","total_price_vnd":8500000000.0,"price_m2_vnd":107594936.71},{"listing_id":"BCG0094","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":5800000000.0,"price_m2_vnd":85294117.65},{"listing_id":"BCG0095","project_id":"CG019","project_name":"B10A Nam Trung Yen Apartment","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5600000000.0,"price_m2_vnd":81159420.29},{"listing_id":"BCG0096","project_id":"CG077","project_name":"Trang An Complex","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Phung Chi Kien","total_price_vnd":8000000000.0,"price_m2_vnd":108108108.11},{"listing_id":"BCG0097","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","total_price_vnd":5650000000.0,"price_m2_vnd":91129032.26},{"listing_id":"BCG0098","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":53.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","total_price_vnd":5900000000.0,"price_m2_vnd":111320754.72},{"listing_id":"BCG0099","project_id":"CG043","project_name":"Hancorp Plaza","area_m2":97.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Dang Ninh","total_price_vnd":8250000000.0,"price_m2_vnd":84963954.69},{"listing_id":"BCG0100","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":7600000000.0,"price_m2_vnd":88372093.02},{"listing_id":"BCG0101","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":86.3,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10800000000.0,"price_m2_vnd":125144843.57},{"listing_id":"BCG0102","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10100000000.0,"price_m2_vnd":140277777.78},{"listing_id":"BCG0103","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":78.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10600000000.0,"price_m2_vnd":135897435.9},{"listing_id":"BCG0104","project_id":"CG003","project_name":"17T10 Trung Hoa - Nhan Chinh Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Nguyen Thi Dinh","total_price_vnd":5500000000.0,"price_m2_vnd":84615384.62},{"listing_id":"BCG0105","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":75.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10800000000.0,"price_m2_vnd":143426294.82},{"listing_id":"BCG0106","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":84.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8800000000.0,"price_m2_vnd":104761904.76},{"listing_id":"BCG0107","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7000000000.0,"price_m2_vnd":101449275.36},{"listing_id":"BCG0108","project_id":"CG075","project_name":"The Park Home","area_m2":82.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8500000000.0,"price_m2_vnd":103658536.59},{"listing_id":"BCG0109","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8000000000.0,"price_m2_vnd":88790233.07},{"listing_id":"BCG0110","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5000000000.0,"price_m2_vnd":90909090.91},{"listing_id":"BCG0111","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":78.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","total_price_vnd":7350000000.0,"price_m2_vnd":94230769.23},{"listing_id":"BCG0112","project_id":"CG070","project_name":"Sky Park Residence","area_m2":63.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":6900000000.0,"price_m2_vnd":109523809.52},{"listing_id":"BCG0113","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":51.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":4200000000.0,"price_m2_vnd":82352941.18},{"listing_id":"BCG0114","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":71.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6400000000.0,"price_m2_vnd":89761570.83},{"listing_id":"BCG0115","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":53.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","total_price_vnd":5700000000.0,"price_m2_vnd":107547169.81},{"listing_id":"BCG0116","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8000000000.0,"price_m2_vnd":111111111.11},{"listing_id":"BCG0117","project_id":"CG015","project_name":"A14B2 Nam Trung Yen Apartment","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5250000000.0,"price_m2_vnd":72916666.67},{"listing_id":"BCG0118","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":83.5,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":9400000000.0,"price_m2_vnd":112574850.3},{"listing_id":"BCG0119","project_id":"CG032","project_name":"D22 Border Guard Command Apartment","area_m2":84.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Tran Binh","total_price_vnd":5600000000.0,"price_m2_vnd":66666666.67},{"listing_id":"BCG0120","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.7,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":91937765.21},{"listing_id":"BCG0121","project_id":"CG032","project_name":"D22 Border Guard Command Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Tran Binh","total_price_vnd":5000000000.0,"price_m2_vnd":76923076.92},{"listing_id":"BCG0122","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":5860000000.0,"price_m2_vnd":83714285.71},{"listing_id":"BCG0123","project_id":"CG019","project_name":"B10A Nam Trung Yen Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4000000000.0,"price_m2_vnd":80000000.0},{"listing_id":"BCG0124","project_id":"CG077","project_name":"Trang An Complex","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Phung Chi Kien","total_price_vnd":8000000000.0,"price_m2_vnd":108108108.11},{"listing_id":"BCG0125","project_id":"CG076","project_name":"Thuong Mai University Southwest Apartment","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Le Duc Tho","total_price_vnd":5200000000.0,"price_m2_vnd":73239436.62},{"listing_id":"BCG0126","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":4150000000.0,"price_m2_vnd":83000000.0},{"listing_id":"BCG0127","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":76.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7200000000.0,"price_m2_vnd":94736842.11},{"listing_id":"BCG0128","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92119866.81},{"listing_id":"BCG0129","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4350000000.0,"price_m2_vnd":70161290.32},{"listing_id":"BCG0130","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":92857142.86},{"listing_id":"BCG0131","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":79.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":8900000000.0,"price_m2_vnd":112658227.85},{"listing_id":"BCG0132","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7000000000.0,"price_m2_vnd":102941176.47},{"listing_id":"BCG0133","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5150000000.0,"price_m2_vnd":93636363.64},{"listing_id":"BCG0134","project_id":"CG040","project_name":"Golden Park Tower","area_m2":84.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Pham Van Bach","total_price_vnd":8300000000.0,"price_m2_vnd":98809523.81},{"listing_id":"BCG0135","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":9000000000.0,"price_m2_vnd":105882352.94},{"listing_id":"BCG0136","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8300000000.0,"price_m2_vnd":118571428.57},{"listing_id":"BCG0137","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0138","project_id":"CG040","project_name":"Golden Park Tower","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Pham Van Bach","total_price_vnd":8300000000.0,"price_m2_vnd":97647058.82},{"listing_id":"BCG0139","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":45.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":4600000000.0,"price_m2_vnd":102222222.22},{"listing_id":"BCG0140","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7600000000.0,"price_m2_vnd":84444444.44},{"listing_id":"BCG0141","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4200000000.0,"price_m2_vnd":67741935.48},{"listing_id":"BCG0142","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":58.53,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5500000000.0,"price_m2_vnd":93968904.84},{"listing_id":"BCG0143","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":89.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7000000000.0,"price_m2_vnd":78651685.39},{"listing_id":"BCG0144","project_id":"CG069","project_name":"Richland Southern","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7000000000.0,"price_m2_vnd":80459770.11},{"listing_id":"BCG0145","project_id":"CG057","project_name":"N04B1 Thanh Thai Apartment","area_m2":83.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8750000000.0,"price_m2_vnd":105421686.75},{"listing_id":"BCG0146","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8200000000.0,"price_m2_vnd":141379310.34},{"listing_id":"BCG0147","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":67.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":5900000000.0,"price_m2_vnd":88059701.49},{"listing_id":"BCG0148","project_id":"CG042","project_name":"Ha Do Park View","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8500000000.0,"price_m2_vnd":86734693.88},{"listing_id":"BCG0149","project_id":"CG051","project_name":"Institute of Police Science and Strategy Apartment","area_m2":92.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tu Mo","total_price_vnd":6800000000.0,"price_m2_vnd":73913043.48},{"listing_id":"BCG0150","project_id":"CG091","project_name":"Yen Hoa Thang Long Apartment","area_m2":81.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":6500000000.0,"price_m2_vnd":80246913.58},{"listing_id":"BCG0151","project_id":"CG042","project_name":"Ha Do Park View","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8750000000.0,"price_m2_vnd":92105263.16},{"listing_id":"BCG0152","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0153","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":88.4,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7000000000.0,"price_m2_vnd":79185520.36},{"listing_id":"BCG0154","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":57.3,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":6200000000.0,"price_m2_vnd":108202443.28},{"listing_id":"BCG0155","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":73.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9000000000.0,"price_m2_vnd":123287671.23},{"listing_id":"BCG0156","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":45.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":3780000000.0,"price_m2_vnd":84000000.0},{"listing_id":"BCG0157","project_id":"CG069","project_name":"Richland Southern","area_m2":86.9,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7730000000.0,"price_m2_vnd":88952819.33},{"listing_id":"BCG0158","project_id":"CG017","project_name":"An Lac Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Cau Dien","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"My Dinh 1","total_price_vnd":5000000000.0,"price_m2_vnd":76923076.92},{"listing_id":"BCG0159","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7500000000.0,"price_m2_vnd":83333333.33},{"listing_id":"BCG0160","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4300000000.0,"price_m2_vnd":74137931.03},{"listing_id":"BCG0161","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":3800000000.0,"price_m2_vnd":69090909.09},{"listing_id":"BCG0162","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":4300000000.0,"price_m2_vnd":71666666.67},{"listing_id":"BCG0163","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":92857142.86},{"listing_id":"BCG0164","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":66.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":9700000000.0,"price_m2_vnd":146969696.97},{"listing_id":"BCG0165","project_id":"CG070","project_name":"Sky Park Residence","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":9500000000.0,"price_m2_vnd":118750000.0},{"listing_id":"BCG0166","project_id":"CG070","project_name":"Sky Park Residence","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":9600000000.0,"price_m2_vnd":120000000.0},{"listing_id":"BCG0167","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8290000000.0,"price_m2_vnd":92111111.11},{"listing_id":"BCG0168","project_id":"CG070","project_name":"Sky Park Residence","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":9000000000.0,"price_m2_vnd":112500000.0},{"listing_id":"BCG0169","project_id":"CG029","project_name":"Chelsea Residences","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Ha Yen Quyet","total_price_vnd":6100000000.0,"price_m2_vnd":105172413.79},{"listing_id":"BCG0170","project_id":"CG075","project_name":"The Park Home","area_m2":81.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8400000000.0,"price_m2_vnd":103703703.7},{"listing_id":"BCG0171","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6800000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0172","project_id":"CG075","project_name":"The Park Home","area_m2":80.36,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8000000000.0,"price_m2_vnd":99552015.93},{"listing_id":"BCG0173","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":61.2,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5000000000.0,"price_m2_vnd":81699346.41},{"listing_id":"BCG0174","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6400000000.0,"price_m2_vnd":90140845.07},{"listing_id":"BCG0175","project_id":"CG058","project_name":"N05 Tran Quy Kien Apartment","area_m2":56.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Dang Ninh","total_price_vnd":4200000000.0,"price_m2_vnd":75000000.0},{"listing_id":"BCG0176","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":69.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10400000000.0,"price_m2_vnd":150072150.07},{"listing_id":"BCG0177","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":95588235.29},{"listing_id":"BCG0178","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":3900000000.0,"price_m2_vnd":65000000.0},{"listing_id":"BCG0179","project_id":"CG089","project_name":"Yen Hoa Park View","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","total_price_vnd":7300000000.0,"price_m2_vnd":94805194.81},{"listing_id":"BCG0180","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8000000000.0,"price_m2_vnd":114285714.29},{"listing_id":"BCG0181","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8310000000.0,"price_m2_vnd":92230854.61},{"listing_id":"BCG0182","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":7200000000.0,"price_m2_vnd":102857142.86},{"listing_id":"BCG0183","project_id":"CG012","project_name":"A10 Nam Trung Yen Apartment","area_m2":66.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":6800000000.0,"price_m2_vnd":103030303.03},{"listing_id":"BCG0184","project_id":"CG019","project_name":"B10A Nam Trung Yen Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5200000000.0,"price_m2_vnd":80000000.0},{"listing_id":"BCG0185","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4600000000.0,"price_m2_vnd":83636363.64},{"listing_id":"BCG0186","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8200000000.0,"price_m2_vnd":106493506.49},{"listing_id":"BCG0187","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":10100000000.0,"price_m2_vnd":146376811.59},{"listing_id":"BCG0188","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7500000000.0,"price_m2_vnd":107142857.14},{"listing_id":"BCG0189","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8500000000.0,"price_m2_vnd":119718309.86},{"listing_id":"BCG0190","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":95588235.29},{"listing_id":"BCG0191","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":51.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":4350000000.0,"price_m2_vnd":85294117.65},{"listing_id":"BCG0192","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":4150000000.0,"price_m2_vnd":83000000.0},{"listing_id":"BCG0193","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":9300000000.0,"price_m2_vnd":103333333.33},{"listing_id":"BCG0194","project_id":"CG073","project_name":"Thang Long Number One","area_m2":91.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","total_price_vnd":8000000000.0,"price_m2_vnd":87912087.91},{"listing_id":"BCG0195","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0196","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7800000000.0,"price_m2_vnd":111428571.43},{"listing_id":"BCG0197","project_id":"CG043","project_name":"Hancorp Plaza","area_m2":97.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Dang Ninh","total_price_vnd":8500000000.0,"price_m2_vnd":87538619.98},{"listing_id":"BCG0198","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":92857142.86},{"listing_id":"BCG0199","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":92857142.86},{"listing_id":"BCG0200","project_id":"CG074","project_name":"The Nine Apartment","area_m2":77.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","total_price_vnd":9000000000.0,"price_m2_vnd":116429495.47},{"listing_id":"BCG0201","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":5900000000.0,"price_m2_vnd":78666666.67},{"listing_id":"BCG0202","project_id":"CG081","project_name":"Udic Complex","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","total_price_vnd":9000000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0203","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92119866.81},{"listing_id":"BCG0204","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8000000000.0,"price_m2_vnd":111111111.11},{"listing_id":"BCG0205","project_id":"CG029","project_name":"Chelsea Residences","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Ha Yen Quyet","total_price_vnd":6800000000.0,"price_m2_vnd":117241379.31},{"listing_id":"BCG0206","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5200000000.0,"price_m2_vnd":89655172.41},{"listing_id":"BCG0207","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":58.53,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5350000000.0,"price_m2_vnd":91406116.52},{"listing_id":"BCG0208","project_id":"CG087","project_name":"Watermark","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","total_price_vnd":12500000000.0,"price_m2_vnd":125000000.0},{"listing_id":"BCG0209","project_id":"CG077","project_name":"Trang An Complex","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Phung Chi Kien","total_price_vnd":8000000000.0,"price_m2_vnd":106666666.67},{"listing_id":"BCG0210","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8200000000.0,"price_m2_vnd":117142857.14},{"listing_id":"BCG0211","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6200000000.0,"price_m2_vnd":89855072.46},{"listing_id":"BCG0212","project_id":"CG035","project_name":"E3 Vu Pham Ham Apartment","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","total_price_vnd":7500000000.0,"price_m2_vnd":75000000.0},{"listing_id":"BCG0213","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0214","project_id":"CG087","project_name":"Watermark","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","total_price_vnd":11000000000.0,"price_m2_vnd":112244897.96},{"listing_id":"BCG0215","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8000000000.0,"price_m2_vnd":88790233.07},{"listing_id":"BCG0216","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0217","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0218","project_id":"CG068","project_name":"N6E Trung Hoa - Nhan Chinh Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Thi Thap","total_price_vnd":3590000000.0,"price_m2_vnd":65272727.27},{"listing_id":"BCG0219","project_id":"CG087","project_name":"Watermark","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","total_price_vnd":10500000000.0,"price_m2_vnd":105000000.0},{"listing_id":"BCG0220","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":83.35,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":6800000000.0,"price_m2_vnd":81583683.26},{"listing_id":"BCG0221","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":4150000000.0,"price_m2_vnd":66935483.87},{"listing_id":"BCG0222","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":57.5,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":5200000000.0,"price_m2_vnd":90434782.61},{"listing_id":"BCG0223","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":78.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7500000000.0,"price_m2_vnd":96153846.15},{"listing_id":"BCG0224","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":88.4,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7200000000.0,"price_m2_vnd":81447963.8},{"listing_id":"BCG0225","project_id":"CG024","project_name":"B6 Nam Trung Yen Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5600000000.0,"price_m2_vnd":80000000.0},{"listing_id":"BCG0226","project_id":"CG009","project_name":"30 Pham Van Dong Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2.5-3","address_street":"Pham Van Dong","total_price_vnd":5850000000.0,"price_m2_vnd":83571428.57},{"listing_id":"BCG0227","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8500000000.0,"price_m2_vnd":121428571.43},{"listing_id":"BCG0228","project_id":"CG076","project_name":"Thuong Mai University Southwest Apartment","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Le Duc Tho","total_price_vnd":5200000000.0,"price_m2_vnd":73239436.62},{"listing_id":"BCG0229","project_id":"CG051","project_name":"Institute of Police Science and Strategy Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tu Mo","total_price_vnd":6800000000.0,"price_m2_vnd":85000000.0},{"listing_id":"BCG0230","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7100000000.0,"price_m2_vnd":94666666.67},{"listing_id":"BCG0231","project_id":"CG072","project_name":"Sun Feliza Suites","area_m2":66.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":9200000000.0,"price_m2_vnd":139393939.39},{"listing_id":"BCG0232","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":73.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":10000000000.0,"price_m2_vnd":136986301.37},{"listing_id":"BCG0233","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":7470000000.0,"price_m2_vnd":83000000.0},{"listing_id":"BCG0234","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8700000000.0,"price_m2_vnd":96666666.67},{"listing_id":"BCG0235","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8700000000.0,"price_m2_vnd":96666666.67},{"listing_id":"BCG0236","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6800000000.0,"price_m2_vnd":95774647.89},{"listing_id":"BCG0237","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8000000000.0,"price_m2_vnd":111111111.11},{"listing_id":"BCG0238","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9800000000.0,"price_m2_vnd":136111111.11},{"listing_id":"BCG0239","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","total_price_vnd":7350000000.0,"price_m2_vnd":95454545.45},{"listing_id":"BCG0240","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7000000000.0,"price_m2_vnd":102941176.47},{"listing_id":"BCG0241","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":3850000000.0,"price_m2_vnd":70000000.0},{"listing_id":"BCG0242","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4000000000.0,"price_m2_vnd":66666666.67},{"listing_id":"BCG0243","project_id":"CG005","project_name":"17T7 Trung Hoa - Nhan Chinh Apartment","area_m2":65.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Hoang Dao Thuy","total_price_vnd":5600000000.0,"price_m2_vnd":86153846.15},{"listing_id":"BCG0244","project_id":"CG004","project_name":"17T11 Trung Hoa - Nhan Chinh Apartment","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Nguyen Thi Dinh","total_price_vnd":5500000000.0,"price_m2_vnd":80882352.94},{"listing_id":"BCG0245","project_id":"CG083","project_name":"Vinaconex 3","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Khuc Thua Du","total_price_vnd":4850000000.0,"price_m2_vnd":80833333.33},{"listing_id":"BCG0246","project_id":"CG007","project_name":"173 Xuan Thuy Apartment","area_m2":91.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8000000000.0,"price_m2_vnd":87912087.91},{"listing_id":"BCG0247","project_id":"CG016","project_name":"A6 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":3950000000.0,"price_m2_vnd":71818181.82},{"listing_id":"BCG0248","project_id":"CG016","project_name":"A6 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":4200000000.0,"price_m2_vnd":76363636.36},{"listing_id":"BCG0249","project_id":"CG024","project_name":"B6 Nam Trung Yen Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4000000000.0,"price_m2_vnd":57142857.14},{"listing_id":"BCG0250","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8200000000.0,"price_m2_vnd":86315789.47},{"listing_id":"BCG0251","project_id":"CG080","project_name":"Trung Yen Plaza","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Hoa","total_price_vnd":8500000000.0,"price_m2_vnd":89473684.21},{"listing_id":"BCG0252","project_id":"CG043","project_name":"Hancorp Plaza","area_m2":97.1,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Dang Ninh","total_price_vnd":8250000000.0,"price_m2_vnd":84963954.69},{"listing_id":"BCG0253","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":81.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":6500000000.0,"price_m2_vnd":80246913.58},{"listing_id":"BCG0254","project_id":"CG075","project_name":"The Park Home","area_m2":82.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8000000000.0,"price_m2_vnd":97560975.61},{"listing_id":"BCG0255","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":6300000000.0,"price_m2_vnd":78750000.0},{"listing_id":"BCG0256","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":7600000000.0,"price_m2_vnd":87356321.84},{"listing_id":"BCG0257","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":4000000000.0,"price_m2_vnd":66666666.67},{"listing_id":"BCG0258","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":46.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":3800000000.0,"price_m2_vnd":82608695.65},{"listing_id":"BCG0259","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":7400000000.0,"price_m2_vnd":92500000.0},{"listing_id":"BCG0260","project_id":"CG056","project_name":"N03 Tran Quy Kien Apartment","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":4800000000.0,"price_m2_vnd":77419354.84},{"listing_id":"BCG0261","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6500000000.0,"price_m2_vnd":92857142.86},{"listing_id":"BCG0262","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":73.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8200000000.0,"price_m2_vnd":112328767.12},{"listing_id":"BCG0263","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5250000000.0,"price_m2_vnd":90517241.38},{"listing_id":"BCG0264","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":69.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7900000000.0,"price_m2_vnd":114492753.62},{"listing_id":"BCG0265","project_id":"CG016","project_name":"A6 Nam Trung Yen Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai To","total_price_vnd":3500000000.0,"price_m2_vnd":70000000.0},{"listing_id":"BCG0266","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","total_price_vnd":8300000000.0,"price_m2_vnd":92222222.22},{"listing_id":"BCG0267","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":5400000000.0,"price_m2_vnd":90000000.0},{"listing_id":"BCG0268","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7700000000.0,"price_m2_vnd":110000000.0},{"listing_id":"BCG0269","project_id":"CG057","project_name":"N04B1 Thanh Thai Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":6100000000.0,"price_m2_vnd":87142857.14},{"listing_id":"BCG0270","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8200000000.0,"price_m2_vnd":106493506.49},{"listing_id":"BCG0271","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8200000000.0,"price_m2_vnd":106493506.49},{"listing_id":"BCG0272","project_id":"CG024","project_name":"B6 Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5300000000.0,"price_m2_vnd":88333333.33},{"listing_id":"BCG0273","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6000000000.0,"price_m2_vnd":85714285.71},{"listing_id":"BCG0274","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":7000000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0275","project_id":"CG020","project_name":"B10B Nam Trung Yen Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":5900000000.0,"price_m2_vnd":84285714.29},{"listing_id":"BCG0276","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8300000000.0,"price_m2_vnd":118571428.57},{"listing_id":"BCG0277","project_id":"CG061","project_name":"N07 Tran Quy Kien Apartment","area_m2":58.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":4600000000.0,"price_m2_vnd":79310344.83},{"listing_id":"BCG0278","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8400000000.0,"price_m2_vnd":120000000.0},{"listing_id":"BCG0279","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8600000000.0,"price_m2_vnd":122857142.86},{"listing_id":"BCG0280","project_id":"CG033","project_name":"Discovery Complex","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","total_price_vnd":9500000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0281","project_id":"CG008","project_name":"18T1 Trung Hoa - Nhan Chinh Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Le Van Luong","total_price_vnd":5900000000.0,"price_m2_vnd":84285714.29},{"listing_id":"BCG0282","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6200000000.0,"price_m2_vnd":88571428.57},{"listing_id":"BCG0283","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7000000000.0,"price_m2_vnd":100000000.0},{"listing_id":"BCG0284","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8300000000.0,"price_m2_vnd":115277777.78},{"listing_id":"BCG0285","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":7100000000.0,"price_m2_vnd":104411764.71},{"listing_id":"BCG0286","project_id":"CG065","project_name":"N2B Hoang Minh Giam Apartment","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Nhan Chinh","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Minh Giam","total_price_vnd":4150000000.0,"price_m2_vnd":83000000.0},{"listing_id":"BCG0287","project_id":"CG025","project_name":"Bamboo Airways Tower (FLC Twin Tower)","area_m2":96.8,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Cau Giay","total_price_vnd":9600000000.0,"price_m2_vnd":99173553.72},{"listing_id":"BCG0288","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","total_price_vnd":8000000000.0,"price_m2_vnd":114285714.29},{"listing_id":"BCG0289","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":96.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7500000000.0,"price_m2_vnd":78125000.0},{"listing_id":"BCG0290","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":71.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","total_price_vnd":6600000000.0,"price_m2_vnd":92957746.48},{"listing_id":"BCG0291","project_id":"CG074","project_name":"The Nine Apartment","area_m2":77.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","total_price_vnd":9500000000.0,"price_m2_vnd":122897800.78},{"listing_id":"BCG0292","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":94.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":8000000000.0,"price_m2_vnd":85106382.98},{"listing_id":"BCG0293","project_id":"CG080","project_name":"Trung Yen Plaza","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Hoa","total_price_vnd":8500000000.0,"price_m2_vnd":89473684.21},{"listing_id":"BCG0294","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":73.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9700000000.0,"price_m2_vnd":132876712.33},{"listing_id":"BCG0295","project_id":"CG033","project_name":"Discovery Complex","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","total_price_vnd":7800000000.0,"price_m2_vnd":78000000.0},{"listing_id":"BCG0296","project_id":"CG004","project_name":"17T11 Trung Hoa - Nhan Chinh Apartment","area_m2":67.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Nguyen Thi Dinh","total_price_vnd":6250000000.0,"price_m2_vnd":93283582.09},{"listing_id":"BCG0297","project_id":"CG085","project_name":"Vimeco II (Nguyen Chanh)","area_m2":94.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","total_price_vnd":7600000000.0,"price_m2_vnd":80851063.83},{"listing_id":"BCG0298","project_id":"CG070","project_name":"Sky Park Residence","area_m2":78.3,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","total_price_vnd":9500000000.0,"price_m2_vnd":121328224.78},{"listing_id":"BCG0299","project_id":"CG075","project_name":"The Park Home","area_m2":80.5,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","total_price_vnd":8000000000.0,"price_m2_vnd":99378881.99},{"listing_id":"BCG0300","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8900000000.0,"price_m2_vnd":143548387.1},{"listing_id":"BCG0301","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":9600000000.0,"price_m2_vnd":129729729.73},{"listing_id":"BCG0302","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":85.3,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8100000000.0,"price_m2_vnd":94958968.35},{"listing_id":"BCG0303","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":64.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8500000000.0,"price_m2_vnd":132812500.0},{"listing_id":"BCG0304","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":50.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":4500000000.0,"price_m2_vnd":90000000.0},{"listing_id":"BCG0305","project_id":"CG021","project_name":"B11 Nam Trung Yen Apartment","area_m2":61.4,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Mac Thai Tong","total_price_vnd":4500000000.0,"price_m2_vnd":73289902.28},{"listing_id":"BCG0306","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":67.8,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8300000000.0,"price_m2_vnd":122418879.06},{"listing_id":"BCG0307","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","total_price_vnd":8300000000.0,"price_m2_vnd":118571428.57},{"listing_id":"BCG0308","project_id":"CG064","project_name":"N11A Tran Quy Kien Apartment","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quy Kien","total_price_vnd":5350000000.0,"price_m2_vnd":61494252.87},{"listing_id":"BCG0309","project_id":"CG032","project_name":"D22 Border Guard Command Apartment","area_m2":80.8,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Tu Liem","beltway_zone":"3-3.5","address_street":"Tran Binh","total_price_vnd":5900000000.0,"price_m2_vnd":73019801.98}];
+const RENT_LISTINGS = [{"listing_id":"RCG0001","project_id":"CG052","project_name":"Luxury Park Views","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Duong Dinh Nghe","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0002","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0003","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":53.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0004","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":84.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0005","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0006","project_id":"CG042","project_name":"Ha Do Park View","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0007","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0008","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0009","project_id":"CG033","project_name":"Discovery Complex","area_m2":92.5,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0010","project_id":"CG074","project_name":"The Nine Apartment","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0011","project_id":"CG073","project_name":"Thang Long Number One","area_m2":89.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0012","project_id":"CG087","project_name":"Watermark","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0013","project_id":"CG073","project_name":"Thang Long Number One","area_m2":96.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":16500000.0},{"listing_id":"RCG0014","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":97.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0015","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0016","project_id":"CG077","project_name":"Trang An Complex","area_m2":88.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Phung Chi Kien","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0017","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0018","project_id":"CG036","project_name":"Epic Tower","area_m2":91.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Duy Tan","rent_monthly_vnd":32000000.0},{"listing_id":"RCG0019","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0020","project_id":"CG075","project_name":"The Park Home","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0021","project_id":"CG062","project_name":"N09 Thanh Thai Apartment","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0022","project_id":"CG087","project_name":"Watermark","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0023","project_id":"CG028","project_name":"Chelsea Park","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0024","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0025","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":53.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0026","project_id":"CG071","project_name":"Star Tower","area_m2":88.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Duong Dinh Nghe","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0027","project_id":"CG087","project_name":"Watermark","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0028","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0029","project_id":"CG002","project_name":"15T Trung Hoa - Nhan Chinh Apartment","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Nguyen Thi Dinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0030","project_id":"CG044","project_name":"Hanoi Paragon","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Tran Quoc Vuong","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0031","project_id":"CG042","project_name":"Ha Do Park View","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0032","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":21500000.0},{"listing_id":"RCG0033","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0034","project_id":"CG035","project_name":"E3 Vu Pham Ham Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0035","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0036","project_id":"CG062","project_name":"N09 Thanh Thai Apartment","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0037","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":51.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":16500000.0},{"listing_id":"RCG0038","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14500000.0},{"listing_id":"RCG0039","project_id":"CG074","project_name":"The Nine Apartment","area_m2":76.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0040","project_id":"CG025","project_name":"Bamboo Airways Tower (FLC Twin Tower)","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":16500000.0},{"listing_id":"RCG0041","project_id":"CG081","project_name":"Udic Complex","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0042","project_id":"CG025","project_name":"Bamboo Airways Tower (FLC Twin Tower)","area_m2":96.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0043","project_id":"CG037","project_name":"Eurowindow Multi Complex","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Duy Hung","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0044","project_id":"CG006","project_name":"17T9 Hoang Dao Thuy Apartment","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Nguyen Thi Thap","rent_monthly_vnd":14500000.0},{"listing_id":"RCG0045","project_id":"CG087","project_name":"Watermark","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Nghia Do","district_old":"Cau Giay","ward_2025":"Tay Ho","beltway_zone":"1-2","address_street":"Lac Long Quan","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0046","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0047","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":13000000.0},{"listing_id":"RCG0048","project_id":"CG042","project_name":"Ha Do Park View","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0049","project_id":"CG074","project_name":"The Nine Apartment","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0050","project_id":"CG028","project_name":"Chelsea Park","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0051","project_id":"CG025","project_name":"Bamboo Airways Tower (FLC Twin Tower)","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":17500000.0},{"listing_id":"RCG0052","project_id":"CG059","project_name":"N06B1 Thanh Thai Apartment","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":13000000.0},{"listing_id":"RCG0053","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":83.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0054","project_id":"CG081","project_name":"Udic Complex","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0055","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0056","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0057","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0058","project_id":"CG070","project_name":"Sky Park Residence","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0059","project_id":"CG070","project_name":"Sky Park Residence","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0060","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":21000000.0},{"listing_id":"RCG0061","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0062","project_id":"CG029","project_name":"Chelsea Residences","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Ha Yen Quyet","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0063","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0064","project_id":"CG026","project_name":"Cau Giay Center Point","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Quan Hoa","district_old":"Cau Giay","ward_2025":"Nghia Do","beltway_zone":"2-2.5","address_street":"Cau Giay","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0065","project_id":"CG075","project_name":"The Park Home","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0066","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0067","project_id":"CG028","project_name":"Chelsea Park","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0068","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":82.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0069","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":55.0,"size_band":"Small","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0070","project_id":"CG040","project_name":"Golden Park Tower","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Pham Van Bach","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0071","project_id":"CG081","project_name":"Udic Complex","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0072","project_id":"CG035","project_name":"E3 Vu Pham Ham Apartment","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","rent_monthly_vnd":12000000.0},{"listing_id":"RCG0073","project_id":"CG073","project_name":"Thang Long Number One","area_m2":88.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0074","project_id":"CG060","project_name":"N07 Thanh Thai Apartment","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Thanh Thai","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0075","project_id":"CG084","project_name":"Vimeco I (Pham Hung)","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Pham Hung","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0076","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0077","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":62.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":22000000.0},{"listing_id":"RCG0078","project_id":"CG033","project_name":"Discovery Complex","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0079","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0080","project_id":"CG070","project_name":"Sky Park Residence","area_m2":86.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0081","project_id":"CG012","project_name":"A10 Nam Trung Yen Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","rent_monthly_vnd":12000000.0},{"listing_id":"RCG0082","project_id":"CG070","project_name":"Sky Park Residence","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0083","project_id":"CG033","project_name":"Discovery Complex","area_m2":92.5,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0084","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0085","project_id":"CG036","project_name":"Epic Tower","area_m2":78.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Duy Tan","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0086","project_id":"CG040","project_name":"Golden Park Tower","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2-2.5","address_street":"Pham Van Bach","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0087","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0088","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0089","project_id":"CG073","project_name":"Thang Long Number One","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0090","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0091","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":21000000.0},{"listing_id":"RCG0092","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0093","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":97.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0094","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0095","project_id":"CG049","project_name":"Home City Trung Kinh","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0096","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":10000000.0},{"listing_id":"RCG0097","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":98.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":19500000.0},{"listing_id":"RCG0098","project_id":"CG073","project_name":"Thang Long Number One","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0099","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0100","project_id":"CG081","project_name":"Udic Complex","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0101","project_id":"CG014","project_name":"A14B1 Nam Trung Yen Apartment","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Nguyen Chanh","rent_monthly_vnd":13500000.0},{"listing_id":"RCG0102","project_id":"CG081","project_name":"Udic Complex","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Hoang Dao Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0103","project_id":"CG073","project_name":"Thang Long Number One","area_m2":90.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0104","project_id":"CG074","project_name":"The Nine Apartment","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Mai Dich","district_old":"Cau Giay","ward_2025":"Phu Dien","beltway_zone":"3-3.5","address_street":"Pham Van Dong","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0105","project_id":"CG037","project_name":"Eurowindow Multi Complex","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Duy Hung","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0106","project_id":"CG090","project_name":"Yen Hoa Sunshine","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Kim Xuyen","rent_monthly_vnd":13000000.0},{"listing_id":"RCG0107","project_id":"CG078","project_name":"Trung Kinh Central Point","area_m2":75.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Trung Kinh","rent_monthly_vnd":12000000.0},{"listing_id":"RCG0108","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0109","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":53.3,"size_band":"Small","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0110","project_id":"CG033","project_name":"Discovery Complex","area_m2":97.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0111","project_id":"CG035","project_name":"E3 Vu Pham Ham Apartment","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Yen Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Vu Pham Ham","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0112","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":80.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":10000000.0},{"listing_id":"RCG0113","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0114","project_id":"CG070","project_name":"Sky Park Residence","area_m2":74.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":20000000.0},{"listing_id":"RCG0115","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0116","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":77.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0117","project_id":"CG033","project_name":"Discovery Complex","area_m2":100.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Cau Giay","rent_monthly_vnd":15000000.0},{"listing_id":"RCG0118","project_id":"CG050","project_name":"Indochina Plaza Hanoi","area_m2":93.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":18000000.0},{"listing_id":"RCG0119","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":23000000.0},{"listing_id":"RCG0120","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":85.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0121","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":60.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":1.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0122","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0123","project_id":"CG073","project_name":"Thang Long Number One","area_m2":87.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Dai Mo","beltway_zone":"3-3.5","address_street":"Khuat Duy Tien","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0124","project_id":"CG070","project_name":"Sky Park Residence","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Ton That Thuyet","rent_monthly_vnd":16000000.0},{"listing_id":"RCG0125","project_id":"CG037","project_name":"Eurowindow Multi Complex","area_m2":95.0,"size_band":"Large","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2-2.5","address_street":"Tran Duy Hung","rent_monthly_vnd":14000000.0},{"listing_id":"RCG0126","project_id":"CG053","project_name":"Mipec Rubik 360","area_m2":70.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Dich Vong Hau","district_old":"Cau Giay","ward_2025":"Cau Giay","beltway_zone":"2.5-3","address_street":"Xuan Thuy","rent_monthly_vnd":17000000.0},{"listing_id":"RCG0127","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0128","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":72.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":19000000.0},{"listing_id":"RCG0129","project_id":"CG086","project_name":"Vinhomes D'Capitale","area_m2":68.0,"size_band":"Medium","bedrooms":2.0,"bathrooms":2.0,"ward_old":"Trung Hoa","district_old":"Cau Giay","ward_2025":"Yen Hoa","beltway_zone":"2.5-3","address_street":"Tran Duy Hung","rent_monthly_vnd":20000000.0}];
+
+// ============================================================
+// FIN_ASSUMPTIONS + calculation engine — ported line-for-line from
+// loan_calc.py / evaluate.py (same formulas, same thresholds, same English
+// messages) so results match the Python version exactly.
+// ============================================================
+const FIN_ASSUMPTIONS = {
+  interest_rate_promo_pct: 8.3,
+  promo_period_months: 12,
+  interest_rate_float_ref_pct: 8.3,
+  float_rate_margin_year1_pct: 1.5,
+  float_rate_margin_from_year2_pct: 3.5,
+  grace_period_months: 24,
+  max_loan_to_value_pct: 80,
+  Loan_term_months: 360,
+  investment_return_pct: 6,
+  property_annual_appreciation_pct: 12,
+};
+
+function formatIntWithCommas(n) {
+  return Math.round(n).toLocaleString("en-US");
+}
+
+function getMonthlyRatePct(t, assumptions) {
+  const promoPeriod = assumptions.promo_period_months;
+  if (t <= promoPeriod) return assumptions.interest_rate_promo_pct;
+  if (t <= promoPeriod + 12) {
+    return assumptions.interest_rate_float_ref_pct + assumptions.float_rate_margin_year1_pct;
+  }
+  return assumptions.interest_rate_float_ref_pct + assumptions.float_rate_margin_from_year2_pct;
+}
+
+// Muc 5 (Method A, declining balance) + muc 6 (Net worth BUY — extends this
+// SAME loop, no separate loop) — ported from loan_calc.py's loan_calc().
+function loanCalc(purchasePrice, savings, loanTermMonths, assumptions, netWorthInputs) {
+  assumptions = assumptions || FIN_ASSUMPTIONS;
+  loanTermMonths = loanTermMonths || assumptions.Loan_term_months;
+
+  const computeNetWorth = !!netWorthInputs;
+  let monthlyInvestRate = null;
+  let propertyAppreciationPct = null;
+  if (computeNetWorth) {
+    const investmentReturnPct = assumptions.investment_return_pct;
+    propertyAppreciationPct = assumptions.property_annual_appreciation_pct;
+    if (investmentReturnPct == null || propertyAppreciationPct == null) {
+      throw new Error("assumptions is missing investment_return_pct or property_annual_appreciation_pct");
+    }
+    monthlyInvestRate = investmentReturnPct / 100 / 12;
+  }
+
+  const maxLtvPct = assumptions.max_loan_to_value_pct;
+  const gracePeriod = assumptions.grace_period_months;
+  const minDownPayment = purchasePrice * (1 - maxLtvPct / 100);
+
+  if (savings < minDownPayment) {
+    const shortfall = minDownPayment - savings;
+    return {
+      min_down_payment: minDownPayment,
+      required_loan: null,
+      error: `You need at least ${formatIntWithCommas(shortfall)} more in savings to qualify for this loan (max LTV ${maxLtvPct}%).`,
+      schedule: [],
+    };
+  }
+
+  const requiredLoan = purchasePrice - savings;
+  const remainingPrincipalMonths = loanTermMonths - gracePeriod;
+  if (remainingPrincipalMonths <= 0) {
+    return {
+      min_down_payment: minDownPayment,
+      required_loan: requiredLoan,
+      error: "grace_period_months must be less than Loan_term_months (invalid input).",
+      schedule: [],
+    };
+  }
+
+  const fixedPrincipalPayment = requiredLoan / remainingPrincipalMonths;
+  const schedule = [];
+  let outstandingBalanceStart = requiredLoan;
+  let investedBalanceBuy = 0.0; // Invested_balance_BUY(0) = 0 (muc 6)
+
+  for (let t = 1; t <= loanTermMonths; t++) {
+    const ratePct = getMonthlyRatePct(t, assumptions);
+    const monthlyRate = (ratePct / 100) / 12;
+    const balanceStart = outstandingBalanceStart;
+
+    let principalPayment, interestPayment, balanceEnd;
+    if (t <= gracePeriod) {
+      principalPayment = 0.0;
+      interestPayment = balanceStart * monthlyRate;
+      balanceEnd = balanceStart;
+    } else {
+      principalPayment = fixedPrincipalPayment;
+      interestPayment = balanceStart * monthlyRate;
+      balanceEnd = balanceStart - principalPayment;
+    }
+
+    const monthlyRepayment = principalPayment + interestPayment;
+
+    const row = {
+      month: t,
+      annual_rate_pct: ratePct,
+      balance_start: balanceStart,
+      principal_payment: principalPayment,
+      interest_payment: interestPayment,
+      monthly_repayment: monthlyRepayment,
+      balance_end: balanceEnd,
+    };
+
+    if (computeNetWorth) {
+      const { income1, income2, livingCost, existingDebt } = netWorthInputs;
+      const moneyRemainingBuy = income1 + income2 - livingCost - existingDebt - monthlyRepayment;
+      investedBalanceBuy = investedBalanceBuy * (1 + monthlyInvestRate) + moneyRemainingBuy;
+      const propertyValue = purchasePrice * Math.pow(1 + propertyAppreciationPct / 100, t / 12);
+      const netWorthBuy = propertyValue - balanceEnd + investedBalanceBuy;
+
+      row.money_remaining_buy = moneyRemainingBuy;
+      row.invested_balance_buy = investedBalanceBuy;
+      row.property_value = propertyValue;
+      row.net_worth_buy = netWorthBuy;
+    } else {
+      row.money_remaining_buy = null;
+      row.invested_balance_buy = null;
+      row.property_value = null;
+      row.net_worth_buy = null;
+    }
+
+    schedule.push(row);
+    outstandingBalanceStart = balanceEnd;
+  }
+
+  return { min_down_payment: minDownPayment, required_loan: requiredLoan, error: null, schedule };
+}
+
+// Muc 4: bang safety_margin_min_pct theo tier thu nhap ho.
+function getSafetyMarginMinPct(totalIncome) {
+  const trieu = totalIncome / 1_000_000;
+  if (trieu < 35) return 0.40;
+  if (trieu < 50) return 0.35;
+  if (trieu < 75) return 0.30;
+  return 0.25;
+}
+
+// Muc 5 — ported from evaluate.py's evaluate_buy(). Always passes the
+// financial inputs into loanCalc() so the SAME call also produces the full
+// Net worth BUY series (muc 6) — never calls loanCalc() a second time.
+function evaluateBuy(buyListing, income1, income2, savings, livingCost, existingDebt, loanTermMonths, month, assumptions) {
+  existingDebt = existingDebt || 0;
+  month = month || 1;
+  const purchasePrice = buyListing.total_price_vnd;
+  const totalIncome = income1 + income2;
+
+  const loanResult = loanCalc(purchasePrice, savings, loanTermMonths, assumptions, {
+    income1, income2, livingCost, existingDebt,
+  });
+
+  if (loanResult.error !== null) {
+    return {
+      error: loanResult.error,
+      min_down_payment: loanResult.min_down_payment,
+      required_loan: null,
+      monthly_repayment: null,
+      money_remaining: null,
+      safety_margin: null,
+      safety_margin_min_pct: getSafetyMarginMinPct(totalIncome),
+      is_safe: null,
+      net_worth_series: null,
+    };
+  }
+
+  const monthRow = loanResult.schedule.find(r => r.month === month);
+  const monthlyRepayment = monthRow.monthly_repayment;
+  const moneyRemaining = income1 + income2 - livingCost - existingDebt - monthlyRepayment;
+  const safetyMargin = moneyRemaining / totalIncome;
+  const minPct = getSafetyMarginMinPct(totalIncome);
+  const isSafe = safetyMargin >= minPct;
+  const netWorthSeries = loanResult.schedule.map(r => ({ month: r.month, net_worth_buy: r.net_worth_buy }));
+
+  return {
+    error: null,
+    min_down_payment: loanResult.min_down_payment,
+    required_loan: loanResult.required_loan,
+    monthly_repayment: monthlyRepayment,
+    money_remaining: moneyRemaining,
+    safety_margin: safetyMargin,
+    safety_margin_min_pct: minPct,
+    is_safe: isSafe,
+    net_worth_series: netWorthSeries,
+  };
+}
+
+// Muc 8 — ported from evaluate.py's evaluate_rent() (point-in-time safety margin).
+function evaluateRent(rentListing, income1, income2, savings, livingCost, existingDebt) {
+  existingDebt = existingDebt || 0;
+  const monthlyRent = rentListing.rent_monthly_vnd;
+  const totalIncome = income1 + income2;
+  const moneyRemaining = income1 + income2 - livingCost - existingDebt - monthlyRent;
+  const safetyMargin = moneyRemaining / totalIncome;
+  const minPct = getSafetyMarginMinPct(totalIncome);
+  const isSafe = safetyMargin >= minPct;
+  return {
+    monthly_rent: monthlyRent,
+    money_remaining: moneyRemaining,
+    safety_margin: safetyMargin,
+    safety_margin_min_pct: minPct,
+    is_safe: isSafe,
+  };
+}
+
+// Muc 6 (RENT side) — closed-form, ported from evaluate.py.
+function calcMoneyRemainingRent(rentListing, income1, income2, livingCost, existingDebt) {
+  existingDebt = existingDebt || 0;
+  const monthlyRent = rentListing.rent_monthly_vnd;
+  return income1 + income2 - livingCost - existingDebt - monthlyRent;
+}
+
+function netWorthRentAt(t, savings, moneyRemainingRent, investmentReturnPct) {
+  const r = investmentReturnPct / 100 / 12;
+  const growth = Math.pow(1 + r, t);
+  if (r === 0) return savings + moneyRemainingRent * t;
+  return savings * growth + moneyRemainingRent * ((growth - 1) / r);
+}
+
+function netWorthRentSchedule(rentListing, income1, income2, savings, livingCost, existingDebt, loanTermMonths, assumptions) {
+  assumptions = assumptions || FIN_ASSUMPTIONS;
+  loanTermMonths = loanTermMonths || assumptions.Loan_term_months;
+  const investmentReturnPct = assumptions.investment_return_pct;
+  if (investmentReturnPct == null) throw new Error("assumptions is missing investment_return_pct");
+  const moneyRemainingRent = calcMoneyRemainingRent(rentListing, income1, income2, livingCost, existingDebt);
+  const out = [];
+  for (let t = 1; t <= loanTermMonths; t++) {
+    out.push({ month: t, net_worth_rent: netWorthRentAt(t, savings, moneyRemainingRent, investmentReturnPct) });
+  }
+  return out;
+}
+
+// Muc 6 — break-even, ported from evaluate.py's find_break_even().
+function findBreakEven(netWorthBuySeries, netWorthRentSeries) {
+  if (!netWorthBuySeries || !netWorthRentSeries) return [null, null];
+  const rentByMonth = new Map(netWorthRentSeries.map(r => [r.month, r.net_worth_rent]));
+  let prevDiff = null;
+  for (const row of netWorthBuySeries) {
+    const m = row.month;
+    if (!rentByMonth.has(m)) continue;
+    const diff = row.net_worth_buy - rentByMonth.get(m);
+    if (prevDiff !== null && prevDiff !== 0 && diff !== 0) {
+      const crossed = (prevDiff < 0 && diff > 0) || (prevDiff > 0 && diff < 0);
+      if (crossed) return [m, Math.round(m / 12)];
+    } else if (prevDiff !== null && diff === 0) {
+      return [m, Math.round(m / 12)];
+    }
+    prevDiff = diff;
+  }
+  return [null, null];
+}
+
+// Muc 10 — decision priority, ported from evaluate.py's decide().
+function decide(buyResult, rentResult) {
+  const buySafe = buyResult.is_safe;
+  const rentSafe = rentResult.is_safe;
+
+  if (buyResult.error !== null) {
+    if (rentSafe) return ["RENT", "BUY not viable due to insufficient savings — RENT meets the safety threshold."];
+    return ["NEITHER", "BUY not viable due to insufficient savings, and RENT also does not meet the safety threshold."];
+  }
+
+  const buyMargin = buyResult.safety_margin;
+  const rentMargin = rentResult.safety_margin;
+
+  if (rentSafe && rentMargin > buyMargin) return ["RENT", "RENT meets the safety threshold and has a higher safety margin than BUY."];
+  if (buySafe) return ["BUY", "BUY meets the safety threshold."];
+  if (rentSafe) return ["RENT", "RENT meets the safety threshold (BUY does not)."];
+  return ["NEITHER", "Neither BUY nor RENT meets the safety threshold."];
+}
+
+// Ported from evaluate.py's evaluate_buy_vs_rent().
+function evaluateBuyVsRent(buyListing, rentListing, income1, income2, savings, livingCost, existingDebt, loanTermMonths, month, assumptions) {
+  existingDebt = existingDebt || 0;
+  month = month || 1;
+  assumptions = assumptions || FIN_ASSUMPTIONS;
+  loanTermMonths = loanTermMonths || assumptions.Loan_term_months;
+
+  const buyResult = evaluateBuy(buyListing, income1, income2, savings, livingCost, existingDebt, loanTermMonths, month, assumptions);
+  const rentResult = evaluateRent(rentListing, income1, income2, savings, livingCost, existingDebt);
+  const [decision, reason] = decide(buyResult, rentResult);
+
+  const rentNetWorthSeries = netWorthRentSchedule(rentListing, income1, income2, savings, livingCost, existingDebt, loanTermMonths, assumptions);
+  const [breakEvenMonth, breakEvenYear] = findBreakEven(buyResult.net_worth_series, rentNetWorthSeries);
+
+  return {
+    buy: buyResult,
+    rent: rentResult,
+    decision,
+    reason,
+    net_worth: {
+      buy_series: buyResult.net_worth_series,
+      rent_series: rentNetWorthSeries,
+      break_even_month: breakEvenMonth,
+      break_even_year: breakEvenYear,
+    },
+  };
+}
+
+// Muc 6 — sample the two monthly series into yearly points, ported from app.py's
+// build_net_worth_timeline(). Last point always lands exactly on loanTermMonths.
+function buildNetWorthTimeline(netWorth, loanTermMonths) {
+  const buySeries = netWorth.buy_series;
+  const rentSeries = netWorth.rent_series;
+  const buyByMonth = buySeries ? new Map(buySeries.map(r => [r.month, r.net_worth_buy])) : new Map();
+  const rentByMonth = rentSeries ? new Map(rentSeries.map(r => [r.month, r.net_worth_rent])) : new Map();
+
+  const numYears = Math.ceil(loanTermMonths / 12);
+  const timeline = [];
+  for (let year = 1; year <= numYears; year++) {
+    const month = Math.min(year * 12, loanTermMonths);
+    timeline.push({
+      year,
+      net_worth_buy: buyByMonth.has(month) ? buyByMonth.get(month) : null,
+      net_worth_rent: rentByMonth.has(month) ? rentByMonth.get(month) : null,
+    });
+  }
+  return timeline;
+}
+
+// ============================================================
+// Client-side MUA_CALC / THUE_CALC / get_unique_wards — ported from
+// mua_thue_calc.py, filtering the embedded arrays instead of an xlsx file.
+// ============================================================
+function muaCalc(wardOld, sizeBand, bedrooms) {
+  bedrooms = bedrooms == null ? 2.0 : bedrooms;
+  return BUY_LISTINGS.filter(r => r.ward_old === wardOld && r.size_band === sizeBand && Number(r.bedrooms) === bedrooms);
+}
+function thueCalc(wardOld, sizeBand, bedrooms) {
+  bedrooms = bedrooms == null ? 2.0 : bedrooms;
+  return RENT_LISTINGS.filter(r => r.ward_old === wardOld && r.size_band === sizeBand && Number(r.bedrooms) === bedrooms);
+}
+function getUniqueWardsLocal() {
+  const wards = new Set();
+  for (const r of BUY_LISTINGS) if (r.ward_old) wards.add(r.ward_old);
+  for (const r of RENT_LISTINGS) if (r.ward_old) wards.add(r.ward_old);
+  return Array.from(wards).sort();
+}
+
+// ============================================================
+// UI state + rendering (unchanged from the server-backed version, except
+// data now comes from the functions above instead of fetch()).
+// ============================================================
+const state = {
+  wards: [],
+  ward_old: null,
+  size_band: "Medium",
+  buyListings: [],
+  rentListings: [],
+  buySort: "price_asc",
+  rentSort: "price_asc",
+  selectedBuy: null,
+  selectedRent: null,
+  result: null,
+};
+
+let netWorthChart = null;
+
+// ---------- Formatting helpers (muc 3, muc 6) ----------
+function formatVND(n) {
+  return new Intl.NumberFormat("en-US").format(Math.round(n)) + " VND";
+}
+function formatPct(x) {
+  return (x * 100).toFixed(2) + "%";
+}
+function formatBillionVND(vnd) {
+  return (vnd / 1e9).toFixed(1) + "B VND";
+}
+function formatPricePerM2(vndPerM2) {
+  return (vndPerM2 / 1e6).toFixed(2) + "M/m²";
+}
+function formatMillionPerMonth(vnd) {
+  return (vnd / 1e6).toFixed(1) + "M VND/month";
+}
+function formatBeltway(zone) {
+  return zone ? zone.replace("-", "–") : null;
+}
+function formatCount(n) {
+  return Math.round(Number(n));
+}
+function formatBillionShort(vnd) {
+  return (vnd / 1e9).toFixed(1) + "B";
+}
+function showError(message) {
+  const el = document.getElementById("global-error");
+  el.textContent = message;
+  el.style.display = "block";
+  el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function clearError() {
+  document.getElementById("global-error").style.display = "none";
+}
+
+// ---------- STEP 1 — wards / size_band (now fully local, no fetch) ----------
+function loadWards() {
+  const select = document.getElementById("ward_old");
+  try {
+    state.wards = getUniqueWardsLocal();
+    select.innerHTML = "";
+    state.wards.forEach(w => {
+      const opt = document.createElement("option");
+      opt.value = w;
+      opt.textContent = w;
+      select.appendChild(opt);
+    });
+
+    if (state.wards.length === 0) {
+      showError("No wards were found in the embedded data. This shouldn't happen — please re-download this file.");
+      return;
+    }
+
+    state.ward_old = state.wards[0];
+    select.value = state.ward_old;
+  } catch (e) {
+    select.innerHTML = "";
+    showError("Could not load the ward list (" + e.message + "). Please reload this page.");
+  }
+}
+
+document.getElementById("ward_old").addEventListener("change", (e) => {
+  state.ward_old = e.target.value;
+  resetSelections();
+  loadListings();
+});
+document.getElementById("size_band").addEventListener("change", (e) => {
+  state.size_band = e.target.value;
+  resetSelections();
+  loadListings();
+});
+
+function resetSelections() {
+  state.selectedBuy = null;
+  state.selectedRent = null;
+  state.result = null;
+  document.getElementById("step4").style.display = "none";
+  updateCalculateButton();
+  updateAllPreviews();
+}
+
+// ---------- STEP 2 — listings, sort, selection (now fully local) ----------
+function loadListings() {
+  if (!state.ward_old || !state.size_band) return;
+  try {
+    state.buyListings = muaCalc(state.ward_old, state.size_band);
+    state.rentListings = thueCalc(state.ward_old, state.size_band);
+    renderUnitColumn("buy");
+    renderUnitColumn("rent");
+    updateAllPreviews();
+  } catch (e) {
+    showError("Could not load listings (" + e.message + "). Please reload this page.");
+  }
+}
+
+function sortListings(listings, sortKey, priceField) {
+  const arr = listings.slice();
+  const [field, dir] = sortKey.split("_");
+  arr.sort((a, b) => {
+    let av, bv;
+    if (field === "price") { av = a[priceField]; bv = b[priceField]; }
+    else if (field === "name") { av = a.project_name.toLowerCase(); bv = b.project_name.toLowerCase(); }
+    else if (field === "area") { av = a.area_m2; bv = b.area_m2; }
+    if (av < bv) return dir === "asc" ? -1 : 1;
+    if (av > bv) return dir === "asc" ? 1 : -1;
+    return 0;
+  });
+  return arr;
+}
+
+function buildAddressLine(item) {
+  const beltway = formatBeltway(item.beltway_zone);
+  let line = `${item.address_street} Street, ${item.ward_old} Ward, ${item.district_old} District, Hanoi (${item.ward_2025} Ward, New Hanoi)`;
+  if (beltway) line += ` · Beltway ${beltway}`;
+  return line;
+}
+
+function buildCardMeta(item, kind) {
+  const parts = [];
+  if (kind === "buy") {
+    parts.push(formatBillionVND(item.total_price_vnd));
+    parts.push(`${item.area_m2} m²`);
+    parts.push(formatPricePerM2(item.price_m2_vnd));
+  } else {
+    parts.push(formatMillionPerMonth(item.rent_monthly_vnd));
+    parts.push(`${item.area_m2} m²`);
+  }
+  parts.push(`${formatCount(item.bedrooms)} 🛏`);
+  if (item.bathrooms !== null && item.bathrooms !== undefined) {
+    parts.push(`${formatCount(item.bathrooms)} 🚿`);
+  }
+  return parts.join(" · ");
+}
+
+function renderUnitColumn(kind) {
+  const wrap = document.getElementById(kind + "-list-wrap");
+  const listings = kind === "buy" ? state.buyListings : state.rentListings;
+  const selected = kind === "buy" ? state.selectedBuy : state.selectedRent;
+  const priceField = kind === "buy" ? "total_price_vnd" : "rent_monthly_vnd";
+  const sortKey = kind === "buy" ? state.buySort : state.rentSort;
+
+  wrap.innerHTML = "";
+
+  if (selected) {
+    const summary = document.createElement("div");
+    summary.className = "selected-summary";
+    summary.innerHTML = `
+      <div class="info">
+        <div class="listing-name">${selected.project_name}</div>
+        <div class="listing-meta">${buildCardMeta(selected, kind)}</div>
+        <div class="listing-address">${buildAddressLine(selected)}</div>
+      </div>`;
+    const changeBtn = document.createElement("button");
+    changeBtn.className = "btn-ghost btn-sm";
+    changeBtn.textContent = "Change";
+    changeBtn.addEventListener("click", () => {
+      if (kind === "buy") state.selectedBuy = null; else state.selectedRent = null;
+      state.result = null;
+      document.getElementById("step4").style.display = "none";
+      renderUnitColumn(kind);
+      updateCalculateButton();
+      updateAllPreviews();
+    });
+    summary.appendChild(changeBtn);
+    wrap.appendChild(summary);
+    return;
+  }
+
+  if (listings.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "No units match this area and size. Try a different selection in Step 1.";
+    wrap.appendChild(empty);
+    return;
+  }
+
+  const list = document.createElement("div");
+  list.className = "card-list";
+
+  sortListings(listings, sortKey, priceField).forEach(item => {
+    const card = document.createElement("div");
+    card.className = "listing-card";
+    card.innerHTML = `
+      <div class="listing-name">${item.project_name}</div>
+      <div class="listing-meta">${buildCardMeta(item, kind)}</div>
+      <div class="listing-address">${buildAddressLine(item)}</div>`;
+    card.addEventListener("click", () => {
+      if (kind === "buy") state.selectedBuy = item; else state.selectedRent = item;
+      state.result = null;
+      document.getElementById("step4").style.display = "none";
+      renderUnitColumn(kind);
+      updateCalculateButton();
+      updateAllPreviews();
+    });
+    list.appendChild(card);
+  });
+
+  wrap.appendChild(list);
+}
+
+document.getElementById("buy-sort").addEventListener("change", (e) => {
+  state.buySort = e.target.value;
+  renderUnitColumn("buy");
+});
+document.getElementById("rent-sort").addEventListener("change", (e) => {
+  state.rentSort = e.target.value;
+  renderUnitColumn("rent");
+});
+
+// ---------- STEP 3 — financial profile + Calculate (now a pure local call) ----------
+function updateCalculateButton() {
+  const btn = document.getElementById("calculate-btn");
+  const hint = document.getElementById("calculate-hint");
+  const ready = !!(state.selectedBuy && state.selectedRent);
+  btn.disabled = !ready;
+  hint.style.display = ready ? "none" : "block";
+}
+
+document.getElementById("calculate-btn").addEventListener("click", () => {
+  clearError();
+
+  const income1Raw = document.getElementById("income1").value;
+  const income2Raw = document.getElementById("income2").value;
+  const savingsRaw = document.getElementById("savings").value;
+  const livingCostRaw = document.getElementById("living_cost").value;
+  const existingDebtRaw = document.getElementById("existing_debt").value;
+  const loanTermRaw = document.getElementById("loan_term_months").value;
+
+  if (income1Raw === "" || income2Raw === "" || savingsRaw === "" || livingCostRaw === "") {
+    showError("Please fill in Income 1, Income 2, Savings, and Minimum living cost.");
+    return;
+  }
+
+  const income1M = Number(income1Raw);
+  const income2M = Number(income2Raw);
+  const savingsM = Number(savingsRaw);
+  const livingCostM = Number(livingCostRaw);
+  const existingDebtM = existingDebtRaw === "" ? 0 : Number(existingDebtRaw);
+  const loanTermMonths = loanTermRaw === "" ? null : Number(loanTermRaw);
+
+  const fields = { income1: income1M, income2: income2M, savings: savingsM, living_cost: livingCostM, existing_debt: existingDebtM };
+  for (const [name, value] of Object.entries(fields)) {
+    if (Number.isNaN(value)) { showError(`"${name}" is not a valid number.`); return; }
+    if (value < 0) { showError(`"${name}" cannot be negative.`); return; }
+  }
+  if (income1M + income2M <= 0) {
+    showError("Income 1 + Income 2 must be greater than 0 to calculate the safety margin.");
+    return;
+  }
+  if (loanTermMonths !== null && (Number.isNaN(loanTermMonths) || loanTermMonths <= 0)) {
+    showError("Loan term (months) must be a valid number greater than 0.");
+    return;
+  }
+
+  // --- Locked decision #9: convert million VND -> VND ONCE, right here, before
+  // running the calculation — same conversion point as the server-backed version,
+  // just with no network hop in between. ---
+  const income1 = income1M * 1_000_000;
+  const income2 = income2M * 1_000_000;
+  const savings = savingsM * 1_000_000;
+  const livingCost = livingCostM * 1_000_000;
+  const existingDebt = existingDebtM * 1_000_000;
+
+  let data;
+  try {
+    data = evaluateBuyVsRent(
+      state.selectedBuy, state.selectedRent,
+      income1, income2, savings, livingCost, existingDebt,
+      loanTermMonths, 1, FIN_ASSUMPTIONS
+    );
+    const actualLoanTermMonths = loanTermMonths || FIN_ASSUMPTIONS.Loan_term_months;
+    data.net_worth_timeline = buildNetWorthTimeline(data.net_worth, actualLoanTermMonths);
+  } catch (e) {
+    showError("Something went wrong during the calculation (" + e.message + "). Please check your inputs and try again.");
+    return;
+  }
+
+  state.result = data;
+  document.getElementById("step4").style.display = "block";
+  renderResults(data);
+  updateAllPreviews();
+  document.getElementById("step4").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+// ============================================================
+// Shared result-card / decision-banner markup (used in Step 4 AND in the
+// sticky/mobile preview rail — muc 2: "by step 04, shows both full BUY | RENT
+// result cards").
+// ============================================================
+function buildMarginBar(safetyMargin, minPct, isSafe) {
+  const pct = Math.max(0, Math.min(100, safetyMargin * 100));
+  const minPos = Math.max(0, Math.min(100, minPct * 100));
+  return `
+    <div class="margin-bar">
+      <div class="margin-bar-track">
+        <div class="margin-bar-fill${isSafe ? "" : " unsafe"}" style="width:${pct}%"></div>
+        <div class="margin-bar-threshold" style="left:${minPos}%"></div>
+      </div>
+      <div class="margin-bar-caption">
+        <span>Safety margin: ${formatPct(safetyMargin)}</span>
+        <span>Min required: ${formatPct(minPct)}</span>
+      </div>
+    </div>`;
+}
+
+function buildResultCardHTML(kind, data, decision) {
+  const label = kind === "buy" ? "Buy" : "Rent";
+  let cardClass = "result-card";
+  if (kind === "buy" && data.error) cardClass += " fail";
+  else if (decision === kind.toUpperCase()) cardClass += " win" + (kind === "rent" ? " rent-win" : "");
+  else if (decision === "NEITHER" && !(kind === "buy" && data.error)) cardClass += " fail";
+
+  if (kind === "buy" && data.error) {
+    return `<div class="${cardClass}"><h3>${label}</h3><div class="error-text">${data.error}</div></div>`;
+  }
+
+  const monthly = kind === "buy" ? data.monthly_repayment : data.monthly_rent;
+  return `
+    <div class="${cardClass}">
+      <h3>${label}</h3>
+      <div class="stat-line"><span class="stat-label">Monthly cost</span><span class="stat-value">${formatVND(monthly)}</span></div>
+      <div class="stat-line"><span class="stat-label">Money left over</span><span class="stat-value">${formatVND(data.money_remaining)}</span></div>
+      ${buildMarginBar(data.safety_margin, data.safety_margin_min_pct, data.is_safe)}
+    </div>`;
+}
+
+function buildDecisionBannerHTML(decision, reason) {
+  let cls = "fail", label = "🔴 NEITHER OPTION MEETS THE SAFETY THRESHOLD";
+  if (decision === "BUY") { cls = "win-buy"; label = "🟢 RECOMMENDED: BUY"; }
+  else if (decision === "RENT") { cls = "win-rent"; label = "🔵 RECOMMENDED: RENT"; }
+  return `<div class="verdict ${cls}">${label}<span class="verdict-reason">${reason}</span></div>`;
+}
+
+function renderResults(data) {
+  const area = document.getElementById("results-area");
+  const breakEvenNote = data.net_worth.break_even_year != null
+    ? `<p class="hint" style="margin:0 0 10px;">Break-even: Year ${data.net_worth.break_even_year} — the year BUY's net worth overtakes RENT's (or vice versa).</p>`
+    : `<p class="hint" style="margin:0 0 10px;">BUY and RENT never cross over this loan term — one option stays ahead the whole time.</p>`;
+
+  area.innerHTML = `
+    <div class="chart-card">
+      <h3>Net worth over time</h3>
+      ${breakEvenNote}
+      <div class="chart-wrap"><canvas id="net-worth-chart"></canvas></div>
+      <div class="disclaimer">
+        <span class="icon">⚠️</span>
+        <span>This chart assumes property prices grow at a flat 12%/year and invested cash returns 6%/year for the
+        <em>entire</em> loan term. These are simplified demo assumptions based on short-term market data (Ministry of
+        Construction, Dec 2025) — real estate cycles historically include flat and declining years, so treat this
+        chart as illustrative, not a 30-year forecast.</span>
+      </div>
+    </div>
+    <div class="results-cards">
+      ${buildResultCardHTML("buy", data.buy, data.decision)}
+      ${buildResultCardHTML("rent", data.rent, data.decision)}
+    </div>
+    ${buildDecisionBannerHTML(data.decision, data.reason)}
+  `;
+
+  drawNetWorthChart(data.net_worth_timeline, data.net_worth.break_even_year);
+}
+
+// ============================================================
+// Muc 6: Net worth chart (Chart.js via CDN) — 2 lines BUY/RENT by year, custom
+// plugin draws the break-even vertical marker (no extra CDN lib needed). This
+// is the ONE feature on this page that needs internet (to fetch Chart.js) —
+// everything else on this page works fully offline.
+// ============================================================
+const breakEvenLinePlugin = {
+  id: "breakEvenLine",
+  afterDraw(chart) {
+    const year = chart.$breakEvenYear;
+    if (year == null) return;
+    const idx = chart.data.labels.indexOf(year);
+    if (idx === -1) return;
+    const xScale = chart.scales.x;
+    const yScale = chart.scales.y;
+    const x = xScale.getPixelForValue(idx);
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = "#55645C";
+    ctx.lineWidth = 1.5;
+    ctx.moveTo(x, yScale.top);
+    ctx.lineTo(x, yScale.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#1C2B24";
+    ctx.font = "600 11px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`Break-even: Year ${year}`, x, yScale.top - 6);
+    ctx.restore();
+  },
+};
+let breakEvenPluginRegistered = false;
+
+// drawNetWorthChart() can be called before Chart.js has finished loading (the
+// CDN fetch happens in the background — see window.chartLoadPromise in <head>),
+// so it shows a temporary "Loading…" note and only builds the actual chart once
+// that promise settles. If all 3 CDN mirrors failed, it offers a Retry button
+// that re-runs the whole fallback chain in case the connection was temporary.
+function drawNetWorthChart(timeline, breakEvenYear) {
+  const canvas = document.getElementById("net-worth-chart");
+  if (!canvas) return;
+
+  if (window.Chart) {
+    renderNetWorthChartNow(canvas, timeline, breakEvenYear);
+    return;
+  }
+
+  canvas.parentElement.insertAdjacentHTML(
+    "beforeend",
+    '<p class="hint" id="chart-load-status">Loading chart…</p>'
+  );
+
+  window.chartLoadPromise.then((ok) => {
+    // The canvas may have been replaced (Change/Recalculate) by the time this
+    // resolves — only touch the DOM if this exact canvas is still the live one.
+    if (document.getElementById("net-worth-chart") !== canvas) return;
+    const status = document.getElementById("chart-load-status");
+    if (status) status.remove();
+
+    if (ok && window.Chart) {
+      renderNetWorthChartNow(canvas, timeline, breakEvenYear);
+      return;
+    }
+
+    canvas.parentElement.insertAdjacentHTML(
+      "beforeend",
+      '<p class="hint">Chart.js could not be loaded from any source (no internet connection, or it is being blocked) — the chart above is blank, but all numbers and cards below are still fully calculated and correct. ' +
+      '<button type="button" id="retry-chart-btn" class="btn-ghost btn-sm" style="margin-left:6px;">Retry</button></p>'
+    );
+    document.getElementById("retry-chart-btn").addEventListener("click", () => {
+      document.getElementById("retry-chart-btn").closest("p").remove();
+      window.chartLoadPromise = window.loadChartJs();
+      drawNetWorthChart(timeline, breakEvenYear);
+    });
+  });
+}
+
+function renderNetWorthChartNow(canvas, timeline, breakEvenYear) {
+  if (!breakEvenPluginRegistered) {
+    Chart.register(breakEvenLinePlugin);
+    breakEvenPluginRegistered = true;
+  }
+
+  const labels = timeline.map(p => p.year);
+  const buyData = timeline.map(p => p.net_worth_buy);
+  const rentData = timeline.map(p => p.net_worth_rent);
+
+  if (netWorthChart) { netWorthChart.destroy(); netWorthChart = null; }
+
+  try {
+    netWorthChart = new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Net worth — BUY",
+            data: buyData,
+            borderColor: "#1F7A5C",
+            backgroundColor: "#1F7A5C",
+            tension: 0.15,
+            pointRadius: 2,
+          },
+          {
+            label: "Net worth — RENT",
+            data: rentData,
+            borderColor: "#2A5C8A",
+            backgroundColor: "#2A5C8A",
+            tension: 0.15,
+            pointRadius: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 12 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${formatVND(ctx.parsed.y)}`,
+              title: (items) => `Year ${items[0].label}`,
+            },
+          },
+        },
+        scales: {
+          x: { title: { display: true, text: "Year" } },
+          y: {
+            title: { display: true, text: "Net worth (VND)" },
+            ticks: { callback: (v) => formatBillionShort(v) },
+          },
+        },
+      },
+      // NOTE: breakEvenLinePlugin is registered globally (once, via the
+      // breakEvenPluginRegistered guard above) and must NOT also be listed
+      // here — Chart.js v4 throws on a duplicate plugin id when the same
+      // plugin is registered both globally and per-chart.
+    });
+    netWorthChart.$breakEvenYear = breakEvenYear;
+    netWorthChart.update();
+  } catch (e) {
+    canvas.parentElement.insertAdjacentHTML(
+      "beforeend",
+      '<p class="hint">The chart could not be rendered (' + e.message + '). All numbers and cards below are still fully calculated and correct.</p>'
+    );
+  }
+}
+
+// ============================================================
+// Sticky / mobile result-preview rail (muc 2: fills in gradually as steps are
+// completed; on mobile it appears inline below each step instead of staying
+// pinned — see CSS .desktop-only / .mobile-only).
+// ============================================================
+function renderPreviewInto(el) {
+  if (!state.ward_old) {
+    el.innerHTML = `<h4>Your comparison</h4><p class="preview-placeholder">Complete the steps to see your BUY vs RENT comparison here.</p>`;
+    return;
+  }
+
+  let html = `<h4>Your comparison</h4>`;
+  html += `<div class="preview-block"><div class="preview-label">Area &amp; size</div><div class="preview-value">${state.ward_old} · ${state.size_band}</div></div>`;
+
+  if (state.selectedBuy && state.selectedRent) {
+    html += `<div class="mini-card"><div class="tag">Buy</div><div class="name">${state.selectedBuy.project_name}</div><div class="price">${formatBillionVND(state.selectedBuy.total_price_vnd)}</div></div>`;
+    html += `<div class="mini-card"><div class="tag">Rent</div><div class="name">${state.selectedRent.project_name}</div><div class="price">${formatMillionPerMonth(state.selectedRent.rent_monthly_vnd)}</div></div>`;
+  } else {
+    html += `<p class="preview-hint">Choose a BUY and a RENT unit in Step 2.</p>`;
+  }
+
+  if (state.result) {
+    html += `<div style="margin-top:14px;">`;
+    html += buildResultCardHTML("buy", state.result.buy, state.result.decision);
+    html += buildResultCardHTML("rent", state.result.rent, state.result.decision);
+    html += buildDecisionBannerHTML(state.result.decision, state.result.reason);
+    html += `</div>`;
+  } else if (state.selectedBuy && state.selectedRent) {
+    html += `<p class="preview-hint">Fill in Step 3 and click Calculate to see full results.</p>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function updateAllPreviews() {
+  document.querySelectorAll(".result-preview-mount").forEach(renderPreviewInto);
+}
+
+// ============================================================
+// Init — synchronous now (no fetch, no server round-trip to wait on).
+// ============================================================
+(function init() {
+  try {
+    loadWards();
+    loadListings();
+    updateCalculateButton();
+    updateAllPreviews();
+  } catch (e) {
+    showError("Could not initialize the page (" + e.message + "). Please reload this page.");
+  }
+})();
+</script>
+</body>
+</html>
