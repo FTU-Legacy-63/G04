@@ -4,15 +4,6 @@
 > Toàn bộ số liệu dưới đây là **output thật** lấy từ `python3 evaluate.py`
 > (self\-test có sẵn trong repo), không phải số minh hoạ.
 
-> Tài liệu này tách ra từ `logic-test.md` (bản gộp cũ) — đây là phần **mục 7
-> Week 4 ("Sample Calculation và Logic Test")**\: phần kiểm tra nâng cao hơn,
-> gắn với tính năng Net worth theo thời gian (mới thêm sau Week 3) và với
-> bản standalone JS. Phần kiểm tra logic cơ bản (Case A/A2/B, đọc file
-> nguồn) đã nộp ở Week 3 — xem tài liệu **Week 3 — Early Logic Test**.
-> *Lưu ý: cách chia này dựa trên độ phức tạp/thời điểm phát triển của từng
-> phần test — nếu không khớp đúng với mục 11/mục 7 trong đề bài gốc, bạn xem
-> lại và báo mình chỉnh lại ranh giới.*
-
 ## 1\. Case C — Net worth BUY vs RENT theo thời gian (mục 6 spec, tính năng mới nhất)
 
 Input: BUY `BCG0156` (CG014, `total_price_vnd=3,780,000,000`, area 45m²),
