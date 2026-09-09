@@ -4,15 +4,6 @@
 > Toàn bộ số liệu dưới đây là **output thật** lấy từ `python3 evaluate.py`
 > (self\-test có sẵn trong repo), không phải số minh hoạ.
 
-> Tài liệu này tách ra từ `logic-test.md` (bản gộp cũ) — đây là phần **mục 11
-> Week 3 ("Early Logic Test")**\: kiểm tra 3 nhánh quyết định cơ bản (hợp lệ /
-> báo lỗi / không phương án nào an toàn) và kiểm tra đọc file dữ liệu nguồn.
-> Phần nâng cao hơn (Net worth theo thời gian, `find_break_even()`, đối chiếu
-> Python/JS) đã chuyển sang tài liệu **Week 4 — Sample Calculation & Logic
-> Test**. *Lưu ý: cách chia này dựa trên độ phức tạp của từng phần test —
-> nếu không khớp đúng với mục 11/mục 7 trong đề bài gốc, bạn xem lại và báo
-> mình chỉnh lại ranh giới.*
-
 ## 1\. Case A — nhánh hợp lệ (Savings đủ)
 
 | Input | Expected process | Expected output | Actual (từ code) | Status |
