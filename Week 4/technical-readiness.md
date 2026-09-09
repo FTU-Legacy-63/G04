@@ -12,7 +12,7 @@ FinFlow hiện có **2 bản triển khai song song, cùng 1 logic tài chính**
 | Framework | Flask (`app.py`) phục vụ 3 route: `/`, `/api/wards`, `/api/listings`, `/api/evaluate` | Không có framework — 1 file `standalone/finflow.html` duy nhất |
 | Data storage | Đọc `DATA_DEMO.xlsx` trực tiếp mỗi lần gọi API (qua `openpyxl`) | Toàn bộ 309 BUY + 129 RENT đã được xuất sẵn thành JSON, nhúng thẳng vào file HTML (`BUY_LISTINGS`/`RENT_LISTINGS`) |
 | Deployment platform | Cần máy có Python + `pip install flask openpyxl`, chạy `python app.py`, mở `http://127.0.0.1:5000` | Không cần deploy — mở file `.html` trực tiếp bằng trình duyệt (`file://`), hoặc host tĩnh ở bất kỳ đâu (GitHub Pages, Netlify...) nếu muốn có link chia sẻ |
-| AI-assisted coding tool | Claude (Cowork) — toàn bộ code, test, và tài liệu này | Claude (Cowork) |
+| AI-assisted coding tool | Claude (Cowork) | Claude (Cowork) |
 | Fallback khi thiếu internet | Không có — cần Python cài đúng, đúng thư mục | Toàn bộ tính năng chính (lọc, tính toán, quyết định BUY/RENT) chạy **offline hoàn toàn**; chỉ riêng biểu đồ Chart.js cần internet 1 lần, có 3 nguồn CDN dự phòng (cdnjs → jsdelivr → unpkg) + nút "Retry" nếu cả 3 đều lỗi |
 
 ### Vì sao chuyển sang bản standalone là route chính
