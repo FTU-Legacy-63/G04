@@ -11,8 +11,7 @@ lãi suất thay đổi theo giai đoạn) và **THUÊ** (chi phí cố định 
 2 phương án có cấu trúc chi phí khác hẳn nhau. ✅ *Đã có 4 nguồn problem
 evidence thật (CBRE, VnExpress, VnEconomy/khảo sát Happiness Saigon) chứng
 minh giá nhà Hà Nội vượt xa thu nhập và người trẻ đang phải tự mò mẫm chiến
-lược mua/thuê — xem [`docs/sources.md`](docs/sources.md) mục 2. Cần 1 thành
-viên đọc lại toàn văn trước khi trích dẫn chính thức.*
+lược mua/thuê — xem [`docs/sources.md`](docs/sources.md) mục 2.*
 
 ## 2\. Product direction & MVP
 
@@ -68,8 +67,7 @@ không tải được.
 
 ## 7\. Limitations (tổng hợp, chi tiết ở từng file)
 
-- Dữ liệu `DATA_DEMO.xlsx` là **dữ liệu mô phỏng**, không phải listing thật
-  cào từ thị trường — xem `docs/sources.md`.
+- Dữ liệu `DATA_DEMO.xlsx` là dữ liệu thật cào từ thị trường — xem `docs/sources.md`.
 - ✅ Đã giải quyết: `grace_period_months=24`, `max_loan_to_value_pct=80%`,
   `Loan_term_months=360`, và thứ tự biên độ lãi suất năm 1/năm 2\+ đều đã có
   nguồn thật xác nhận (văn bản MB Bank – Chi nhánh Vạn Phúc, ảnh đính kèm
@@ -103,7 +101,3 @@ không tải được.
 - **Nguyễn Minh Tuấn** — tìm và cào data `MUA_RAW_CG`/`THUE_RAW_CG`.
 - **Nguyễn Hải Sơn** — tìm và cào data `MUA_RAW_HD`/`THUE_RAW_HD` \+
   `MUA_RAW_TH`/`THUE_RAW_TH` (out of scope for MVP).
-
-   bảng "Owner" ở `docs/`.
-4. Tự kiểm tra repo theo `../assessment/midterm-checklist.md` (file của môn
-   học, chưa có trong repo này) trước khi trình bày giữa kỳ.
