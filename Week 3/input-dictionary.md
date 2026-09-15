@@ -1,64 +1,57 @@
-# Input Dictionary — FinFlow (BUY vs RENT, Cầu Giấy)
+# Input Dictionary — FinFlow (BUY vs RENT, Cau Giay)
 
-> Cập nhật lần cuối: 2026-09-08. Người cập nhật: [Dương Phương Anh].
+Per the guide's Week 3 §3, inputs are grouped into 4 categories: **user-entered**, **product information**, **scenario information**, and **assumptions**.
 
-Theo mục 3 Week 3, input được chia 4 nhóm: **user-entered**, **product
-information**, **scenario information**, **assumptions**. Bảng dưới liệt kê
-từng input thật đang tồn tại trong code (`app.py`/`standalone/finflow.html`
-Step 1–3, `loan_calc.py`, `evaluate.py`, `mua_thue_calc.py`).
+## A. User-entered input (Step 1–3 on the UI)
 
-## A. User-entered input (Step 1–3 trên UI)
-
-| Input name | Meaning | Type | Unit | Example | Valid range | Missing value handling | Source/owner |
+| Input name | Meaning | Type | Unit | Example | Valid range | Missing-value handling | Source |
 |---|---|---|---|---|---|---|---|
-| `ward_old` | Phường (tên cũ) nơi user muốn tìm nhà | string (dropdown, lấy từ data) | — | `"Trung Hoa"` | Phải là 1 trong các giá trị unique lấy từ `get_unique_wards()` (9 phường trong `DATA_DEMO.xlsx`) | Bắt buộc — nếu rỗng, API trả lỗi 400 `"Missing required field: ward_old or size_band."` | user |
-| `size_band` | Phân khúc diện tích | string (dropdown cố định) | — | `"Medium"` | 1 trong 3 giá trị cố định: `Small`, `Medium`, `Large` | Bắt buộc, cùng lỗi như trên | user |
-| BUY listing đã chọn (`buy_listing`) | 1 căn hộ MUA cụ thể user chọn ở Step 2 (object, không phải số đơn lẻ) | object | — | `{listing_id: "BCG0156", total_price_vnd: 3780000000, ...}` | Phải có field `total_price_vnd` > 0 | Bắt buộc — thiếu thì lỗi 400 `"Missing required field: buy_listing"` | user (chọn từ danh sách do sản phẩm lọc sẵn) |
-| RENT listing đã chọn (`rent_listing`) | 1 căn hộ THUÊ cụ thể user chọn ở Step 2 | object | — | `{listing_id: "RCG0037", rent_monthly_vnd: 16500000, ...}` | Phải có field `rent_monthly_vnd` > 0 | Bắt buộc, cùng cơ chế như trên | user |
-| `income1` | Thu nhập tháng của người thứ nhất (chủ hộ) | number | **triệu VNĐ** (UI) → quy đổi sang VNĐ trước khi tính (×1,000,000, xem `docs/assumptions.md` mục "Locked decision #9") | `25` (triệu) → 25,000,000 VNĐ | ≥ 0 | Bắt buộc — thiếu/rỗng → lỗi 400 | user |
-| `income2` | Thu nhập tháng của người thứ hai (vợ/chồng, hoặc 0 nếu độc thân) | number | triệu VNĐ | `15` | ≥ 0 | Bắt buộc (nhập `0` nếu không có) | user |
-| `savings` | Tổng tiền tiết kiệm hiện có, dùng làm khoản trả trước | number | triệu VNĐ | `2000` (= 2 tỷ) | ≥ 0 | Bắt buộc | user |
-| `living_cost` | Chi phí sinh hoạt tối thiểu hàng tháng (ăn uống, đi lại, không tính tiền nhà) | number | triệu VNĐ | `10` | ≥ 0 | Bắt buộc | user |
-| `existing_debt` | Nghĩa vụ nợ hiện có khác (vay tiêu dùng, trả góp xe...) | number | triệu VNĐ | `0` | ≥ 0 | Không bắt buộc, mặc định `0` | user |
-| `loan_term_months` | Kỳ hạn vay do user tự chỉnh (Step 3) | integer | tháng | `360` | > 0 (số nguyên) | Không bắt buộc — bỏ trống thì dùng mặc định `FIN_ASSUMPTIONS["Loan_term_months"] = 360` | user |
+| `ward_old` | The (pre-2025-merger) ward the user wants to search in | string (dropdown, populated from the data) | — | `"Trung Hoa"` | Must be one of the 9 unique ward values found across the embedded listings | Defaults to the first ward in the list on page load — never actually blank | user |
+| `size_band` | Apartment size bracket | string (fixed dropdown) | — | `"Medium"` | One of `Small` (45–59 m²), `Medium` (60–79 m²), `Large` (80–100 m²) | Defaults to `Medium` on page load | user |
+| Selected BUY listing (`selectedBuy`) | The specific BUY unit the user picks in Step 2 (a whole object, not a single number) | object | — | `{ listing_id: "BCG0156", total_price_vnd: 3780000000, ... }` | Must be one of the cards shown after filtering by `ward_old`/`size_band` | The Calculate button stays disabled until both a BUY and a RENT unit are selected — hint shown: "Select a BUY and a RENT unit in Step 2 first." | user |
+| Selected RENT listing (`selectedRent`) | The specific RENT unit the user picks in Step 2 | object | — | `{ listing_id: "RCG0037", rent_monthly_vnd: 16500000, ... }` | Same as above | Same as above | user |
+| `income1` | Monthly income of the first household earner | number | **million VND** (converted to VND once, right before calculation — see §D) | `25` | ≥ 0 | Required — blank triggers "Please fill in Income 1, Income 2, Savings, and Minimum living cost." | user |
+| `income2` | Monthly income of the second household earner (enter `0` if single-earner) | number | million VND | `15` | ≥ 0 | Required (enter `0`, not blank, if not applicable) | user |
+| `savings` | Total savings available as a down payment | number | million VND | `2000` (= 2 billion VND) | ≥ 0 | Required | user |
+| `living_cost` | Minimum monthly living cost (food, transport, etc. — excludes housing) | number | million VND | `10` | ≥ 0 | Required | user |
+| `existing_debt` | Other existing monthly debt payments (consumer loans, car installments, etc.) | number | million VND | `0` | ≥ 0 | Optional — defaults to `0` if left blank | user |
+| `loan_term_months` | User-adjustable loan tenor (Step 3) | integer | months | `360` | > 0 (whole number) | Optional — defaults to `FIN_ASSUMPTIONS.Loan_term_months` (360) if left blank | user |
 
-## B. Product information (đặc tính sản phẩm vay/tài chính, không do user nhập)
+Additional cross-field rule: if `income1 + income2 ≤ 0`, the app shows "Income 1 + Income 2 must be greater than 0 to calculate the safety margin." (this guards the division in `safety_margin`).
 
-| Input name | Meaning | Type | Unit | Example | Valid range | Source/owner |
+## B. Product information (listing attributes — not typed by the user)
+
+These come from the listing object the user selected in Step 2 (see `data.md` for the full schema and provenance):
+
+| Input name | Meaning | Type | Unit | Example | Valid range | Source |
 |---|---|---|---|---|---|---|
-| `total_price_vnd` | Giá bán căn hộ (đã có sẵn trong data, không tính lại) | number | VNĐ | `3,780,000,000` | > 0 | `DATA_DEMO.xlsx` (sheet `BUY_RAW_CG`) |
-| `price_m2_vnd` | Đơn giá/m² (chỉ để hiển thị, không dùng trong công thức tài chính) | number | VNĐ/m² | `84,000,000` | > 0 | `DATA_DEMO.xlsx` |
-| `rent_monthly_vnd` | Giá thuê hàng tháng | number | VNĐ/tháng | `16,500,000` | > 0 | `DATA_DEMO.xlsx` (sheet `RENT_RAW_CG`) |
-| `area_m2`, `bedrooms`, `bathrooms` | Đặc tính căn hộ hiển thị trên card | number | m², phòng | `45.0`, `2.0`, `1.0` (`bathrooms` có thể là `None` — ẩn icon 🚿 khi đó) | > 0 (riêng `bathrooms` cho phép thiếu) | `DATA_DEMO.xlsx` |
-| `beltway_zone` | Vị trí căn hộ so với vành đai (VD "1-2" = giữa vành đai 1 và 2) | string | — | `"2.5-3"` | Dạng `"X-Y"` | `DATA_DEMO.xlsx` (đã vá lỗi Excel tự đổi thành ngày tháng — xem `docs/sources.md`) |
-| `address_street` | Tên đường (join từ `PROJECT_MASTER` theo `project_id`) | string | — | `"Nguyen Chanh"` | — | `DATA_DEMO.xlsx` sheet `PROJECT_MASTER` |
+| `total_price_vnd` | Full sale price of the BUY unit | number | VND | `3,780,000,000` | > 0 | Embedded `BUY_LISTINGS` |
+| `price_m2_vnd` | Price per m² (display only — not used in any financial formula) | number | VND/m² | `84,000,000` | > 0 | Embedded `BUY_LISTINGS` |
+| `rent_monthly_vnd` | Monthly rent of the RENT unit | number | VND/month | `16,500,000` | > 0 | Embedded `RENT_LISTINGS` |
+| `area_m2`, `bedrooms`, `bathrooms` | Apartment attributes shown on the card | number | m², count | `45.0`, `2.0`, `1.0` | > 0 | Embedded listings |
+| `beltway_zone` | Distance band from the city's ring-road system | string | — | `"2.5-3"` | Format `"X-Y"` | Embedded listings |
+| `address_street` | Street name (joined onto the listing by `project_id`) | string | — | `"Nguyen Chanh"` | — | Embedded listings |
 
-## C. Scenario information / Assumptions (`FIN_ASSUMPTIONS`, `loan_calc.py`)
+## C. Scenario information / assumptions (`FIN_ASSUMPTIONS`)
 
-Đây là **assumptions**, không phải input user nhập — nhưng theo mục 3 Week 3
-vẫn cần liệt kê rõ vì chúng ảnh hưởng trực tiếp tới output. Xem giải thích đầy
-đủ (kèm nguồn) tại `docs/assumptions.md`.
+These are not user-entered, but they directly shape the output, so they're listed here too. Full rationale and sourcing for each is in `assumptions.md`.
 
-| Input name | Meaning | Type | Unit | Demo value | Source/owner |
-|---|---|---|---|---|---|
-| `interest_rate_promo_pct` | Lãi suất ưu đãi năm đầu | number | %/năm | `8.3` | product source — xem `docs/sources.md` |
-| `promo_period_months` | Số tháng áp dụng lãi ưu đãi | int | tháng | `12` | product source |
-| `interest_rate_float_ref_pct` | Lãi suất tham chiếu thả nổi (cố định trong bản demo, không random hoá) | number | %/năm | `8.3` | product source |
-| `float_rate_margin_year1_pct` | Biên độ cộng thêm năm đầu sau ưu đãi | number | % | `1.5` | product source |
-| `float_rate_margin_from_year2_pct` | Biên độ cộng thêm từ năm thứ 2 trở đi | number | % | `3.5` | product source |
-| `grace_period_months` | Số tháng ân hạn gốc (chỉ trả lãi) | int | tháng | `24` | product source — **chưa xác nhận nguồn** |
-| `max_loan_to_value_pct` | Tỷ lệ vay tối đa/giá trị tài sản (LTV) | number | % | `80` | product source (market norm) |
-| `investment_return_pct` | Lợi suất giả định khi đầu tư tiền dư hàng tháng | number | %/năm | `6` | assumption nội bộ |
-| `property_annual_appreciation_pct` | Tốc độ tăng giá bất động sản giả định | number | %/năm | `12` | problem/assumption evidence — xem `docs/sources.md` |
-| `Loan_term_months` | Kỳ hạn vay mặc định (user có thể ghi đè bằng `loan_term_months`) | int | tháng | `360` | product source |
+| Input name | Meaning | Type | Unit | Current value |
+|---|---|---|---|---|
+| `interest_rate_promo_pct` | Promotional interest rate for the first months | number | %/year | `8.3` |
+| `promo_period_months` | Number of months the promo rate applies | integer | months | `12` |
+| `interest_rate_float_ref_pct` | Reference floating rate (fixed for the demo, not simulated as time-varying) | number | %/year | `10.5` |
+| `float_rate_margin_year1_pct` | Margin added in the first floating-rate year | number | % | `1.5` |
+| `float_rate_margin_from_year2_pct` | Margin added from the second floating-rate year onward | number | % | `3.5` |
+| `grace_period_months` | Interest-only grace period | integer | months | `24` |
+| `max_loan_to_value_pct` | Maximum loan-to-value ratio | number | % | `80` |
+| `buy_closing_costs_pct` | Closing costs added to the required down payment (paid in cash, not financed) | number | % | `2.6` |
+| `investment_return_pct` | Assumed return on leftover monthly cash | number | %/year | `6` |
+| `property_annual_appreciation_pct` | Assumed flat property appreciation rate | number | %/year | `12` |
+| `Loan_term_months` | Default loan tenor (overridable by `loan_term_months`) | integer | months | `360` |
 
-## D. Ghi chú validation & unit
+## D. Validation & unit notes
 
-- **Toàn bộ tiền do user nhập ở UI là đơn vị "triệu VNĐ"**, và **chỉ được quy
-  đổi sang VNĐ đúng 1 lần**, ngay trước khi build payload gửi vào hàm tính
-  toán (locked decision #9 của spec) — không sửa gì phía logic tính toán để
-  nhận thẳng đơn vị "triệu".
-- Toàn bộ dữ liệu listing trong `DATA_DEMO.xlsx` đã ở đơn vị VNĐ đầy đủ
-  (không phải "triệu" hay "tỷ") — không cần quy đổi thêm.
-- Chi tiết validation (số âm, thiếu field, sai kiểu, chia cho 0...) xem
-  `docs/data-flow.md` mục "Input Validation".
+- Every money field the user types is in **million VND**; conversion to VND happens **exactly once**, in JavaScript, immediately before `evaluateBuyVsRent()` is called.
+- All listing data (`total_price_vnd`, `rent_monthly_vnd`, etc.) is already stored in full VND — no further conversion needed there.
+- The full validation rulebook (invalid numbers, negative values, the insufficient-savings business rule, etc.) is documented once, in `validation-and-early-logic-test.md` §1, to avoid duplicating it here.
