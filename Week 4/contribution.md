@@ -4,7 +4,7 @@ Most contributor names below come from the team's own project records. A few cel
 
 ## Ownership table by evidence item
 
-| Evidence / task | Description | Responsible member | Reviewer / verifier |
+| Evidence / task | Description | Responsible member | 
 |---|---|---|---|
 | Listing data source — original schema | Designed the project-master schema, the listing-filtering logic, and the `FIN_ASSUMPTIONS` table skeleton | Duong Phuong Anh |
 | Listing data source — Cau Giay scraping | Found and scraped the Cau Giay listing data actually used in the current MVP | Nguyen Minh Tuan |
@@ -16,7 +16,7 @@ Most contributor names below come from the team's own project records. A few cel
 | Source register — CFPB reference for the safety-margin concept | Added the CFPB Ability-to-Repay reference as qualitative support for the safety-margin idea (not a direct numeric source — see the caveat in `assumptions.md`) | Duong Phuong Anh |
 | Source register — SBV deposit-rate report | Found the State Bank of Vietnam average-deposit-rate report supporting `investment_return_pct` = 6% | Pham Thi Khanh An |
 | Source register — alternative Vietcombank (VCB) dataset research | Investigated VCB's published rates as an alternative/cross-check source; not adopted in the final MVP numbers | Pham Nam Phuong |
-| Source register — floating-rate research and closing-cost legal citations | Found the Dan Tri/SSI and Thanh Nien/Ministry of Construction+VARS-IRE sources behind `interest_rate_float_ref_pct` = 10.5%, and the 3 legal citations (registration tax, maintenance fund, notary fee) behind `buy_closing_costs_pct` = 2.6% | Duong Phuong Anh | Pham Thi Khanh An |
+| Source register — floating-rate research and closing-cost legal citations | Found the Dan Tri/SSI and Thanh Nien/Ministry of Construction+VARS-IRE sources behind `interest_rate_float_ref_pct` = 10.5%, and the 3 legal citations (registration tax, maintenance fund, notary fee) behind `buy_closing_costs_pct` = 2.6% | Duong Phuong Anh, Pham Thi Khanh An |
 | Verifying the 4 problem-evidence sources (CBRE, VnExpress ×2, VnEconomy/Happiness Saigon survey) | Personally reading each source in full and confirming the exact figures/links before citing them officially | Duong Phuong Anh, Pham Thi Khanh An |
 | Assumptions — initial `FIN_ASSUMPTIONS` values (safety-margin tiers) | Proposed the first working set of `FIN_ASSUMPTIONS`, including the income-based safety-margin tiers | Pham Thi Khanh An, Pham Nam Phuong |
 | Assumptions — table skeleton | Designed the original `FIN_ASSUMPTIONS` structure | Duong Phuong Anh |
