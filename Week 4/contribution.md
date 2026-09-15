@@ -5,7 +5,7 @@ Most contributor names below come from the team's own project records. A few cel
 ## Ownership table by evidence item
 
 | Evidence / task | Description | Responsible member | 
-|---|---|---|---|
+|---|---|---|
 | Listing data source — original schema | Designed the project-master schema, the listing-filtering logic, and the `FIN_ASSUMPTIONS` table skeleton | Duong Phuong Anh |
 | Listing data source — Cau Giay scraping | Found and scraped the Cau Giay listing data actually used in the current MVP | Nguyen Minh Tuan |
 | Listing data source — Ha Dong & Tay Ho scraping | Found and scraped listing data for the other 2 districts in the team's full-scope plan; **out of scope for the current Cau-Giay-only MVP**, but real evidence of individual contribution | Nguyen Hai Son |
