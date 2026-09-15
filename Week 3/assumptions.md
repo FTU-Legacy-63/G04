@@ -1,71 +1,46 @@
-# Assumptions — FinFlow (BUY vs RENT, Cầu Giấy)
+# Assumptions — FinFlow (BUY vs RENT, Cau Giay)
 
-> Cập nhật lần cuối: 2026-09-08. Người cập nhật: [Dương Phương Anh].
+## 1. Financial assumptions (`FIN_ASSUMPTIONS` in `finflow.html`)
 
-## 1. Giả định tài chính (`FIN_ASSUMPTIONS`, `loan_calc.py`)
-
-| Assumption | Giá trị demo | Vì sao cần | Rủi ro nếu sai |
+| Assumption | Current value | Why it's needed | Risk if wrong |
 |---|---|---|---|
-| Lãi suất cố định trong suốt kỳ hạn theo từng giai đoạn (không mô phỏng biến động lãi suất thị trường theo thời gian thực) | 8.3% năm đầu (ưu đãi 12 tháng) → 8.3%+1.5%=9.8% năm 2 sau ưu đãi → 8.3%+3.5%=11.8% từ năm 3 trở đi | Đơn giản hoá để có thể tính dư nợ giảm dần tất định, không cần Monte Carlo | Lãi suất thật có thể biến động theo thị trường (`rate_adjustment_frequency_months=3` có nguồn thật từ MB Bank nhưng **không được dùng** trong demo này) → chi phí vay thật có thể cao/thấp hơn (ảnh đính kèm [`docs/assets/mb-bank-rate-sheet.png`](assets/mb-bank-rate-sheet.png)) |
-| Không có phí trả trước / phí phạt tất toán sớm | Không tính bất kỳ phí nào ngoài gốc + lãi | Giữ công thức đơn giản cho demo | Thực tế nhiều ngân hàng có phí phạt trả trước hạn — output demo lạc quan hơn thực tế nếu user có ý định trả sớm. |
-| `grace_period_months = 24`: 24 tháng đầu chỉ trả lãi, không trả gốc | 24 tháng | Phản ánh chính sách ân hạn phổ biến ở một số sản phẩm vay mua nhà. | |
-| `max_loan_to_value_pct = 80%`: không dùng `MIN()` để tự động hạ khoản vay khi savings không đủ — nếu `savings < min_down_payment` thì báo lỗi thẳng, không âm thầm giảm khoản vay | 80% | Tránh sai lệch số liệu do "tự sửa" input của user mà không báo | Nếu user không hiểu lỗi, có thể tưởng sản phẩm bị hỏng thay vì hiểu là "chưa đủ vốn tự có". |
-| `Loan_term_months = 360` (mặc định, user có thể sửa ở Step 3) | 360 tháng | Kỳ hạn vay phổ biến cho vay mua nhà dài hạn | |
-| `investment_return_pct = 6%/năm`: tiền dư ra hàng tháng (sau khi trả nợ/thuê + chi phí sinh hoạt) được giả định đem đầu tư sinh lời 6%/năm, lãi kép hàng tháng | 6% | Cần một con số để tính Net worth theo thời gian (Step 4) | Đây là giả định **giáo dục**, không gắn với một kênh đầu tư cụ thể (gửi tiết kiệm, chứng khoán...) — không nên hiểu là khuyến nghị đầu tư thật |
-| `property_annual_appreciation_pct = 12%/năm`: giá bất động sản tăng đều 12%/năm trong suốt kỳ hạn vay (vd 30 năm) | 12% (lấy điểm giữa khoảng 10–15%/năm) | Cần 1 con số để tính `Property_value(t)` trong Net worth BUY | Giả định tăng **đều** trong 30 năm là phi thực tế — thị trường BĐS có chu kỳ tăng/giảm/đi ngang. |
-| `rent_annual_growth_pct = 0%`: tiền thuê được giữ **cố định** suốt kỳ so sánh, không tăng theo thời gian | 0% (không dùng field này trong công thức) | Đơn giản hoá Net worth RENT thành công thức đóng (không cần vòng lặp) | Thực tế giá thuê thường tăng theo thời gian (lạm phát, thị trường) → Net worth RENT trong demo có thể bị **đánh giá cao hơn thực tế** ở các năm xa. |
-| Bedrooms cố định = 2.0 khi lọc listing (`mua_calc`/`thue_calc` mặc định `bedrooms=2.0`) | 2.0 | Giữ phạm vi demo hẹp, không cần UI chọn số phòng ngủ | Sản phẩm hiện **không phục vụ** nhu cầu tìm căn hộ khác 2 phòng ngủ |
-| Không lọc theo project cụ thể, không tính trung bình, không xếp hạng theo khoảng cách (locked decision #6, `mua_thue_calc.py`) | — | Giữ logic lọc đơn giản: khớp đúng `(ward_old, size_band, bedrooms)`, trả về TOÀN BỘ kết quả khớp | User phải tự chọn 1 trong danh sách (có thể dài) thay vì được gợi ý "căn tốt nhất" |
+| Fixed interest rate per phase for the whole loan term (no simulation of the reference rate moving over time) | 8.3%/year for the first 12 months (promo) → 10.5% + 1.5% = 12%/year for months 13–24 → 10.5% + 3.5% = 14%/year from month 25 onward | Keeps the repayment schedule deterministic (declining-balance amortization) without needing a Monte Carlo simulation | The real reference rate can move up or down after the promo period ends — actual borrowing cost could be higher or lower than shown |
+| No prepayment fee / early payoff penalty | Not modeled — only principal + interest are calculated | Keeps the formula simple for the demo | Many Vietnamese banks do charge an early-payoff penalty — the demo's numbers are optimistic for a user who intends to pay off early |
+| `grace_period_months = 24`: the first 24 months are interest-only, no principal repayment | 24 months | Reflects a grace-period structure common in home-loan products | — |
+| `max_loan_to_value_pct = 80%`: if `savings < min_down_payment`, the app returns an explicit error instead of silently shrinking the loan | 80% | Prevents the app from quietly "fixing" the user's input without telling them | A user who doesn't read the error message might think the product is broken rather than understanding they need more savings |
+| `buy_closing_costs_pct = 2.6%`: added on top of the LTV-based down payment, paid in cash (not financed into the loan) | 2.6% | `min_down_payment` and the loan itself would otherwise understate what a buyer needs in cash upfront | If the real closing-cost percentage differs, the minimum-savings check will be too strict or too lenient |
+| `Loan_term_months = 360` (default, editable by the user in Step 3) | 360 months | Common long-term tenor for a home loan | — |
+| `investment_return_pct = 6%/year`: leftover monthly cash (after loan/rent + living costs) is assumed to be invested and compound monthly | 6% | A single number is needed to project net worth over time (Step 4 chart) | This is an **educational** assumption, not tied to any specific investment channel (savings account, stocks, etc.) — it should not be read as investment advice |
+| `property_annual_appreciation_pct = 12%/year`: property value is assumed to grow at a flat 12%/year for the entire loan term | 12% | A single number is needed to project `property_value(t)` for the BUY net-worth curve | A flat 30-year growth rate is unrealistic — real estate moves in cycles of growth, plateau, and decline. The in-app disclaimer under the net-worth chart already flags this and cites two sources: [Ministry of Construction, Dec 2025](https://vnexpress.net/bo-xay-dung-gia-nha-o-tang-binh-quan-10-15-moi-nam-4994992.html) (nationwide home prices ~10–15%/year on average) and [Global Property Guide](https://www.globalpropertyguide.com/asia/vietnam/price-history) (+21% primary / +13% secondary) — 12% sits inside that range but is still a simplification |
+| Rent growth is not modeled — the rent figure is held constant for the entire comparison period | 0% (no field for this in the current code) | Keeps the RENT net-worth formula a closed-form calculation instead of a month-by-month loop | Real rent typically rises over time (inflation, market pressure) — the demo likely **overstates** RENT's net worth in the later years of the comparison |
+| `bedrooms` is fixed at 2.0 when matching listings | 2.0 | Keeps the demo's data scope narrow | The product currently does not serve users looking for apartments with a different bedroom count |
+| Listings are matched exactly on `(ward_old, size_band, bedrooms)` — no averaging, ranking, distance tolerance, or "best pick" suggestion | — | Keeps the matching logic simple and predictable | The user has to pick manually from every matching listing instead of being shown a single recommended unit |
 
-## 2. Giả định về hành vi user
+## 2. Assumptions about user behavior
 
-| Assumption | Ghi chú |
+| Assumption | Note |
 |---|---|
-| User nhập số liệu tài chính (thu nhập, tiết kiệm, chi phí sinh hoạt) **chính xác và trung thực** | Sản phẩm không xác minh chéo với bất kỳ nguồn nào khác (vd. sao kê ngân hàng) — chỉ validate định dạng (số, không âm), không validate tính đúng đắn của số liệu |
-| User hiểu đơn vị "triệu VNĐ" trên UI | Toàn bộ input tiền trên UI đều ghi rõ đơn vị triệu VNĐ; quy đổi sang VNĐ chỉ diễn ra 1 lần trong JS ngay trước khi tính (xem `docs/input-dictionary.md` mục D) |
-| Thu nhập hộ gia đình gồm đúng 2 nguồn (`income1`, `income2`) | Không hỗ trợ hộ có 1 người hoặc >2 nguồn thu nhập — nhập `0` cho `income2` nếu chỉ có 1 người |
+| The user enters financial figures (income, savings, living cost) **accurately and honestly** | The product does not cross-check these against any external source (e.g., a bank statement) — only format is validated (numeric, non-negative), not truthfulness |
+| The user understands that all money inputs on the UI are in **million VND** | Every input field states its unit; the conversion to VND happens exactly once, in JavaScript, immediately before the calculation runs |
+| A household's income comes from exactly two sources (`income1`, `income2`) | Single-earner households enter `0` for `income2`; households with more than two income sources aren't directly supported |
 
-## 3. Ngưỡng "an toàn tài chính" (`get_safety_margin_min_pct`, `evaluate.py`)
+## 3. Minimum safety-margin threshold (`getSafetyMarginMinPct`)
 
-Đây là 1 dạng **rule/threshold** (không chỉ là con số đơn lẻ), áp dụng theo
-bậc thu nhập hộ gia đình:
+This is a rule/threshold, tiered by total household income per month:
 
-| Tổng thu nhập hộ (triệu VNĐ/tháng) | `safety_margin_min_pct` | Trạng thái |
-|---|---|---|
-| < 35 | 40% | In use — khớp đúng đề xuất ban đầu của Khánh An |
-| 35 – < 50 | 35% | In use — khớp đúng đề xuất ban đầu của Khánh An |
-| 50 – < 75 | 30% | In use — khớp đúng đề xuất ban đầu của Khánh An |
-| ≥ 75 | 25% | In use — **"tạm, chưa xác nhận"** |
-
-`Safety_margin = Money_remaining / Total_income`, trong đó
-`Money_remaining = Income1 + Income2 − Living_cost − Existing_debt − Monthly_repayment_or_rent`.
-Nếu `Safety_margin ≥ safety_margin_min_pct` thì phương án đó được coi là "an
-toàn" (`is_safe = True`).
-
-**Rủi ro:** bậc trên cùng (25%, cho hộ thu nhập ≥ 75 triệu/tháng) chưa được
-xác nhận từ nguồn nào — cần một chuyên gia tài chính cá nhân hoặc tài liệu
-tham khảo để thay thế "tạm" bằng con số có căn cứ. Nguồn tham khảo: [CFPB — Ability-to-Repay/Qualified
-Mortgage final rule](https://files.consumerfinance.gov/f/201301_cfpb_final-rule_ability-to-repay-preamble.pdf)
-(quy định của Mỹ về debt-to-income) — có thể dùng làm tài liệu tham khảo
-nguyên tắc chung, nhưng cần lưu ý đây là chuẩn Mỹ, không phải chuẩn ngân
-hàng Việt Nam, nên không nên trích dẫn như một con số áp dụng trực tiếp.
-
-## 4. Locked decisions liên quan đến assumption (không được thay đổi khi code tiếp)
-
-1. **#6** — MUA_CALC/THUE_CALC lọc đúng `(ward_old, size_band, bedrooms)`,
-   không trung bình/xếp hạng/tolerance/Haversine.
-2. **#9** — Quy đổi triệu VNĐ → VNĐ chỉ thực hiện **đúng 1 lần**, ở phía JS,
-   ngay trước khi gọi hàm tính toán; không sửa input contract phía logic tính
-   (Python gốc hoặc bản JS port).
-3. Không dùng `MIN()` để âm thầm hạ khoản vay khi thiếu vốn tự có — phải báo
-   lỗi rõ ràng (`"You need at least {shortfall} more in savings..."`).
-
-## 5. Ownership
-
-| Việc | Người phụ trách |
+| Total household income (million VND/month) | `safety_margin_min_pct` |
 |---|---|
-| Thiết kế khung bảng `FIN_ASSUMPTIONS` ban đầu (các field cần chốt) | Dương Phương Anh |
-| Nghiên cứu + đề xuất bộ số liệu FIN_ASSUMPTIONS (lãi suất theo kỳ hạn, safety margin tiers, nguồn tăng giá BĐS/giá thuê) | Phạm Thị Khánh An |
-| Nghiên cứu bộ số liệu thay thế từ nguồn Vietcombank (VCB) + tài liệu công thức LOAN_CALC (dư nợ giảm dần) | Phạm Nam Phương |
-| Bổ sung nguồn tham khảo CFPB cho ngưỡng an toàn tài chính | Dương Phương Anh |
-| Xác nhận số liệu cuối cùng đưa vào `loan_calc.py::FIN_ASSUMPTIONS` (giải quyết discrepancy giữa các đề xuất) | [Dương Phương Anh] |
+| < 35 | 40% |
+| 35 – < 50 | 35% |
+| 50 – < 75 | 30% |
+| ≥ 75 | 25% |
+
+`safety_margin = money_remaining / total_income`, where `money_remaining = income1 + income2 − living_cost − existing_debt − monthly_repayment_or_rent`. A result is judged "safe" when `safety_margin ≥ safety_margin_min_pct`.
+
+**Open risk:** the top tier (25%, for households earning ≥75 million VND/month) has not been confirmed against an authoritative source. The [CFPB Ability-to-Repay / Qualified Mortgage rule](https://files.consumerfinance.gov/f/201301_cfpb_final-rule_ability-to-repay-preamble.pdf) can serve as a general reference point for how a debt-to-income-style threshold is reasoned about, but it's a US standard, not a Vietnamese banking benchmark, and its DTI metric isn't computed the same way as `safety_margin` (it doesn't subtract living costs) — so it should not be cited as a direct source for this specific number.
+
+## 4. Design decisions locked into the current logic
+
+1. Listing matching is exact on `(ward_old, size_band, bedrooms)` — no averaging, ranking, tolerance windows, or distance-based (e.g., Haversine) matching.
+2. The million-VND → VND conversion happens exactly once, in the JS layer, immediately before the calculation functions are called.
+3. Insufficient own capital is never silently patched by shrinking the loan amount — it always surfaces as an explicit error stating the exact shortfall (`"You need at least X more in savings..."`).
