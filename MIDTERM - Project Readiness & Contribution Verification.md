@@ -1,0 +1,46 @@
+# NHA408E Midterm Exam — Project Readiness & Contribution Verification
+
+**Group:** [G04]
+**Product:** FinFlow
+**Date:** [16/09/2026]
+**Team representative:** Duong Phuong Anh
+**Repository:** [Fill in]
+**Instructor:** [Assoc. Prof., Dr. Phan Tran Trung Dung]
+
+---
+
+## A. GROUP VERIFICATION
+
+### 1. What is the biggest issue your team still needs to solve before Week 6?
+
+`interest_rate_float_ref_pct` (10.5%/year) — the floating reference rate used to compute the loan's interest rate from month 25 onward — has never been confirmed by a direct, primary source. It was originally copied from `interest_rate_promo_pct` (8.3%), even though the MB Bank rate sheet that sources 6 of our other 7 loan-related `FIN_ASSUMPTIONS` values only describes the adjustment mechanism ("re-priced every 3 months") without publishing the reference number itself. We have since replaced 8.3% with 10.5%, but that number is *back-calculated* — we took two secondary-press reports of the floating rate borrowers actually pay today (12–16%/year) and subtracted our known margin (+3.5%, which *does* have a primary source) — not independently sourced.
+
+### 2. Why is this issue important?
+
+`interest_rate_float_ref_pct` feeds directly into `evaluate_buy()`'s `safety_margin`, which is the single number `decide()` uses to output the BUY/RENT/NEITHER recommendation — the core promise of the product. In most test cases, the post-grace-period stage (using this exact rate) is the worst stage across the full 360-month schedule, meaning this one number is usually what tips a household's verdict between "safe" and "not safe."
+
+By contrast, `property_annual_appreciation_pct` — the assumption our team spent the most review time verifying (3 independent sources: Ministry of Construction, Global Property Guide, Cushman & Wakefield) — has **zero effect** on `decide()`, since it only feeds the illustrative Net-worth chart, not the safety-margin calculation. If `interest_rate_float_ref_pct` is off by even 1–2 points, the BUY/RENT verdict for households near the safety threshold could flip, while our most heavily-sourced assumption could be wrong by any amount without changing a single recommendation. This means our verification effort has so far been disproportionate to what actually drives the product's core output, and we have not yet quantified how sensitive `decide()` is to this specific, weakly-sourced number.
+
+### 3. What has your team done about this issue so far?
+
+- Replaced the original unsourced 8.3% with a back-calculated 10.5%, using two independent secondary sources (Dan Tri/SSI and Thanh Nien/Ministry of Construction+VARS-IRE, both August 2026) that report the floating rate borrowers currently pay (12–16%/year), minus our primary-sourced margin (+3.5%).
+- Fixed and verified (with hand-built test cases, including one engineered specifically to expose it) a separate but related bug: `safety_margin` was previously only checked at 2 fixed months, one of which (month 1) was not actually the worst month even within the grace period, because the promo rate and the grace period do not automatically end at the same time. This is now computed by scanning the full 360-month schedule, so we've ruled out *that* source of error before tackling the rate-sourcing issue itself.
+- Confirmed conceptually that `decide()` does not use `property_annual_appreciation_pct` at all, so time is no longer being spent refining that number for the purpose of the BUY/RENT decision (it still matters for the Net-worth chart, which is a separate, lower-stakes concern).
+
+### 4. What will your team do next about this issue?
+
+Run a sensitivity test on `interest_rate_float_ref_pct` across the plausible range implied by our own sources (roughly 8.5–12.5%, i.e., the 12–16% observed floating rate minus the +3.5% margin) against our existing test cases (Case A, C, D), and check whether `decide()`'s output changes anywhere in that range. If the verdict flips within the plausible range for any realistic household profile, we will report the recommendation as conditional on this assumption (e.g., "BUY is safe if the floating reference rate stays below X%") rather than presenting a single unqualified verdict. In parallel, we will look for a primary source (a second bank's published floating-rate sheet, or an SBV reference rate) to replace the back-calculation with a directly cited number if time allows before Week 6.
+
+---
+
+## B. MEMBER CONTRIBUTION VERIFICATION
+
+| Member | What did this member actually produce? How is it used in the project? | What can this member personally explain, calculate, demonstrate, or reproduce? |
+|---|---|---|
+| **Duong Phuong Anh** | Designed the project-master schema, listing-filtering logic, and the original `FIN_ASSUMPTIONS` table skeleton (including the income-based safety-margin tiers, later refined with Pham Thi Khanh An and Pham Nam Phuong). Cleaned raw scraped data into the final `BUY_LISTINGS`/`RENT_LISTINGS` dataset embedded in `finflow.html`, and exported review copies to `data/sample-buy.csv`, `data/sample-rent.csv`, `data/project-master.csv`. Wrote `input-dictionary.md`. Found the CFPB Ability-to-Repay reference and documented its caveat as qualitative-only support. Co-found (with Pham Thi Khanh An) the Dan Tri/SSI and Thanh Nien floating-rate sources and the 3 legal citations behind `buy_closing_costs_pct`. Co-verified (with Pham Thi Khanh An) all 4 problem-evidence sources by reading them in full. Co-authored `data-flow.md`. Implemented the Calculate-button input-validation logic. Designed and hand-calculated the test cases in `validation-and-early-logic-test.md`, cross-checking them against the code. Co-documented/implemented the declining-balance repayment formula. Co-designed the two-point (now full-schedule) safety-margin rule and the closing-cost-in-down-payment rule, and requested the AI-assisted implementation of both plus the UI/label updates and auto-generated assumptions box. Co-designed the Step 1–4 UI. Maintains and coordinates the repository. | Can explain and reproduce by hand: the full `FIN_ASSUMPTIONS` schema and why each value is set where it is; the declining-balance repayment formula; the safety-margin calculation (including why a full-schedule scan is needed instead of 2 fixed points); the closing-cost/down-payment rule; the input-validation logic; and the reasoning behind every source citation and caveat listed above. Can walk through any test case in `validation-and-early-logic-test.md` step by step. |
+| **Nguyen Minh Tuan** | Found and scraped the Cau Giay listing data actually used in the current MVP. Co-designed (with Duong Phuong Anh) the two-point/full-schedule safety-margin rule and the closing-cost-in-down-payment rule, and jointly requested their AI-assisted implementation. Co-designed the Step 1–4 UI. | Can explain and reproduce: the Cau Giay data-collection process (what was scraped, from where, how it was cleaned before handoff); the reasoning behind the safety-margin rule and the closing-cost rule he co-designed. |
+| **Nguyen Hai Son** | Found and scraped listing data for Ha Dong and Tay Ho (out of scope for the current Cau-Giay-only MVP, but real evidence of individual contribution toward the team's full-scope plan). Co-authored `data-flow.md`. | Can explain and reproduce: the Ha Dong/Tay Ho data-collection process and how it would plug into the full 3-district scope; the Source→Input→Validation→Process→Output flow documented in `data-flow.md`. |
+| **Pham Thi Khanh An** | Found and saved the MB Bank – Van Phuc Branch rate sheet (source for 6 of 7 loan-related `FIN_ASSUMPTIONS` values), the VnExpress/Ministry of Construction source for property appreciation, and the VnExpress source for rent growth. Found the SBV average-deposit-rate report supporting `investment_return_pct` = 6%. Co-found (with Duong Phuong Anh) the floating-rate sources and closing-cost legal citations. Co-verified all 4 problem-evidence sources. Co-proposed (with Pham Nam Phuong) the initial `FIN_ASSUMPTIONS` values including the safety-margin tiers. Co-authored `data-flow.md`. Co-documented/implemented the declining-balance repayment formula. | Can explain and reproduce: what each of her sourced documents says and why it supports its specific `FIN_ASSUMPTIONS` value; the reasoning behind the initial safety-margin tiers; the declining-balance formula. |
+| **Pham Nam Phuong** | Investigated Vietcombank's published rates as an alternative/cross-check source (not adopted in the final MVP numbers). Co-proposed (with Pham Thi Khanh An) the initial `FIN_ASSUMPTIONS` values including the safety-margin tiers. Co-documented/implemented the declining-balance repayment formula. Co-designed the Step 1–4 UI. | Can explain: why the Vietcombank data was investigated and why it was ultimately not used; the reasoning behind the initial safety-margin tiers; the declining-balance formula. |
+
+**Note on AI assistance:** The two-point/full-schedule safety-margin rule, the closing-cost-in-down-payment rule, the resulting UI text/label updates, and the auto-generated assumptions box in `finflow.html` were coded with AI assistance (Claude), at the request of and under the direction of Duong Phuong Anh and Nguyen Minh Tuan, who specified the rules being implemented.
