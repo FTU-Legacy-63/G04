@@ -103,7 +103,7 @@ The three contributions that best show my individual mark on FinFlow:
 - Designed and wrote the **English essay report** consistent with the final web page: Abstract; 1 Introduction (background, pain points, target users, objectives); 2 Data; 3 Product design and user flow; 4 Methodology (4.1–4.9); 5 Worked example; 6 Limitations; 7 Conclusion; References; Appendix A (base-case assumptions).
 - Cover page in the university format (logo, class NHA408E, Group 04, instructor, member list), table of contents, Times New Roman 14, line spacing 1.5, page numbers at the top.
 - 22 pages, 9 tables, 7 numbered equations; the worked example uses the same household as the slides.
-- File: [FinFlow Report 24-10-26 17h05.docx](evidence/FinFlow%20Report%2024-10-26%2017h05.docx).
+- File: [[FinFlow Report 24-10-26 17h05.docx]](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Nguyen_Hai_Son/Group_report.docx).
 
 ---
 
