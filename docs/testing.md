@@ -33,9 +33,10 @@ FinFlow answers one question: *with the money I have, should I buy or rent a 2-b
 | V3 | All new costs (service fee, fire insurance, selling cost, repairs) set to 0 | Output equals V2 (same conclusion, margin, final wealth, % BUY wins) |
 | V3 | Budget label vs direct check on 756 + 277 listings | Labels match 100% |
 | V3 | Sensitivity table | All 17 rows run; page shows no error |
-| V3 | Excel assumptions file recalculated (504 formulas) | Only the intentional error in cell C65 of the VN-Index sheet remains |
+| V3 | Excel assumptions file recalculated | Only the intentional error in cell C65 of the VN-Index sheet remains |
 | V4 | "In today's money" switch | Conclusion unchanged; % BUY wins = 91% in both modes; choice persists when scenario or N changes |
 | V4 | Sensitivity rows | Base 86%, repairs-1% row 83%, as expected |
+| V4 | Excel assumptions file v6 recalculated (504 formulas) | Only the intentional error in cell C65 of the VN-Index sheet remains |
 | V5 | Presentation-only release | Formulas unchanged (compared at build); test workbook built from this version |
 | All | Monte Carlo with standard deviation set to 0 | Every run equals the average path |
 | All | Correlation set to 0 | Result equals V2 |
@@ -102,14 +103,14 @@ The workbook has six sheets.
 
 ## 4. Results
 
-> **Status: to be completed by the team.** The workbook records the expected output of V5 for every case. The "actual result" columns (banner, labels, % using the fund, Pass / Fail) are filled in as each case is run in the browser.
+> **Status: to be completed by the team.** The workbook records the expected output of V5 for every case. The "actual result" columns (banner, labels, % using the fund, Pass / Fail) are filled in as each case is run in the browser. In the workbook version reviewed for this document, no case had been run yet.
 
 | Group | Cases | Pass | Fail | Not yet run |
 |---|---|---|---|---|
-| Calculation (G1–G13) | 88 | | | |
-| Input errors | 28 | | | |
-| Step 2–3 filters | 7 | | | |
-| **Total** | **123** | | | |
+| Calculation (G1–G13) | 88 | | | 88 |
+| Input errors | 28 | | | 28 |
+| Step 2–3 filters | 7 | | | 7 |
+| **Total** | **123** | | | **123** |
 
 **Pass rule.** Labels and banner must match exactly. Percentages may differ by at most 1 percentage point, because the interface shows whole percentages.
 
@@ -122,6 +123,7 @@ The workbook has six sheets.
 | Observation | Why it is not a bug |
 |---|---|
 | A side marked *Not safe* can still show 0% fund use (G1.06, G1.08) | "Safe every month" and "needs the emergency fund in a random future" are two separate signals |
+| A side that passes the safety check almost never needs the fund: in 5,678 extra random combinations tried by the team, only about 0–1% of futures did (G4). The Moderate and High risk chips appeared only on the Not safe side | Passing the check on average assumptions leaves a buffer; the risk chip is information, not a second verdict |
 | More emergency-fund months → "uses fund" goes **up**, "runs out" goes **down** (G5: BUY 4.9 billion, 52% → 68% and 52% → 44%) | The two figures count different things: touching the fund versus emptying it |
 | BUY ends richer than RENT in 92–99% of futures at 10 years even when only RENT passes (G2). It drops to 42–66% only in Downturn (G11) | Net worth and monthly safety measure different risks; the result page shows both rather than merging them |
 | Income 34 → 35 million flips RENT from Not safe to pass (G6) | The required safety level changes in steps (40% → 35%). This is a known design limit; the sensitivity table has a "smooth" option |
