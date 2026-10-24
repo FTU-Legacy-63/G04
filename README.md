@@ -4,7 +4,7 @@
 
 Course: Technology Applications in Finance and Banking (NHA408E), FTU 2026 · Group 04 (G04) · Instructor: Assoc. Prof., Dr. Phan Tran Trung Dung
 
-**Final build:** `src/index.html` (FINAL-PRODUCT-V5) · **Live link:** [DEPLOYMENT LINK] · **Release:** [RELEASE TAG / LINK]
+**Final build:** `src/index.html` (FINAL-PRODUCT-V5) · **Live link:** [[DEPLOYMENT LINK](https://ftu-legacy-63.github.io/G04/src/)] · 
 
 ---
 
