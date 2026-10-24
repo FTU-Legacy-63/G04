@@ -8,7 +8,7 @@
 | Data | Listing data embedded as JSON arrays in the file: 205 buildings, 756 BUY and 277 RENT listings, snapshot 2026-09-09. No database |
 | User input | Kept in the browser's memory only; never sent anywhere, no cookies, no `localStorage` or `sessionStorage` |
 | External requests | No data or calculation request leaves the page. The only external call is the stylesheet for two web fonts (DM Sans, Fraunces) from Google Fonts; if it cannot load, the browser uses its default fonts and everything else works. The net-worth chart is drawn as inline SVG, so no chart library is downloaded |
-| Deployment | Static file: open it directly in a browser, or host on GitHub Pages. Link: [DEPLOYMENT LINK] |
+| Deployment | Static file: open it directly in a browser, or host on GitHub Pages. Link: [[DEPLOYMENT LINK](https://ftu-legacy-63.github.io/G04/src/)] |
 | Engine | Loan, safety check, net worth, Monte Carlo, scenarios and sensitivity all run in the browser |
 
 ## 2. Computation and performance
