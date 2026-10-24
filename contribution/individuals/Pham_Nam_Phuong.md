@@ -75,12 +75,12 @@ My work covers three layers of FinFlow:
 | Item | What I contributed | Evidence file | How to check |
 | :--- | :--- | :--- | :--- |
 | **VN-Index data** | 64 monthly prices; mean, σ, growth over the period | `VNIndex_Returns.csv` | File shows 7.99%, 19.30%, 6.32% |
-| **Bank LTV table** | VCB 70% / 100%, BIDV and Vietinbank 100%, MB 80% | `Bank_LTV_Products.csv`; [data_and_sources.md](../data_and_sources.md) | Scenario buttons use 80 / 80 / 70% |
+| **Bank LTV table** | VCB 70% / 100%, BIDV and Vietinbank 100%, MB 80% | `Bank_LTV_Products.csv`; [data_and_sources.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/data_and_sources.md) | Scenario buttons use 80 / 80 / 70% |
 | **Mortgage rates Q3/2026** | BIDV, VCB, Agribank | `Mortgage_Rates_Market.csv` | Used only as a cross-check of the MB rates |
 | **Gold correction** | −2.9% to 11.12%, σ 14.13% | `Gold_Price_SJC.csv`; `Change_Log_v6.csv` | `Gold_Price_SJC.csv` shows 11.12% as the base and 14.89% as sensitivity |
 | **VN-Index correction** | Date error; unsourced cell and faulty block marked "not used" | `VNIndex_Returns.csv`; `Change_Log_v6.csv` | Dates read as month and year; the unsourced cell and the regression block are recorded as "not used" in the change log |
-| **Five-step flow** | Finances first; Calculate in Step 4 | [src/index.html](../../src/index.html); [user_flow.md](../user_flow.md) | Edit Step 1 after a result: the result is cleared, selected units are kept |
-| **Project filters** | District, beltway zone, ward, building name | `readProjectFilter`, `fillFilterSelects` | Filter BUY by district Cau Giay: the project list shrinks (test case S.02 in [testing.md](../testing.md)) |
+| **Five-step flow** | Finances first; Calculate in Step 4 | [src/index.html](../../src/index.html); [user_flow.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/user_flow.md) | Edit Step 1 after a result: the result is cleared, selected units are kept |
+| **Project filters** | District, beltway zone, ward, building name | `readProjectFilter`, `fillFilterSelects` | Filter BUY by district Cau Giay: the project list shrinks (test case S.02 in [testing.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/testing.md)) |
 | **"Same filters as Buy"** | Locks RENT filters to BUY and relaxes if empty | `syncRentFilters`, `resetSelections` | Tick the box with BUY on Cau Giay: RENT jumps to Cau Giay (test case S.04) |
 
 ---
@@ -91,13 +91,13 @@ My work covers three layers of FinFlow:
 | :---: | :--- | :--- | :--- |
 | **Weeks 1–5** | Candidates 1 and 2; VCB research; repayment formula; first assumptions | [contribution.md](../../archive/Week%205/contribution.md) | Early concepts and a cross-check source |
 | **Weeks 6–7** | VN-Index, LTV and mortgage-rate data; gold and VN-Index correction; five-step flow and filters | `data/financial_assumptions/` (CSV files); [src/index.html](../../src/index.html) | The stock channel, the loan scenarios and the way users move through the tool |
-| **Final** | Test of the web demo | [testing.md](../testing.md) | Checking the version the group presents |
+| **Final** | Test of the web demo | [testing.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/testing.md) | Checking the version the group presents |
 
 ---
 
 ## 6. Remaining limitations
 
-- **Stocks:** VN-Index covers only about 5 years and excludes dividends ([limitations.md](../limitations.md), #8).
+- **Stocks:** VN-Index covers only about 5 years and excludes dividends [limitations.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/limitations.md), #8).
 - **Gold:** 11.12% still comes from a strong period for gold; 14.89% runs only in sensitivity (#8); cell C65 of the VN-Index sheet still shows a divide-by-zero error, left on purpose and commented.
 - **Loan rates:** rates of BIDV, VCB and Agribank could not be identified as promo or floating rates, so they are used only to compare; some VCB figures (7.5%, 6.2%) cannot serve as the reference rate because they are an average lending rate or an expired package (#5).
 - **Filters:** they only narrow the building list and do not limit the similar units suggested later, which can mislead users; when the RENT side relaxes its filters on its own, results may be wider than the filters the user chose.
