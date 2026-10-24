@@ -63,8 +63,8 @@ My work covers three layers of FinFlow:
 ### 3.3. Dashboard framework (Weeks 6–7)
 - Components: safety-margin gauge, break-even year, tornado chart, Monte Carlo histogram.
 - Built first on mock data (net worth by year, list of similar units), then replaced by the real results once the calculation was done.
-- Functions in [src/index.html](../../src/index.html): `findBreakEven`, `buildConclusionHTML`, `drawNwSvg`. The gauge and the tornado chart were later replaced in the final interface (see below and [Sơn's file](son.md)).
-- Standalone dashboard file: **[FILE NEEDED: `dashboard_prototype.* (your actual file)` → put in `src/prototypes/`]**.
+- Functions in [src/index.html](../../src/index.html): `findBreakEven`, `buildConclusionHTML`, `drawNwSvg`. The gauge and the tornado chart were later replaced in the final interface.
+- Standalone dashboard file: [Monte Carlo](https://github.com/FTU-Legacy-63/G04/tree/main/contribution/evidence/Nguyen_Minh_Tuan).
 
 ### 3.4. Scenarios and sensitivity (Weeks 6–7)
 - **Scenarios** Boom / Stable / Downturn, each number with a source year in the 2016–2026 data:
@@ -89,7 +89,7 @@ My work covers three layers of FinFlow:
 | :--- | :--- | :--- | :--- |
 | **Cau Giay data** | Scraped and cleaned listings | `data/sample_data/BUY_RAW.csv`, `RENT_RAW.csv`, `PROJECT_MASTER.csv` (Cau Giay rows) | In Step 2, filter by district Cau Giay: projects and units appear |
 | **Monte Carlo** | Sampling loop, aggregation, fixed seed, σ values | `MC_SETTINGS`, `runMonteCarlo`, `mulberry32` in [src/index.html](../../src/index.html) | Press Calculate twice with the same input: P10 / P50 / P90 are identical |
-| **σ values** | Reference rate 0.75, house price 4, rent 1.25; later income, channels | `MC_SETTINGS`; [financial_logic.md](../financial_logic.md) | "What is varied" lists the same values |
+| **σ values** | Reference rate 0.75, house price 4, rent 1.25; later income, channels | `MC_SETTINGS`; [financial_logic.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/financial_logic.md) | "What is varied" lists the same values |
 | **Dashboard framework** | Gauge, break-even year, tornado chart, histogram (first version) | `findBreakEven`, `buildConclusionHTML`, `drawNwSvg` | Result screen shows the break-even year and the net-worth chart |
 | **Scenarios** | Boom / Stable / Downturn with source years | `SCENARIOS`, `applyScenario` | Click each button: the whole result page is recalculated |
 | **Sensitivity** | 17 rows × 500 runs | `SENSITIVITY_ROWS`, `runSensitivity` | Open "What drives the result?": 17 rows are computed one by one |
@@ -102,15 +102,13 @@ My work covers three layers of FinFlow:
 | :---: | :--- | :--- | :--- |
 | **Weeks 1–5** | Problem comparison; Cau Giay data and samples; safety-margin and closing-cost rules | [contribution.md](../../archive/Week%205/contribution.md); `data/sample_data/` (Cau Giay rows) | Data for one of the three districts and the early rules |
 | **Weeks 6–7** | Monte Carlo framework; dashboard framework | [src/index.html](../../src/index.html) | The risk engine and the base of the result page |
-| **Final** | Scenarios and sensitivity | [src/index.html](../../src/index.html); [financial_logic.md](../financial_logic.md) | The "what if?" part of the result page |
+| **Final** | Scenarios and sensitivity | [src/index.html](../../src/index.html); [financial_logic.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/financial_logic.md) | The "what if?" part of the result page |
 
 ---
 
 ## 6. Remaining limitations
 
-- **Independence:** by default variables are drawn independently (ρ = 0) and no correlation matrix is estimated from data, so tail risk (rates up while house prices and income fall) may be underestimated. The same-direction shock runs only at correlation 0.5 ([limitations.md](../limitations.md), #7).
+- **Independence:** by default variables are drawn independently (ρ = 0) and no correlation matrix is estimated from data, so tail risk (rates up while house prices and income fall) may be underestimated. The same-direction shock runs only at correlation 0.5 ([limitations.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/limitations.md), #7).
 - **Short series:** the σ values come from short series, so the uncertainty in the simulation is approximate (#25); the risk-label thresholds of 10% and 25% are a group convention (#20).
 - **Scenarios:** built only from 2016–2026; inflation, stocks, gold and holding costs are the same in all three scenarios, so a deeper crisis is not covered (#18).
 - **Dashboard:** the framework was built on mock data, so the first layout had to be adjusted when the real numbers were connected; the gauge and the tornado chart no longer appear in their original form in the final product.
-
-> **Note on AI assistance:** the code for the safety-margin and closing-cost rules was produced with AI assistance at the request of the group members named above, under their direction.
