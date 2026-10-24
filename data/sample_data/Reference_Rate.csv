@@ -1,0 +1,12 @@
+﻿Phương án,Giá trị (%/năm),Lãi thả nổi năm đầu sau ưu đãi,Từ năm sau,Nguồn / trạng thái,Cách tính
+CHỐT (08/10) – ngoại suy từ lãi thả nổi thị trường,0.105,0.12,0.14,Thanh Niên 25/08/2026: https://thanhnien.vn/nguoi-vay-mua-nha-dang-chiu-lai-suat-bao-nhieu-185260825101722042.htm ; Dân trí 24/08/2026: https://dantri.com.vn/kinh-doanh/lai-suat-tha-noi-tren-14nam-ngan-hang-giam-cho-vay-mua-nha-20260823171410442.htm,"Lãi thả nổi thị trường 13–15%/năm − biên độ MB 3,5% = 9,5–11,5%; điểm giữa 10,5%. Độ nhạy 9,5–11,5%"
+Đối chiếu – VCB lãi cho vay bình quân 06/2026,0.075,0.09,0.11,https://www.vietcombank.com.vn/-/media/Project/VCB-Sites/VCB/Tin-tuc/2026/Vietcombank/Vietcombank_202607/Vietcombank_20260721/20260729_Thong-bao-lai-suat-2026-thang-6.pdf,"Lãi cho vay bình quân MỌI khoản vay, không phải lãi tham chiếu vay mua nhà"
+Đối chiếu – NHNN lãi cho vay mới bình quân 11/2025,0.0696,0.0846,0.1046,DIV 27/01/2026: https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh,"Lãi cho vay MỌI mục đích, chỉ đối chiếu"
+,,,,,
+,,,,,
+Biên độ năm đầu sau ưu đãi (MB),0.015,,,,
+Biên độ các năm sau (MB),0.035,,,,
+Mặt bằng lãi thả nổi thị trường 08/2026,"12–15%/năm (Thanh Niên, Dân trí)",,,,
+,,,,,
+"TRẠNG THÁI: CHỐT 10,5% (nhóm quyết 08/10; số ngoại suy). Văn bản MB CN Vạn Phúc không ghi giá trị lãi tham chiếu nên vẫn nên xác nhận với chuyên viên MB (Hạn chế #5).",,,,,
+"10,5% → thả nổi 12% năm đầu sau ưu đãi, 14% các năm sau; nằm trong mặt bằng 12–15% tháng 8/2026. Monte Carlo rút σ = 0,75 điểm % quanh 10,5%.",,,,,

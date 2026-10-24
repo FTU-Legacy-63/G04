@@ -1,0 +1,70 @@
+﻿Đối chiếu bộ số trong Excel với FINAL PRODUCT V5 (index.html),,,,,,
+"Xanh dương = số gõ tay từ index.html (FIN_ASSUMPTIONS, MC_SETTINGS, SCENARIOS); xanh lá = lấy từ sheet khác; đen = công thức. Số trong code làm tròn 2 chữ số nên sai số cho phép 0,0051.",,,,,,
+Số dòng LỆCH:,0,,,,,
+"(đếm cả hai bảng; cột ""Giá trị trong Excel"" của bảng 1 là công thức nối từ các sheet khác)",,,,,,
+Tham số (key trong code),Đơn vị trong code,Giá trị trong Excel (đổi sang đơn vị code),Giá trị trong index.html V5,Sai số cho phép,Kết quả,Ô nguồn trong Excel
+interest_rate_promo_pct — 6 tháng,%,7.7,7.7,0.0001,KHỚP,tong_hop!B5
+interest_rate_promo_pct — 12 tháng,%,8.3,8.3,0.0001,KHỚP,tong_hop!B6
+interest_rate_promo_pct — 18 tháng,%,8.5,8.5,0.0001,KHỚP,tong_hop!B7
+interest_rate_promo_pct — 24 tháng,%,9,9,0.0001,KHỚP,tong_hop!B8
+interest_rate_float_ref_pct,%,10.5,10.5,0.0001,KHỚP,tong_hop!B11
+float_rate_margin_year1_pct,%,1.5,1.5,0.0001,KHỚP,tong_hop!B9
+float_rate_margin_from_year2_pct,%,3.5,3.5,0.0001,KHỚP,tong_hop!B10
+grace_period_months,tháng,24,24,0,KHỚP,tong_hop!B13
+max_loan_to_value_pct (Stable),%,80,80,0.0001,KHỚP,Kich_ban!C6
+max_borrower_age,tuổi,70,70,0,KHỚP,tong_hop!B17
+max_term_by_bank_months,tháng,360,360,0,KHỚP,tong_hop!B16
+buy_closing_costs_pct,%,2.6,2.6,0.0001,KHỚP,tong_hop!B18
+investment_channels.savings.return_pct,%,6.5,6.5,0.0051,KHỚP,tong_hop!B23
+investment_channels.bonds.return_pct,%,4.02181818181818,4.02,0.0051,KHỚP,tong_hop!B25
+investment_channels.gold.return_pct,%,11.1150461640479,11.12,0.0051,KHỚP,tong_hop!B26
+investment_channels.stocks.return_pct,%,7.99044828956891,7.99,0.0051,KHỚP,tong_hop!B24
+property_appreciation_start_pct,%,20.4310485211984,20.43,0.0051,KHỚP,Kich_ban!C7
+property_appreciation_longrun_pct,%,8.3817405358,8.38,0.0051,KHỚP,Kich_ban!C8
+property_appreciation_tau_years,năm,3.24,3.24,0.0001,KHỚP,Kich_ban!C9
+income_annual_growth_pct,%,5.56200758575756,5.56,0.0051,KHỚP,tong_hop!B21
+living_cost_annual_growth_pct,%,3.0920092915,3.09,0.0051,KHỚP,tong_hop!B22
+rent_annual_growth_pct,%,6,6,0.0001,KHỚP,Kich_ban!C10
+service_fee_vnd_per_m2,đ/m²/tháng,10000,10000,0,KHỚP,tong_hop!B36
+owner_upkeep_pct,%,0,0,0.0001,KHỚP,tong_hop!B37
+fire_insurance_pct,%,0.05,0.05,0.0001,KHỚP,tong_hop!B38
+selling_cost_pct,%,1.5,1.5,0.0001,KHỚP,tong_hop!B39
+mc_shock_correlation,ρ,0,0,0.0001,KHỚP,tong_hop!B41
+MC_SETTINGS.sigma.float_ref,điểm %,0.75,0.75,0.0001,KHỚP,tong_hop!C11
+MC_SETTINGS.sigma.property,điểm %,4,4,0.0001,KHỚP,tong_hop!C19
+MC_SETTINGS.sigma.rent,điểm %,1.25,1.25,0.0001,KHỚP,tong_hop!C20
+MC_SETTINGS.sigma.income,điểm %,5.71094009842994,5.71,0.0051,KHỚP,tong_hop!C21
+MC_SETTINGS.channel_sigma.savings,điểm %,0.816088230524127,0.82,0.0051,KHỚP,tong_hop!C23
+MC_SETTINGS.channel_sigma.bonds,điểm %,1.36507009477036,1.37,0.0051,KHỚP,tong_hop!C25
+MC_SETTINGS.channel_sigma.gold,điểm %,14.1258744990806,14.13,0.0051,KHỚP,tong_hop!C26
+MC_SETTINGS.channel_sigma.stocks,điểm %,19.2971930811575,19.3,0.0051,KHỚP,tong_hop!C24
+SCENARIOS.boom.interest_rate_float_ref_pct,%,9.75,9.75,0.0001,KHỚP,Kich_ban!B5
+SCENARIOS.downturn.interest_rate_float_ref_pct,%,11.25,11.25,0.0001,KHỚP,Kich_ban!D5
+SCENARIOS.downturn.max_loan_to_value_pct,%,70,70,0.0001,KHỚP,Kich_ban!D6
+SCENARIOS.boom.property_appreciation_tau_years,năm,6.5,6.5,0.0001,KHỚP,Kich_ban!B9
+SCENARIOS.downturn.property_appreciation_start_pct,%,3.64228437559397,3.64,0.0051,KHỚP,Kich_ban!D7
+SCENARIOS.boom.rent_annual_growth_pct,%,10,10,0.0001,KHỚP,Kich_ban!B10
+SCENARIOS.downturn.rent_annual_growth_pct,%,3,3,0.0001,KHỚP,Kich_ban!D10
+SCENARIOS.boom.income_annual_growth_pct,%,9.28757924448711,9.29,0.0051,KHỚP,Kich_ban!B11
+SCENARIOS.downturn.income_annual_growth_pct,%,3.0920092915,3.09,0.0051,KHỚP,Kich_ban!D11
+SCENARIOS.boom.channel_returns.savings,%,5.85,5.85,0.0001,KHỚP,Kich_ban!B13
+SCENARIOS.boom.channel_returns.bonds,%,2.4,2.4,0.0001,KHỚP,Kich_ban!B14
+SCENARIOS.downturn.channel_returns.savings,%,7.6,7.6,0.0001,KHỚP,Kich_ban!D13
+SCENARIOS.downturn.channel_returns.bonds,%,5.04,5.04,0.0001,KHỚP,Kich_ban!D14
+,,,,,,
+,,,,,,
+"Số liệu listing: plan v5 so với tính lại từ BUY_LISTINGS / RENT_LISTINGS nhúng trong index.html (24/10/2026, bằng script)",,,,,,
+Chỉ tiêu,Đơn vị,Số trong plan v5 (gõ tay),Tính lại từ index.html,Sai số cho phép,Kết quả,Số trong plan v5
+Số tin mua (BUY),tin,756,756,0,KHỚP,A. Data
+Số tin thuê (RENT),tin,277,277,0,KHỚP,A. Data
+Trung vị diện tích tin mua,m²,72,72,0,KHỚP,B2.1
+Trung vị diện tích tin thuê,m²,80,80,0,KHỚP,B2.1
+Trung vị tiền thuê,đ/tháng,15000000,15000000,0,KHỚP,B4
+Tổ hợp tòa × size band bên MUA (tổng),tổ hợp,235,235,0,KHỚP,B2 bước 2
+… trong đó chỉ có 1 tin,tổ hợp,99,99,0,KHỚP,B2 bước 2
+Tổ hợp tòa × size band bên THUÊ (tổng),tổ hợp,102,102,0,KHỚP,B2 bước 2
+… trong đó chỉ có 1 tin,tổ hợp,47,47,0,KHỚP,B2 bước 2
+Số tòa có cả tin mua và tin thuê,tòa,71,71,0,KHỚP,B5.1
+Trung vị lợi suất cho thuê năm 0 (71 tòa),%,2.3,2.3,0.05,KHỚP,B5.1
+Trung vị giá mua/m²,triệu đ/m²,85,84.98,0.5,KHỚP,B2 bước 3 (~85 triệu)
+Trung vị tiền thuê/m²,nghìn đ/m²/tháng,190,191.49,2,KHỚP,B2 bước 3 (~190 nghìn)

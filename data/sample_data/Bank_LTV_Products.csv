@@ -1,0 +1,9 @@
+﻿Tên ngân hàng,Gói cho vay,Loan value,Thời hạn cho vay,Ghi chú (02/10),,,
+VCB,Vay mua nhà ở đất ở,1,,VCB: 100% (gói Vay mua nhà ở đất ở),,,
+VCB,Nhà mới thành đạt,0.7,40 năm,VCB: 70% → dùng cho kịch bản Downturn (worst case),,Best case,1
+VCB,Vay mua nhà dự án ,1,30 năm,"VCB: 100% (gói nhà dự án) → cùng BIDV, Vietinbank làm căn cứ Boom",,Base case,0.8
+BIDV,Vay nhu cầu nhà ở,1,30 năm,,,Worst case,0.7
+Agribank,Vay mua nhà ở cho người trẻ tuổi,,40 năm,"""5 tỉ"" là HẠN MỨC vay, không phải tỷ lệ LTV → đã chuyển khỏi cột Loan value; LTV gói này cần tra lại.",,,
+Vietinbank,"Cho vay nhận quyền sử dụng đất, mua, xây dựng, sửa chữa nhà và/hoặc công trình xây dựng",1,35 năm,,,,
+MB BANK,Mua nhà đất thổ cư cho người trẻ,0.8,35 năm,"Gói ""người trẻ"" 35 năm khác gói Vạn Phúc → không ghép vào bộ tham số Vạn Phúc",,,
+MB BANK – CN Vạn Phúc,"Vay mua nhà đất, chung cư (văn bản CN Vạn Phúc)",0.8,30 năm (360 tháng),Nguồn: ảnh văn bản gốc MB CN Vạn Phúc (docs/assets/mb-bank-rate-sheet.png) — BASE CASE 80%,,,

@@ -1,0 +1,17 @@
+﻿Thời gian ,Ngân hàng,Lãi suất,Nguồn,Loại lãi,Ghi chú (02/10)
+Q3/2026,BIDV,0.1,Link,Chưa xác định,"Link là gói ưu đãi ""Ngôi nhà đầu tiên"" → kiểm tra 10% là lãi ưu đãi hay sau ưu đãi"
+,VCB,0.052,Link,Chưa xác định,Link là gói Nhà mới thành đạt → nhiều khả năng lãi ưu đãi; kiểm tra kỳ hạn cố định
+,Agri,0.0852,Link,Chưa xác định,"Kiểm tra kỳ hạn cố định của 8,52%"
+Q2/2026,BIDV,,Link,,
+,VCB,,Link,,
+,Agri,,Link,,
+,,,Link,,
+,,,,,
+Q3/2026,MB – CN Vạn Phúc,0.077,Ảnh văn bản gốc,Ưu đãi cố định 6 tháng,
+Q3/2026,MB – CN Vạn Phúc,0.083,Ảnh văn bản gốc,Ưu đãi cố định 12 tháng,
+Q3/2026,MB – CN Vạn Phúc,0.085,Ảnh văn bản gốc,Ưu đãi cố định 18 tháng,
+Q3/2026,MB – CN Vạn Phúc,0.09,Ảnh văn bản gốc,Ưu đãi cố định 24 tháng,
+,,,,,
+MB sau ưu đãi,"Lãi tham chiếu + 1,5% (năm đầu sau ưu đãi), + 3,5% (các năm sau); điều chỉnh 3 tháng/lần. Lãi tham chiếu: xem sheet Reference_Rate",,,,
+,,,,,
+Sửa 02/10 (#21): thêm 4 mức ưu đãi MB (A10:E13) và cột Loại lãi để không trộn lãi ưu đãi với lãi thả nổi.,,,,,

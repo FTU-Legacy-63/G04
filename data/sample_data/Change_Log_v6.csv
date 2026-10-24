@@ -1,0 +1,17 @@
+﻿"Nhật ký sửa v4 → v6 (09/10/2026, khớp Final Plan v5 và FINAL PRODUCT V5)",,,
+,,,
+Vị trí,Trước (v4),Sau (v6),Căn cứ
+Assumptions_Summary!A1,FIN_ASSUMPTIONS — bộ số sau khi sửa (02/10/2026),"FIN_ASSUMPTIONS — bộ số sau khi sửa (09/10/2026, khớp Final Plan v5 và FINAL PRODUCT V5)",Đồng bộ ngày và phiên bản với plan v5
+Assumptions_Summary!F18,"""MVP: chỉ dùng trong kiểm tra minDownPayment…""","Ghi rõ dùng ở B4 và dpLimit Plan B; thêm lưu ý căn bán lại ~0,56%","Plan v5 B3, B4, B2.1 và mục ""Bổ sung"" cuối Hạn chế"
+Assumptions_Summary!E20:F20,"ĐỀ XUẤT | VnExpress 08/2025: 5-10% một số dự án, 10-15% nhiều chung cư; repo: đi…","CHỐT (09/10) + giải thích vì sao 6%, σ 1,25","Plan v5 B3 mục ""Tăng giá thuê: vì sao base 6%/năm""; câu hỏi mở #4 đã chốt 09/10"
+Assumptions_Summary!F28,(không nhắc smooth_safe_level),Thêm ghi chú V3 smooth_safe_level,Plan v5 B3 hàng safety_margin_min_pct; code getSafetyMarginMinPctSmooth
+Assumptions_Summary!F34,(chỉ nhãn rủi ro),Thêm định nghĩa Comfortable / Tight / Not safe (ngưỡng 5 điểm %),Plan v5 B9 mục A.1; code TIGHT_BELOW_POINTS = 0.05
+"Assumptions_Summary!B35,F35",1.000 lần (bản nộp 10.000); độ nhạy 500 lần/dòng; seed cố định,"1.000 lần (bản nộp 10.000); độ nhạy 500 lần/dòng, 17 dòng; seed cố định 20260909 (mulberry32)",Plan v5 B8 và B7.1 (17 dòng độ nhạy); code MC_SETTINGS.seed = 20260909
+Assumptions_Summary!A36:F42,(chưa có),"7 dòng mới: phí dịch vụ 10.000 đ/m²; sửa chữa 0; bảo hiểm 0,05%; chi phí bán 1,5%; thuế TNCN 0%; ρ = 0; smooth_safe_level tắt","Plan v5 B3 bảng ""Chi chí vận hành và bán (V3)"", B4.1, B7.1, B8; code FIN_ASSUMPTIONS"
+Scenarios_Sensitivity!A1,Kịch bản Boom / Stable / Downturn và độ nhạy (chốt 07/10/2026),Kịch bản Boom / Stable / Downturn và độ nhạy (chốt 07/10/2026; cập nhật 09/10 theo V3–V5: thêm chi phí giữ nhà/bán và 5 dòng độ nhạy mới),"Plan v5 B7, B7.1"
+"Scenarios_Sensitivity!A17:F17, A19",(chưa có),"Thêm dòng chi phí giữ nhà/bán giữ nguyên ở 3 kịch bản (giá trị khớp tổng hợp dòng 36–40, được kiểm ở sheet Code_Cross_Check) và ghi 3 nguyên tắc kịch bản",Plan v5 B7
+Scenarios_Sensitivity!A66:E70,(chưa có),"5 dòng độ nhạy mới: phí dịch vụ, sửa chữa, chi phí bán, ρ, ngưỡng an toàn",Plan v5 B7.1; code SENSITIVITY_ROWS (16 dòng)
+Scenarios_Sensitivity!A67:B67 → A72:B72,"Ô trợ giúp ""Thu nhập TB 2020–2021"" ở B67","Chuyển sang B72, sửa chú thích ở D65",Nhường chỗ cho dòng độ nhạy mới; công thức không đổi
+"Reference_Rate!A2, A11","ĐỀ XUẤT – ngoại suy từ lãi thả nổi thị trường | TRẠNG THÁI: ĐỀ XUẤT 10,5% (ngoại suy). Văn bản MB …","CHỐT (08/10) – ngoại suy 10,5%","Plan v5 B3 (interest_rate_float_ref_pct CHỐT 08/10), câu hỏi mở #1"
+VNIndex_Returns!C65,Công thức B65/B66-1 báo lỗi chia cho 0 (tháng cũ nhất 05/2021 không có tháng trước),Để trống,Lỗi có sẵn từ v4; thống kê Q3:Q6 chỉ dùng C2:C64 nên số không đổi
+Code_Cross_Check (sheet mới),(chưa có),48 tham số của index.html V5 đối chiếu với Excel + 13 số listing tính lại từ dữ liệu nhúng,Kiểm tra Excel khớp code; kết quả cột F
