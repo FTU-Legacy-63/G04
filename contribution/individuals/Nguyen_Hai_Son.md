@@ -134,8 +134,8 @@ The three contributions that best show my individual mark on FinFlow:
 | **W4** | No separate individual entry in the Week 4 files. | — | — |
 | **W5** | Son found and scraped Ha Dong and Tay Ho listings; recorded at the midterm verification. | [contribution.md](../../archive/Week%205/contribution.md), [MIDTERM verification](../../MIDTERM%20-%20Project%20Readiness%20%26%20Contribution%20Verification.md) | Data for 2 of the 3 districts of the final product, collected before they were in scope. |
 | **W6** | Son built the first relevance engine and its scoring table. | [src/index.html](../../src/index.html): `runRelevanceEngine` | The suggestion step of the product; 45 / 30 / 25 kept to the end. |
-| **W7** | Son revised the engine, built the budget card and labels, the age-based loan term and the prepayment-fee wiring; designed the final UI. | [src/index.html](../../src/index.html); [financial_logic.md](../financial_logic.md); [user_flow.md](../user_flow.md) | Core logic of Steps 3 and 5 and the result screen the user reads. |
-| **Final** | Son upgraded the UI to the deep gradient version, tested the final page, designed the slide deck and the report. | [src/index.html](../../src/index.html); [evidence/](evidence/) | The version the group presents and submits. |
+| **W7** | Son revised the engine, built the budget card and labels, the age-based loan term and the prepayment-fee wiring; designed the final UI. | [src/index.html](../../src/index.html); [[financial_logic.md]](https://github.com/FTU-Legacy-63/G04/blob/main/docs/financial_logic.md); [[user_flow.md]](https://github.com/FTU-Legacy-63/G04/blob/main/docs/user_flow.md) | Core logic of Steps 3 and 5 and the result screen the user reads. |
+| **Final** | Son upgraded the UI to the deep gradient version, tested the final page, designed the slide deck and the report. | [src/index.html](../../src/index.html); ([evidence/](https://github.com/FTU-Legacy-63/G04/tree/main/contribution/evidence/Nguyen_Hai_Son)) | The version the group presents and submits. |
 
 ---
 
