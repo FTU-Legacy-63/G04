@@ -24,17 +24,17 @@ Monte Carlo and risk labels · scenarios Boom / Stable / Downturn · 17-row sens
 
 | Feature | Why optional | Status |
 |---|---|---|
-| Net-worth chart | Decision and risk render without it | Built (inline SVG) |
+| Net-worth chart | Decision and risk render without it | Built (inline SVG, works offline) |
 | Scenario buttons, sensitivity table | Add insight, not needed for the base verdict | Built |
 | Reality-check card | Context only | Built |
-| Smooth safety thresholds, correlation ρ | Stress tests | Built as sensitivity rows only |
+| Smooth safety thresholds, correlation ρ | Stress tests | Built as sensitivity rows only (off by default) |
 
 ## 5. Not built or out of scope
 
 | Item | Reason |
 |---|---|
 | Buy-to-let (buy and rent out) | Dropped 07/10: needs a separate yield and management model |
-| Live listing or rate data | Static snapshot by design |
+| Live listing or rate data | Static snapshot (9 Sep 2026) by design |
 | Accounts, saved history | No backend |
 | Rental deposit, in-unit repairs, furnishing, building depreciation | Weak sources or small effect; repairs run as sensitivity only |
 | Other property types and districts | 2-bedroom apartments in Tay Ho, Cau Giay, Ha Dong only |
@@ -49,4 +49,8 @@ Monte Carlo and risk labels · scenarios Boom / Stable / Downturn · 17-row sens
 
 ## 7. User goal
 
-Decide whether to buy the chosen unit or rent the chosen one, or try another pair. The five-step flow ([user_flow.md](user_flow.md)) follows this goal: finances, projects, units, investment mix, result; changing any unit or scenario is one click from the result.
+Decide whether to buy the chosen unit or rent the chosen one, or try another pair. The five-step flow ([user_flow.md](user_flow.md)) follows this goal: finances, projects, units, investment mix, result.
+
+Trying other options after a result:
+- Scenario (Boom / Stable / Downturn), comparison horizon and nominal / today's-money view change with one click and recompute the result page.
+- Another unit is picked again in Step 3, and another project or size in Step 2. Either change clears the result, so the user presses Calculate again.
