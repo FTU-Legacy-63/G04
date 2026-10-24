@@ -98,7 +98,7 @@ My work covers three layers of FinFlow:
 | Phase | Recorded in the team's progress | Confirmed output | What it shows about my contribution |
 | :---: | :--- | :--- | :--- |
 | **Weeks 1–5** | Initial idea; MB document; sources; data-flow diagram | [data-flow.md](../../archive/Week%203/data-flow.md); [contribution.md](../../archive/Week%205/contribution.md) | The starting idea and the loan terms the model uses |
-| **Weeks 6–7** | Data collection and returns; workbook review | `data/financial_assumptions/` (CSV files); `Change_Log_v6.csv` | The figures the model runs on, and their correction |
+| **Weeks 6–7** | Data collection and returns; workbook review | [data/financial_assumptions/(CSV files)](https://github.com/FTU-Legacy-63/G04/tree/main/data/financial_assumptions); [Change_Log_v6.csv](https://github.com/FTU-Legacy-63/G04/blob/main/docs/FinFlow%20-%20Change%20log%20(Midterm%20to%20Final).pdf) | The figures the model runs on, and their correction |
 | **Final** | Layout co-design; test of the web demo | [src/index.html](../../src/index.html) | The version the group presents |
 
 ---
