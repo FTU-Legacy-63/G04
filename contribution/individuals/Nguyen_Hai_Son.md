@@ -12,7 +12,7 @@
 | **Group** | Group 04 (G04) |
 | **Instructor** | Assoc. Prof., Dr. Phan Tran Trung Dung |
 
-> **Where this file sits:** `docs/individual/son.md`. Links to the repository are relative to this folder. The two final deliverables I designed (group report and slide deck) are attached in [`evidence/`](evidence/).
+> **Where this file sits:** `docs/individual/son.md`. Links to the repository are relative to this folder. The two final deliverables I designed (group report and slide deck) are attached in ([evidence/](https://github.com/FTU-Legacy-63/G04/tree/main/contribution/evidence/Nguyen_Hai_Son)).
 
 ---
 
