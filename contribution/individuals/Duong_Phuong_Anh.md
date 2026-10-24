@@ -129,7 +129,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
   - State Bank of Vietnam deposit-rate report: [div.gov.vn](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh); floating-rate sources behind the 10.5% reference rate (with An): [Thanh Niên](https://thanhnien.vn/nguoi-vay-mua-nha-dang-chiu-lai-suat-bao-nhieu-185260825101722042.htm), [Dân trí](https://dantri.com.vn/kinh-doanh/lai-suat-tha-noi-tren-14nam-ngan-hang-giam-cho-vay-mua-nha-20260823171410442.htm).
   - Three legal citations behind the 2.6% closing costs (registration tax, maintenance fund, notary fee): see 2.1.
   - I read the four problem-evidence sources in full and confirmed the exact figures and links before citing them (with An): [source-register.md, section 2](../../docs/archive/week3/source-register.md).
-- Evidence for this phase: [contribution.md, Week 5](../../docs/archive/week5/contribution.md); commit links in [evidence_links.md](../evidence_links.md) **[FILE NEEDED]**.
+- Evidence for this phase: [contribution.md, Week 5](../../docs/archive/week5/contribution.md); commit links in [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png).
 
 ### 3.2 BUY and RENT calculation upgrade (Weeks 6–7)
 
@@ -140,21 +140,18 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 - RENT wealth tracked month by month across 4 investment channels, rebalanced every year; RENT safety checked over the whole term.
 - Existing debt with a "months left" field; promo packages of 6 / 12 / 18 / 24 months; break-even year rounded up.
 - Functions: [`loanCalc`](../../src/index.html#L1580), [`evaluateBuy`](../../src/index.html#L1757), [`evaluateRent`](../../src/index.html#L1976), [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`stepPortfolio`](../../src/index.html#L1418), [`findBreakEven`](../../src/index.html#L2315), [`getSafetyMarginMinPct`](../../src/index.html#L1746) in [src/index.html](../../src/index.html).
-- Commit links for this upgrade: **[COMMIT LINK: loan / down payment — add from `git log`]**, **[COMMIT LINK: holding and selling costs — add from `git log`]**.
 
 ### 3.3 Key assumptions (Weeks 6–7)
 
 - House-price path 20.43% → 8.38%, τ = 3.24 years; rent growth 6%; age cap 70; reference rate 10.5% (details and sources in 2.4).
 - Evidence: [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`FIN_ASSUMPTIONS`](../../src/index.html#L1204) table and [`propertyGrowthPctForYear`](../../src/index.html#L1327) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md); [assumptions.md](../../docs/assumptions.md); [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv).
-- Commit link: **[COMMIT LINK: house-price path and assumption values — add from `git log`]**.
 
 ### 3.4 Integration, interface, documentation and repository (Weeks 6–7 and final build)
 
 - Integration and interface parts: see 2.5.
 - Documentation and final test suite: see 2.6.
 - Repository structure following the course guide: README, docs/, contribution/, src/, data/, tests/ ([repository](https://github.com/FTU-Legacy-63/G04)).
-- Group contribution map and the individual footprint files: [contribution_map.md](../contribution_map.md); root [README.md](../../README.md) **[FILE NEEDED: `README.md` → put in `repository root`]**.
-- Commit link for the final merge: **[COMMIT LINK: merge into one `index.html` — add from `git log`]**.
+- Group contribution map and the individual footprint files: [contribution_map.md](../contribution_map.md); root [README.md](https://github.com/FTU-Legacy-63/G04/blob/main/README.md).
 
 ---
 
@@ -170,7 +167,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 | **House-price path** | 20.43% → 8.38%, τ = 3.24 | [`propertyGrowthPctForYear`](../../src/index.html#L1327); [Property_Price_Growth.csv](../../data/financial_assumptions/Property_Price_Growth.csv) | First-year growth 20.43% (k = 1); 10-year average 12.66% |
 | **Other key assumptions** | Rent 6%, age cap 70, reference rate 10.5% | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [financial_logic.md](../../docs/financial_logic.md); [Reference_Rate.csv](../../data/financial_assumptions/Reference_Rate.csv) | Assumption box in Step 1 shows the same values |
 | **Workbook-to-code check** | Compared the assumptions workbook with the code | [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv) | 48 parameters compared; no mismatch |
-| **Integration** | One offline `index.html` | [src/index.html](../../src/index.html); [evidence_links.md](../evidence_links.md) **[FILE NEEDED]** | Open the file without internet and run a full case |
+| **Integration** | One offline `index.html` | [src/index.html](../../src/index.html); [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/README.md) | Open the file without internet and run a full case |
 | **Interface parts** | Unit cards, budget card, spare-money table, "What is varied", cash-flow table, source links, summary box | [src/index.html](../../src/index.html); [user_flow.md](../../docs/user_flow.md) | Compare each element with the description in the user flow |
 | **Documentation** | Final Plan, change log, limitations | [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf); [revision_summary.md](../../docs/revision_summary.md); [limitations.md](../../docs/limitations.md) | Numbers in these files match the web page and the workbook |
 | **Final test suite** | 88 + 28 + 7 = 123 cases | [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) **[FILE NEEDED: `FinFlow_Test_Cases_V5.xlsx` → put in `tests/`]**; [testing.md](../../docs/testing.md) | Enter a case's inputs and compare the expected columns |
@@ -181,9 +178,9 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 
 | Phase | Recorded in the team's progress | Confirmed output | What it shows about my contribution |
 | :---: | :--- | :--- | :--- |
-| **Weeks 1–5** | Concept refinement, schema, assumptions skeleton, input dictionary, data-flow diagram, validation, early logic test, source register, Final Plan | [data-flow.md](../../docs/archive/week3/data-flow.md); [contribution.md](../../docs/archive/week5/contribution.md); **[COMMIT LINK: Week 3 files — add from `git log`]** | Framework and sources the model is built on |
-| **Weeks 6–7** | Calculation upgrade, key assumptions, integration | [src/index.html](../../src/index.html); **[COMMIT LINK: calculation upgrade — add from `git log`]**; **[COMMIT LINK: merge of the final build — add from `git log`]** | The financial logic of the final product and the merged build |
-| **Final** | Interface parts, documentation, test suite, repository | [src/index.html](../../src/index.html); [testing.md](../../docs/testing.md); [revision_summary.md](../../docs/revision_summary.md); **[COMMIT LINK: documentation and tests — add from `git log`]** | The documented, tested and organized version the group submits |
+| **Weeks 1–5** | Concept refinement, schema, assumptions skeleton, input dictionary, data-flow diagram, validation, early logic test, source register, Final Plan | [data-flow.md](../../docs/archive/week3/data-flow.md); [contribution.md](../../docs/archive/week5/contribution.md) | Framework and sources the model is built on |
+| **Weeks 6–7** | Calculation upgrade, key assumptions, integration | [src/index.html](../../src/index.html) | The financial logic of the final product and the merged build |
+| **Final** | Interface parts, documentation, test suite, repository | [src/index.html](../../src/index.html); [testing.md](../../docs/testing.md); [revision_summary.md](../../docs/revision_summary.md) | The documented, tested and organized version the group submits |
 
 ---
 
@@ -245,4 +242,4 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 | Documentation | [docs/](../../docs/) |
 | Tests | [tests/](../../tests/) |
 | Group contribution map | [contribution_map.md](../contribution_map.md) |
-| Commit links with a note on what each commit shows | [evidence_links.md](../evidence_links.md) **[FILE NEEDED: `evidence_links.md` → put in `contribution/`]** |
+| Commit links with a note on what each commit shows | [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png) |
