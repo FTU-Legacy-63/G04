@@ -97,7 +97,7 @@ The three contributions that best show my individual mark on FinFlow:
 - Designed a **10-slide walkthrough** that follows the 5 steps of the web page, so the audience sees the product used live on one demo household.
 - Built on the group's Canva template (green / beige, Poppins), with screenshots captured from the deep gradient web page; wrote a script for every slide and a Vietnamese explanation so each member knows what their slide does.
 - Demo household: ages 32/30, income 35 + 25 million VND, savings 2.5 billion VND; result: both options pass, BUY is *Tight* in month 25 (23.0 million VND left vs a safe level of 20.1 million), and BUY ends richer in 97% of 1,000 simulated futures.
-- File: [Slide FinFlow G04 EN deep gradient 24-10-26 12h50.pptx](evidence/Slide%20FinFlow%20G04%20EN%20deep%20gradient%2024-10-26%2012h50.pptx).
+- File: [[Slide FinFlow G04 EN deep gradient 24-10-26 12h50.pptx]](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Nguyen_Hai_Son/Slide%20FinFlow%20G04%20EN%2023-10-26%2023h15.pptx.pdf)
 
 ### 3.8. Group report
 - Designed and wrote the **English essay report** consistent with the final web page: Abstract; 1 Introduction (background, pain points, target users, objectives); 2 Data; 3 Product design and user flow; 4 Methodology (4.1–4.9); 5 Worked example; 6 Limitations; 7 Conclusion; References; Appendix A (base-case assumptions).
