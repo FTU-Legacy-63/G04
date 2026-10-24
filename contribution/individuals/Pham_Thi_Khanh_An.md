@@ -69,10 +69,10 @@ My work covers three layers of FinFlow:
 - Inflation and GDP converted to fractions (2.67 becomes 0.0267) so that no figure is read 100 times too large.
 - Added the sheet of reference rates and the sheet of scenarios.
 - Recalculated all 504 formulas; the only error left is the intentional one in cell C65 of the VN-Index sheet.
-- Evidence: [Household_Income.csv](../../data/financial_assumptions/Household_Income.csv), [CPI_Inflation.csv](../../data/financial_assumptions/CPI_Inflation.csv), [GDP_Per_Capita.csv](../../data/financial_assumptions/GDP_Per_Capita.csv), [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv), [Reference_Rate.csv](../../data/financial_assumptions/Reference_Rate.csv), [Scenarios_Sensitivity.csv](../../data/financial_assumptions/Scenarios_Sensitivity.csv); the change log ([Change_Log_v6.csv](../../data/financial_assumptions/Change_Log_v6.csv) and [FinFlow - Change log (Midterm to Final).pdf](../FinFlow%20-%20Change%20log%20(Midterm%20to%20Final).pdf)) records each corrected cell with its reason.
+- Evidence: [Household_Income.csv](../../data/financial_assumptions/Household_Income.csv), [CPI_Inflation.csv](../../data/financial_assumptions/CPI_Inflation.csv), [GDP_Per_Capita.csv](../../data/financial_assumptions/GDP_Per_Capita.csv), [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv), [Reference_Rate.csv](../../data/financial_assumptions/Reference_Rate.csv), [Scenarios_Sensitivity.csv](../../data/financial_assumptions/Scenarios_Sensitivity.csv); the change log ([Change_Log_v6.csv](../../data/financial_assumptions/Change_Log_v6.csv) and [FinFlow - Change log (Midterm to Final).pdf](https://github.com/FTU-Legacy-63/G04/blob/main/docs/FinFlow%20-%20Change%20log%20(Midterm%20to%20Final).pdf) records each corrected cell with its reason.
 
 ### 3.4. Layout of the final product (final build)
-- Credited with Nguyễn Hải Sơn for the layout design of the final product, built on top of the version made by Dương Phương Anh. The list of layout components is in [Sơn's file](son.md), section 3.6. My specific components: **[TO ADD: list the layout components you built, with function or commit]**.
+- Credited with Nguyễn Hải Sơn for the layout design of the final product, built on top of the version made by Dương Phương Anh. The list of layout components is in [Sơn's file](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/individuals/Nguyen_Hai_Son.md), section 3.6. My specific components: **[TO ADD: list the layout components you built, with function or commit]**.
 
 ### 3.5. Test of the web demo (after the midterm)
 - Tested the web demo after the midterm (recorded in the credit table). Cases tested and bugs found: **[FILE NEEDED: `web_demo_test_log.md` → put in `tests/`]** (An's section).
@@ -85,11 +85,11 @@ My work covers three layers of FinFlow:
 | :--- | :--- | :--- | :--- |
 | **MB Bank document** | Rate document confirming 6 of 7 loan values | [mb_bank_rate.jpg](../../data/financial_assumptions/mb_bank_rate.jpg); [data_and_sources.md](../data_and_sources.md) | Promo rates 7.7 / 8.3 / 8.5 / 9.0% appear in the promo-package choice in Step 1 |
 | **Macro and market series** | Inflation, GDP, gold, bonds, deposit rates, income, property prices | [CPI_Inflation.csv](../../data/financial_assumptions/CPI_Inflation.csv), [GDP_Per_Capita.csv](../../data/financial_assumptions/GDP_Per_Capita.csv), [Gold_Price_SJC.csv](../../data/financial_assumptions/Gold_Price_SJC.csv), [Gov_Bond_Yields.csv](../../data/financial_assumptions/Gov_Bond_Yields.csv), [Deposit_Rates.csv](../../data/financial_assumptions/Deposit_Rates.csv), [Household_Income.csv](../../data/financial_assumptions/Household_Income.csv), [Property_Price_Growth.csv](../../data/financial_assumptions/Property_Price_Growth.csv) | Open each file: the series and the computed statistic match section 3.2 |
-| **Long-run house-price rate** | CPI 3.09% + GDP per person 5.29% = 8.38% | [financial_logic.md](../financial_logic.md) | The house-price path ends at 8.38% |
+| **Long-run house-price rate** | CPI 3.09% + GDP per person 5.29% = 8.38% | [financial_logic.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/financial_logic.md) | The house-price path ends at 8.38% |
 | **Income correction** | 16.3% ± 16.6% to 5.56% ± 5.71% | [Household_Income.csv](../../data/financial_assumptions/Household_Income.csv); [Change_Log_v6.csv](../../data/financial_assumptions/Change_Log_v6.csv) | `Household_Income.csv` shows 5.56% ± 5.71% |
 | **Unit consistency** | Percentages stored as fractions | [CPI_Inflation.csv](../../data/financial_assumptions/CPI_Inflation.csv), [GDP_Per_Capita.csv](../../data/financial_assumptions/GDP_Per_Capita.csv) | `CPI_Inflation.csv` stores 0.0267, not 2.67 |
-| **Formula check** | 504 formulas recalculated | [Change_Log_v6.csv](../../data/financial_assumptions/Change_Log_v6.csv); change log PDF | The workbook (v6, exported to these CSV files) was recalculated: only cell C65 of its VN-Index sheet shows an error, left on purpose |
-| **Layout co-design** | Final layout with Sơn, on Phương Anh's version | [src/index.html](../../src/index.html); [Sơn's file](son.md) | Open the page and compare with the component list |
+| **Formula check** | 504 formulas recalculated | [Change_Log_v6.csv](../../data/financial_assumptions/Change_Log_v6.csv) | The workbook (v6, exported to these CSV files) was recalculated: only cell C65 of its VN-Index sheet shows an error, left on purpose |
+| **Layout co-design** | Final layout with Sơn, on Phương Anh's version | [src/index.html](../../src/index.html); [Sơn's file](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/individuals/Nguyen_Hai_Son.md) | Open the page and compare with the component list |
 
 ---
 
@@ -105,7 +105,7 @@ My work covers three layers of FinFlow:
 
 ## 6. Remaining limitations
 
-- **Income:** only 6 yearly observations, including 2 COVID years; it is nominal income per person, so σ is uncertain ([limitations.md](../limitations.md), #9).
+- **Income:** only 6 yearly observations, including 2 COVID years; it is nominal income per person, so σ is uncertain [limitations.md](https://github.com/FTU-Legacy-63/G04/blob/main/docs/limitations.md), #9).
 - **Gold and savings:** 11.12% still comes from a strong period for gold (14.89% runs only in sensitivity); the savings rate is the highest on the market, so it is an upper bound (#8).
 - **House prices:** the series is primary-market, while the group's listings are secondary market (#10).
 - **Bank terms:** the MB document gives no date and no value for the reference rate, so 10.5% is extrapolated (#5).
