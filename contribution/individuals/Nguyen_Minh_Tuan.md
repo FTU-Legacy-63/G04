@@ -58,7 +58,7 @@ My work covers three layers of FinFlow:
 - Built first on test numbers. Two groups of variables had no σ yet and were switched off with σ = 0, then switched back on when the data arrived: income and the four investment channels.
 - Final σ values: income 5.71; savings 0.82; bonds 1.37; gold 14.13; stocks 19.30 (percentage points). Basis recorded in the plan: reference rate ±2σ around 10.5% gives 9.0–12.0%, covering the extrapolated range 9.5–11.5%; house price 4 points is about 14% a year divided by √30 ≈ 2.6, rounded up; rent growth is (10% − 5%) / 4.
 - Functions: `MC_SETTINGS` (1,000 runs, seed 20260909), `runMonteCarlo`, `mulberry32` in [src/index.html](../../src/index.html).
-- Standalone Monte Carlo file: **[FILE NEEDED: `monte_carlo_prototype.* (your actual file)` → put in `src/prototypes/`]**.
+- Standalone Monte Carlo file: [Monte Carlo](https://github.com/FTU-Legacy-63/G04/tree/main/contribution/evidence/Nguyen_Minh_Tuan).
 
 ### 3.3. Dashboard framework (Weeks 6–7)
 - Components: safety-margin gauge, break-even year, tornado chart, Monte Carlo histogram.
