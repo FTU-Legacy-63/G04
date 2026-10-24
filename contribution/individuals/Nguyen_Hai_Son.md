@@ -76,7 +76,7 @@ The three contributions that best show my individual mark on FinFlow:
 
 ### 3.4. Loan term by age and prepayment fee (Week 7)
 - `calcLoanTerm`: takes both borrowers' ages and the bank maximum; the term became a parameter passed into the loan instead of a constant.
-- Results for the older borrower: 30 → 360 months; 45 → 300; 50 → 240; 60 → 120; 68 → blocked (24 months equals the grace period); 70 or more → not eligible ([financial_logic.md, B3](../financial_logic.md#b3-the-loan-term-depends-on-age)).
+- Results for the older borrower: 30 → 360 months; 45 → 300; 50 → 240; 60 → 120; 68 → blocked (24 months equals the grace period); 70 or more → not eligible [([financial_logic.md, B3](../financial_logic.md#b3-the-loan-term-depends-on-age))](https://github.com/FTU-Legacy-63/G04/blob/main/docs/financial_logic.md).
 - `loanCalc`, `getPrepaymentFeePct`: the age-based term drives the repayment schedule; the 1% fee in years 1–5 (free from year 6) is deducted from BUY net worth.
 
 ### 3.5. Final user interface (final build)
