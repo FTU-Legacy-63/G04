@@ -1,8 +1,8 @@
 # Data and Sources
 
-**Product:** FinFlow (FINAL-PRODUCT-V5)
-**Files covered:** `data/DATA.xlsx` (apartment listings) and `data/Supporting_data_for_fin_assumptions_v6.xlsx` (financial assumptions)
-**Companion documents:** [financial_logic.md](financial_logic.md) (how the numbers are used) · [limitations.md](limitations.md) · [revision_summary.md](revision_summary.md)
+**Product:** FinFlow (FINAL-PRODUCT-V5, file [`src/index.html`](../src/index.html))
+**Files covered:** the apartment listings in `data/sample_data/` and the financial assumptions in `data/financial_assumptions/`
+**Companion documents:** [assumptions.md](assumptions.md) (every number the engine uses) · [financial_logic.md](financial_logic.md) (how the numbers are used) · [limitations.md](limitations.md) · [revision_summary.md](revision_summary.md)
 
 This document answers three questions for a reviewer: **where does each number come from, how much should it be trusted, and what was fixed along the way.** Every source name in the tables is a clickable link; the full list is in Section 8.
 
@@ -25,14 +25,28 @@ Every source below is given one grade (column **g**).
 
 **Decided** means the team fixed the value (date given). **Proposed** means calculated and accepted as a working value but not formally closed. Nothing in the final product is "open".
 
-### 1.3 Two data files
+### 1.3 The data files in the repository
 
-| File | Content | Who uses it |
+| Folder / file | Content | Who uses it |
 |---|---|---|
-| `DATA.xlsx` | 205 buildings, 756 resale listings for sale, 277 listings for rent | Embedded inside the HTML product, so the page works offline |
-| `Supporting_data_for_fin_assumptions_v6.xlsx` | All financial assumptions with sources, raw series, scenarios, a code cross-check | Source of every constant in the HTML code |
+| [`data/sample_data/`](../data/sample_data/): `PROJECT_MASTER.csv`, `BUY_RAW.csv`, `RENT_RAW.csv` | 205 buildings, 756 resale listings for sale, 277 listings for rent | Embedded inside `src/index.html`, so the page works offline |
+| [`data/financial_assumptions/`](../data/financial_assumptions/): 15 CSV files and `mb_bank_rate.jpg` | All financial assumptions with sources, raw series, scenarios, a code cross-check | Source of every constant in the HTML code |
 
-The sheet `FIN_ASSUMPTIONS_tong_hop` of the v6 workbook is the master table: one row per assumption with value, standard deviation for Monte Carlo, status and source. All other sheets are raw series or working sheets feeding it.
+[`Assumptions_Summary.csv`](../data/financial_assumptions/Assumptions_Summary.csv) is the master table: one row per assumption with value, standard deviation for Monte Carlo, status and source. All other files are raw series or working files feeding it:
+
+| File | Content |
+|---|---|
+| `Assumptions_Summary.csv` | Master table (value, σ, draw type, status, source) |
+| `Scenarios_Sensitivity.csv` | Boom / Stable / Downturn values and sensitivity rows, each with its base year |
+| `Household_Income.csv` | Red River Delta income series |
+| `CPI_Inflation.csv`, `GDP_Per_Capita.csv` | World Bank series |
+| `Property_Price_Growth.csv` | Hanoi primary-market price series |
+| `Deposit_Rates.csv`, `Gov_Bond_Yields.csv`, `Gold_Price_SJC.csv`, `VNIndex_Returns.csv` | The four investment channels |
+| `Bank_LTV_Products.csv`, `Mortgage_Rates_Market.csv` | Loan packages, LTVs and market mortgage rates |
+| `Reference_Rate.csv` | The three options for the floating reference rate |
+| `Change_Log_v6.csv` | Changes between v4 and v6 |
+| `Code_Cross_Check.csv` | Code against assumptions check |
+| `mb_bank_rate.jpg` | Photo of the MB Van Phuc rate sheet |
 
 ---
 
@@ -54,11 +68,13 @@ The sheet `FIN_ASSUMPTIONS_tong_hop` of the v6 workbook is the master table: one
 
 | Table | Fields |
 |---|---|
-| Building master (`PROJECT_MASTER`) | `project_id`, `project_name`, `district_old`, `ward_old`, `ward_2025`, `beltway_zone` (kept as text), `address_street`, `latitude`, `longitude` |
-| Sale listings (`BUY_RAW`) | `listing_id`, `project_id`, location fields, `area_m2`, `size_band`, `bedrooms`, `bathrooms` (may be blank), `total_price_vnd`, `price_m2_vnd`, `source`, `project_name` |
-| Rental listings (`RENT_RAW`) | Same, with `rent_monthly_vnd` instead of the price fields |
+| Building master (`PROJECT_MASTER.csv`) | `project_id`, `project_name`, `district_old`, `ward_old`, `ward_2025`, `beltway_zone` (kept as text), `address_street`, `latitude`, `longitude` |
+| Sale listings (`BUY_RAW.csv`) | `listing_id`, `project_id`, `district_old`, `ward_old`, `ward_2025`, `beltway_zone`, `area_m2`, `size_band`, `bedrooms`, `bathrooms` (may be blank), `total_price_billion_vnd_input`, `total_price_vnd`, `price_m2_vnd`, `source`, `project_name` |
+| Rental listings (`RENT_RAW.csv`) | Same location and size fields, with `rent_monthly_million_vnd_input` and `rent_monthly_vnd` instead of the price fields |
 
-Removed from the schema: `listing_status`, `status_updated_date`, `collection_date` (the whole file is treated as prices on 9 Sep 2026). Listing IDs start with `BCG`, `BHD`, `BTH` (sale) and `RCG`, `RHD`, `RTH` (rent) for Cau Giay, Ha Dong and Tay Ho.
+The two `_input` columns keep the figure as it was typed from the listing (in billions or millions of VND); the `_vnd` columns are the same figure in VND and are the ones the product uses.
+
+Removed from the schema: `listing_status`, `status_updated_date`, `collection_date` (the whole file is treated as prices on 9 Sep 2026). Listing IDs start with `BCG`, `BHD`, `BTH` (sale: 309, 284 and 163 listings) and `RCG`, `RHD`, `RTH` (rent: 129, 62 and 86 listings) for Cau Giay, Ha Dong and Tay Ho.
 
 ### 2.3 Where listing data is used
 
@@ -84,7 +100,7 @@ The team chose **not to clean** the listing file and to keep it frozen at 9 Sep 
 | Buildings × size bands with only 1 sale listing | 99 of 235 |
 | Buildings × size bands with only 1 rental listing | 47 of 102 |
 
-The repository also keeps a fix for three buildings (HD072–HD074) that shared the same coordinates (`data/project_master_fixes.json`); the product applies it automatically.
+One data error is corrected, in the code: three buildings (HD072–HD074) shared the same coordinates, and the product applies a fix for them automatically.
 
 ---
 
@@ -96,13 +112,13 @@ The repository also keeps a fix for three buildings (HD072–HD074) that shared 
 
 | Number | Value | Source | g | Status |
 |---|---|---|---|---|
-| Promotional rate | 7.7% (6 months), 8.3% (12), 8.5% (18), 9.0% (24) | Photo of the branch's own rate sheet (`docs/assets/mb-bank-rate-sheet.png`). The sheet has no date; recorded as Q3/2026 | A | Decided |
+| Promotional rate | 7.7% (6 months), 8.3% (12), 8.5% (18), 9.0% (24) | Photo of the branch's own rate sheet ([`mb_bank_rate.jpg`](../data/financial_assumptions/mb_bank_rate.jpg)). The sheet has no date; recorded as Q3/2026 | A | Decided |
 | Margin after promotion | +1.5% for the first 12 months, then +3.5% | Same sheet | A | Decided |
 | Grace period, prepayment fee, maximum LTV, term | 24 months; 1% in years 1–5 and none from year 6; 80%; 360 months | Same sheet. MB's separate 35-year "young people" product ([MB Bank](https://www.mbbank.com.vn/26/37/113/Chi-tiet/mua-nha-dat-tho-cu-chung-cu-du-an-cho-nguoi-tre-2024-6-5-17-58-30)) is not used | A | Decided |
 | Rate review every 3 months | 3 months | Same sheet. Recorded, but the model keeps the reference rate constant in each simulated future, so only the margin steps change the rate | A | Decided |
-| **Reference rate** | **10.5%** | Not on the sheet. Market floating rates 13–15% ([Thanh Nien, 25 Aug 2026](https://thanhnien.vn/nguoi-vay-mua-nha-dang-chiu-lai-suat-bao-nhieu-185260825101722042.htm)) and 12–14% per SSI, commonly 13–15% ([Dan Tri, 24 Aug 2026](https://dantri.com.vn/kinh-doanh/lai-suat-tha-noi-tren-14nam-ngan-hang-giam-cho-vay-mua-nha-20260823171410442.htm)), minus MB's 3.5% margin = 9.5–11.5%; midpoint used. Cross-checks that are **not** substitutes: VCB average lending rate 7.5% ([VCB notice, June 2026](https://www.vietcombank.com.vn/-/media/Project/VCB-Sites/VCB/Tin-tuc/2026/Vietcombank/Vietcombank_202607/Vietcombank_20260721/20260729_Thong-bao-lai-suat-2026-thang-6.pdf?ts=20260729065709)); State Bank average new-loan rate 6.96%, Nov 2025 ([DIV, 27 Jan 2026](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh)) | C → D | Decided 8 Oct |
-| Maximum LTV by scenario | Stable 80%, Boom 80%, Downturn 70% | 80%: MB sheet. 70%: [VCB "Nha moi thanh dat"](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Nha-moi-thanh-dat). Other packages offer 100% ([VCB home and land](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Vay-mua-nha-dat), [VCB project apartments](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Vay-mua-nha-du-an), [BIDV](https://bidv.com.vn/vn/ca-nhan/san-pham-dich-vu/vay-ca-nhan/vay-nhu-cau-nha-o), [Vietinbank](https://www.vietinbank.vn/ca-nhan/san-pham-dich-vu/cho-vay/cho-vay-nhan-quyen-su-dung-dat-mua-xay-dung-sua-chua-nha-va-hoac-cong-trinh-xay-dung-30-html)), which the team does not use because all loan terms come from the MB sheet | A | Decided |
-| Market range of mortgage rates (context only) | 3.6–9.6% early 2026 | [Vietnambiz](https://vietnambiz.vn/dau-nam-2026-lai-suat-vay-mua-nha-ngan-hang-nao-thap-nhat-2026223101939632.htm); [wiki.batdongsan](https://wiki.batdongsan.com.vn/tin-tuc/lai-suat-vay-mua-nha-ngan-hang-nao-thap-nhat-103041). Q3/2026 bank rate checks kept in the workbook: [BIDV "first home" package](https://bidv.com.vn/bidv/ca-nhan/khuyen-mai/san-pham-vay/bidv-trien-khai-goi-vay-uu-dai-ngoi-nha-dau-tien-danh-cho-khach-hang-ca-nhan), [Agribank](https://www.agribank.com.vn/vn/lai-suat-cho-vay-agribank) (rate type unconfirmed, so not used) | C | Reference |
+| **Reference rate** | **10.5%** | Not on the sheet. Market floating rates 13–15% ([Thanh Nien, 25 Aug 2026](https://thanhnien.vn/nguoi-vay-mua-nha-dang-chiu-lai-suat-bao-nhieu-185260825101722042.htm)) and 12–14% per SSI, commonly 13–15% ([Dan Tri, 24 Aug 2026](https://dantri.com.vn/kinh-doanh/lai-suat-tha-noi-tren-14nam-ngan-hang-giam-cho-vay-mua-nha-20260823171410442.htm)), minus MB's 3.5% margin = 9.5–11.5%; midpoint used. Cross-checks that are **not** substitutes: VCB average lending rate 7.5% ([VCB notice, June 2026](https://www.vietcombank.com.vn/-/media/Project/VCB-Sites/VCB/Tin-tuc/2026/Vietcombank/Vietcombank_202607/Vietcombank_20260721/20260729_Thong-bao-lai-suat-2026-thang-6.pdf?ts=20260729065709)); State Bank average new-loan rate 6.96%, Nov 2025 ([DIV, 27 Jan 2026](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh)). The three options compared are in `Reference_Rate.csv` | C → D | Decided 8 Oct |
+| Maximum LTV by scenario | Stable 80%, Boom 80%, Downturn 70% | 80%: MB sheet. 70%: [VCB "Nha moi thanh dat"](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Nha-moi-thanh-dat). Other packages offer 100% ([VCB home and land](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Vay-mua-nha-dat), [VCB project apartments](https://www.vietcombank.com.vn/vi-VN/KHCN/SPDV/Vay/Vay-mua-nha-du-an), [BIDV](https://bidv.com.vn/vn/ca-nhan/san-pham-dich-vu/vay-ca-nhan/vay-nhu-cau-nha-o), [Vietinbank](https://www.vietinbank.vn/ca-nhan/san-pham-dich-vu/cho-vay/cho-vay-nhan-quyen-su-dung-dat-mua-xay-dung-sua-chua-nha-va-hoac-cong-trinh-xay-dung-30-html)), which the team does not use because all loan terms come from the MB sheet. Package details: `Bank_LTV_Products.csv` | A | Decided |
+| Market range of mortgage rates (context only) | 3.6–9.6% early 2026 | [Vietnambiz](https://vietnambiz.vn/dau-nam-2026-lai-suat-vay-mua-nha-ngan-hang-nao-thap-nhat-2026223101939632.htm); [wiki.batdongsan](https://wiki.batdongsan.com.vn/tin-tuc/lai-suat-vay-mua-nha-ngan-hang-nao-thap-nhat-103041). Q3/2026 bank rate checks kept in `Mortgage_Rates_Market.csv`: [BIDV "first home" package](https://bidv.com.vn/bidv/ca-nhan/khuyen-mai/san-pham-vay/bidv-trien-khai-goi-vay-uu-dai-ngoi-nha-dau-tien-danh-cho-khach-hang-ca-nhan), [Agribank](https://www.agribank.com.vn/vn/lai-suat-cho-vay-agribank) (rate type unconfirmed, so not used) | C | Reference |
 
 ### 3.2 Age limit
 
@@ -132,13 +148,13 @@ The repository also keeps a fix for three buildings (HD072–HD074) that shared 
 
 | Number | Value | Source | g | Status |
 |---|---|---|---|---|
-| Home price: starting growth | 20.43% | CAGR of average Hanoi **primary-market** price 2020–2025: 1,500 → 3,800 USD/m² ([CafeF](https://cafef.vn/nhin-lai-10-nam-bds-ha-noi-gia-can-ho-tang-gan-300-thi-truong-chuan-bi-da-cuc-hoa-18826042315173533.chn); [Cushman & Wakefield](https://cloud.comm.cushmanwakefield.com/Hanoi_realestate_market_review?)) | C | Decided |
+| Home price: starting growth | 20.43% | CAGR of average Hanoi **primary-market** price 2020–2025: 1,500 → 3,800 USD/m² ([CafeF](https://cafef.vn/nhin-lai-10-nam-bds-ha-noi-gia-can-ho-tang-gan-300-thi-truong-chuan-bi-da-cuc-hoa-18826042315173533.chn); [Cushman & Wakefield](https://cloud.comm.cushmanwakefield.com/Hanoi_realestate_market_review?)). Series in `Property_Price_Growth.csv` | C | Decided |
 | Home price: long-run growth | 8.38% | CPI mean 3.092% ([World Bank – CPI](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?end=2025&locations=VN&start=2016&view=chart)) + real GDP per capita growth mean 5.29% ([World Bank – GDP per capita](https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.ZG?end=2025&locations=VN&start=2016)), 2016–2025 | B | Decided |
 | Home price: cooling speed τ | 3.24 years | **Calibrated by the team** so the next 10 years average 12.66%, the 2016–2025 CAGR of the same series | D | Decided |
 | Home price: yearly swing | 14.3% (std of YoY 2017–2025); σ in Monte Carlo 4 points | Same series; divided by √30 because one shift is drawn per future (see financial_logic.md, F3) | D | Decided |
-| Home price cross-checks (not used in formulas) | +27% primary Q2/2026 (Savills via [Mekong Asean](https://mekongasean.vn/thi-truong-nha-o-ha-noi-vang-bong-can-ho-so-cap-duoi-70-trieu-dongm2-58416.html)); about 26% a year 2019–2024 (Savills via [HouseNow](https://www.housenow.com.vn/news/gia-chung-cu-ha-noi-tang-hon-200-sau-5-nam-xu-huong-2026-va-khu-vuc-tiem-nang-212)); +21% primary and +13% resale Q2/2026, resale down about 3% on the quarter ([Global Property Guide – price history](https://www.globalpropertyguide.com/asia/vietnam/price-history)); 10–15% a year ([Ministry of Construction via VnExpress, 17 Dec 2025](https://vnexpress.net/bo-xay-dung-gia-nha-o-tang-binh-quan-10-15-moi-nam-4994992.html)); apartment prices up 30–50% in a year ([Thanh Tra](https://thanhtra.com.vn/nha-dat-57A4B2310/gia-chung-cu-ha-noi-tang-3050-chi-sau-mot-nam-hang-loat-du-an-vuot-moc-100-trieu-fd59f5bb8.html)) | CafeF/C&W figures are primary-market; the group's listings are resale, which grows slower | C | Reference |
-| Income growth | 5.56% a year, σ 5.71 | Red River Delta monthly income per capita, [NSO Living Standards Survey 2024](https://www.nso.gov.vn/wp-content/uploads/2026/03/Sach-Khao-sat-muc-song-dan-cu-2024.pdf), p. 283; 6 data points 2019–2024; nominal; includes two COVID years. Nationwide check: 4.87% ± 5.68% | B | Decided |
-| CPI | 3.09% a year (σ 0.54) | [World Bank – CPI](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?end=2025&locations=VN&start=2016&view=chart), 2016–2025 | B | Proposed |
+| Home price cross-checks (not used in formulas) | +27% primary Q2/2026 (Savills via [Mekong Asean](https://mekongasean.vn/thi-truong-nha-o-ha-noi-vang-bong-can-ho-so-cap-duoi-70-trieu-dongm2-58416.html)); about 26% a year 2019–2024 (Savills via [HouseNow](https://www.housenow.com.vn/news/gia-chung-cu-ha-noi-tang-hon-200-sau-5-nam-xu-huong-2026-va-khu-vuc-tiem-nang-212)); +21% primary and +13% resale Q2/2026, resale down about 3% on the quarter ([Global Property Guide – price history](https://www.globalpropertyguide.com/asia/vietnam/price-history)); 10–15% a year ([Ministry of Construction via VnExpress, 17 Dec 2025](https://vnexpress.net/bo-xay-dung-gia-nha-o-tang-binh-quan-10-15-moi-nam-4994992.html)); apartment prices up 30–50% in a year ([Thanh Tra](https://thanhtra.com.vn/nha-dat-57A4B2310/gia-chung-cu-ha-noi-tang-3050-chi-sau-mot-nam-hang-loat-du-an-vuot-moc-100-trieum-fd59f5bb8.html)) | CafeF/C&W figures are primary-market; the group's listings are resale, which grows slower | C | Reference |
+| Income growth | 5.56% a year, σ 5.71 | Red River Delta monthly income per capita, [NSO Living Standards Survey 2024](https://www.nso.gov.vn/wp-content/uploads/2026/03/Sach-Khao-sat-muc-song-dan-cu-2024.pdf), p. 283; 6 data points 2019–2024; nominal; includes two COVID years. Nationwide check: 4.87% ± 5.68%. Series in `Household_Income.csv` | B | Decided |
+| CPI | 3.09% a year (σ 0.54) | [World Bank – CPI](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?end=2025&locations=VN&start=2016&view=chart), 2016–2025 (`CPI_Inflation.csv`) | B | Proposed |
 | Rent growth | 6% a year, σ 1.25; sensitivity 3 / 7 / 10% | No history of apartment rents exists. Evidence conflicts: [VnExpress, 15 Aug 2025](https://vnexpress.net/chat-vat-vi-gia-thue-chung-cu-leo-thang-4927114.html) (10–15% for many apartments, 5–10% for some projects, from Batdongsan and VARS data) and [Vietnambiz, 14 Apr 2025](https://vietnambiz.vn/loi-suat-cho-thue-chung-cu-dang-giam-dan-202541323742923.htm) (rent flat about 13 million over 3 years). 6% sits between income growth (5.56%) and the press range | C/D | Decided 9 Oct |
 | Rental yield today | 3.74% ([Global Property Guide – rental yields](https://www.globalpropertyguide.com/asia/vietnam/rental-yields), 2-bedroom Hanoi, Q3 2025); 2.3% (group data, median of 71 buildings) | Used only for the "Reality check" card and for choosing the price curve | C | Proposed |
 
@@ -146,16 +162,16 @@ The repository also keeps a fix for three buildings (HD072–HD074) that shared 
 
 | Channel | Return | σ | Source | g | Status |
 |---|---|---|---|---|---|
-| Savings deposits | 6.50% | 0.82 | FiinPro, highest 6–12 month deposit rate at year-end 2016–2026 (11 points). **Upper bound**, since it is the best rate in the market. Cross-check: leading banks 7.0–7.2% ([DIV, 27 Jan 2026](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh)); [trolyluat rate chart](https://trolyluat.vn/tien-ich/bieu-do-lai-suat-tiet-kiem) | B | Proposed |
-| Government bonds | 4.02% | 1.37 | FiinPro, 10-year yield at year-end 2016–2026 (11 points). The σ is that of the yield level, acceptable if bonds are held to maturity. 5-year bond (3.23% ± 1.64) not used | B | Proposed |
-| Gold (SJC) | 11.12% | 14.13 | FiinPro, SJC selling price, monthly, Feb 2016 – Dec 2024 (107 monthly returns, mean × 12). The 2025 jump (+81.5%) is excluded on purpose; the full series (Jan 2016 – Sep 2026) gives 14.89%, kept as a sensitivity. σ is taken from the whole series | B | Decided 7 Oct |
-| Stocks | 7.99% | 19.30 | [investing.com – VN-Index](https://vn.investing.com/indices/vn-historical-data), monthly, May 2021 – Aug 2026 (64 prices). CAGR 6.32%. Dividends not included; only about 5 years | B | Proposed |
+| Savings deposits | 6.50% | 0.82 | FiinPro, highest 6–12 month deposit rate at year-end 2016–2026 (11 points; `Deposit_Rates.csv`). **Upper bound**, since it is the best rate in the market. Cross-check: leading banks 7.0–7.2% ([DIV, 27 Jan 2026](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh)); [trolyluat rate chart](https://trolyluat.vn/tien-ich/bieu-do-lai-suat-tiet-kiem) | B | Proposed |
+| Government bonds | 4.02% | 1.37 | FiinPro, 10-year yield at year-end 2016–2026 (11 points; `Gov_Bond_Yields.csv`). The σ is that of the yield level, acceptable if bonds are held to maturity. 5-year bond (3.23% ± 1.64) not used | B | Proposed |
+| Gold (SJC) | 11.12% | 14.13 | FiinPro, SJC selling price, monthly, Feb 2016 – Dec 2024 (107 monthly returns, mean × 12; `Gold_Price_SJC.csv`). The 2025 jump (+81.5%) is excluded on purpose; the full series (Jan 2016 – Sep 2026) gives 14.89%, kept as a sensitivity. σ is taken from the whole series | B | Decided 7 Oct |
+| Stocks | 7.99% | 19.30 | [investing.com – VN-Index](https://vn.investing.com/indices/vn-historical-data), monthly, May 2021 – Aug 2026 (64 prices; `VNIndex_Returns.csv`). CAGR 6.32%. Dividends not included; only about 5 years | B | Proposed |
 
-FiinPro is a paid database with no public link; the workbook records the series name and download date.
+FiinPro is a paid database with no public link; the files record the series name and download date.
 
 ### 3.6 Scenarios
 
-All scenario numbers sit in sheet `Kich_ban_do_nhay`, each tied to a year in the data (for example Boom income growth 9.29% = average of 2022–2024; Downturn deposit rate 7.6% = 2022). The table with values and reasons is in [financial_logic.md](financial_logic.md), Part F.
+All scenario numbers sit in `Scenarios_Sensitivity.csv`, each tied to a year in the data (for example Boom income growth 9.29% = average of 2022–2024; Downturn deposit rate 7.6% = 2022). The table with values and reasons is in [financial_logic.md](financial_logic.md), Part F, and in [assumptions.md](assumptions.md), Sections 7–8.
 
 ### 3.7 Team conventions (no external source)
 
@@ -171,48 +187,49 @@ All scenario numbers sit in sheet `Kich_ban_do_nhay`, each tied to a year in the
 
 ## 4. Corrections made to the raw data
 
-These fixes were made to `Supporting_data_for_fin_assumptions` between 2 and 9 Oct 2026 (full list in [revision_summary.md](revision_summary.md)). Original sheets were kept; fixed cells are highlighted and carry comments.
+These fixes were made to the financial assumptions data between 2 and 9 Oct 2026 (full list in [revision_summary.md](revision_summary.md) and `Change_Log_v6.csv`). The original series were kept; fixed cells were highlighted and commented in the Excel working copy, and the CSV files in the repository hold the corrected values.
 
-| # | Sheet | Problem | Fix | Effect |
+| # | File | Problem | Fix | Effect |
 |---|---|---|---|---|
-| 15 | Household income | Growth between survey years 2 years apart was treated as one year | Growth converted to per-year: (B_t ÷ B_t−1)^(1/years) − 1 | Mean 5.56% ± 5.71% (before: 16.3% ± 16.6%) |
-| 17 | Gold | Formula read one cell only (−2.9%); monthly figures mixed with yearly model | Added CAGR and yearly mean/σ (monthly × 12, × √12) | CAGR 14.88%, mean 14.89%, σ 14.13% |
-| 18 | VN-Index | Month labels were read as dates in the wrong year; 14.2% typed by hand with no source; a regression block with corrupt number format | Dates rebuilt; statistics recomputed; old cells marked "not used" | Mean 7.99%, σ 19.30%, CAGR 6.32% |
-| 19 | Loan value | "5 billion" in the Agribank row is a loan limit, not an LTV; MB Van Phuc missing | Moved to a note; added MB Van Phuc row | Boom / base / downturn LTV tied to specific bank packages |
-| 20 | Deposit rate | All three columns are the market's highest rates | Added mean/σ for 6–12 months and a note "upper bound" | 6.50% ± 0.82% |
-| 21 | Mortgage rate | MB (the base bank) was missing; promotional and floating rates mixed | Added four MB rows and a "rate type" column | 7.7 / 8.3 / 8.5 / 9.0% |
-| 22 | Inflation, GDP | Stored as 2.67 in two sheets and 0.056 in the others | All divided by 100 | All rates are fractions |
-| 23 | Bonds | σ of the yield level mixed up with σ of return | Added mean/σ for 5 and 10 years with a note | 10-year 4.02% ± 1.37% |
-| 24 | Home price | Unit missing; primary versus resale not distinguished | Added "USD/m², primary", YoY growth and σ, secondary cross-checks | σ of YoY 14.3% |
-| 26 | Reference rate | Two different unsourced numbers in the repo and the MVP | New sheet `Lai_tham_chieu` with three options; 10.5% chosen on 8 Oct | See 3.1 |
-| v6 | VN-Index | Cell C65 held a divide-by-zero from the oldest month | Left blank (statistics only use C2:C64) | No change in numbers |
+| 15 | `Household_Income.csv` | Growth between survey years 2 years apart was treated as one year | Growth converted to per-year: (B_t ÷ B_t−1)^(1/years) − 1 | Mean 5.56% ± 5.71% (before: 16.3% ± 16.6%) |
+| 17 | `Gold_Price_SJC.csv` | Formula read one cell only (−2.9%); monthly figures mixed with yearly model | Added CAGR and yearly mean/σ (monthly × 12, × √12) | CAGR 14.88%, mean 14.89%, σ 14.13% |
+| 18 | `VNIndex_Returns.csv` | Month labels were read as dates in the wrong year; 14.2% typed by hand with no source; a regression block with corrupt number format | Dates rebuilt; statistics recomputed; old cells marked "not used" | Mean 7.99%, σ 19.30%, CAGR 6.32% |
+| 19 | `Bank_LTV_Products.csv` | "5 billion" in the Agribank row is a loan limit, not an LTV; MB Van Phuc missing | Moved to a note; added MB Van Phuc row | Boom / base / downturn LTV tied to specific bank packages |
+| 20 | `Deposit_Rates.csv` | All three columns are the market's highest rates | Added mean/σ for 6–12 months and a note "upper bound" | 6.50% ± 0.82% |
+| 21 | `Mortgage_Rates_Market.csv` | MB (the base bank) was missing; promotional and floating rates mixed | Added four MB rows and a "rate type" column | 7.7 / 8.3 / 8.5 / 9.0% |
+| 22 | `CPI_Inflation.csv`, `GDP_Per_Capita.csv` | Stored as 2.67 in two files and 0.056 in the others | All divided by 100 | All rates are fractions |
+| 23 | `Gov_Bond_Yields.csv` | σ of the yield level mixed up with σ of return | Added mean/σ for 5 and 10 years with a note | 10-year 4.02% ± 1.37% |
+| 24 | `Property_Price_Growth.csv` | Unit missing; primary versus resale not distinguished | Added "USD/m², primary", YoY growth and σ, secondary cross-checks | σ of YoY 14.3% |
+| 26 | `Reference_Rate.csv` | Two different unsourced numbers in the repo and the MVP | Three options with floating rate after margin; 10.5% chosen on 8 Oct | See 3.1 |
+| v6 | `VNIndex_Returns.csv` | Cell C65 held a divide-by-zero from the oldest month | Left blank (statistics only use C2:C64) | No change in numbers |
 
 Source figures that were **checked and rejected** (not used anywhere): a "3.5% first year, 1.5% afterwards" margin (reversed relative to the MB sheet); a 7.5% floating rate and 3.6% step (these were VCB's average lending rate and a spread); a 6.2% 60-month promotion (really an 18-month fixed package, expired 31 Mar 2025); a 3.34% rent growth (a rental yield); a 24.33% home price growth (not found on the cited page); a 50–90% debt-to-income rule (no source).
 
 ---
 
-## 5. Check that the code matches the workbook
+## 5. Check that the code matches the data
 
-The workbook has a sheet `Doi_chieu_index_html` that compares the final HTML with the Excel assumptions:
+`Code_Cross_Check.csv` compares the final HTML (`src/index.html`) with the assumptions:
 
 | Check | Count | Mismatches |
 |---|---|---|
-| Parameters in the code (`FIN_ASSUMPTIONS`, `MC_SETTINGS`, `SCENARIOS`) against the Excel value in the same unit | 48 | **0** |
-| Listing statistics recomputed from the data embedded in the HTML against the numbers in the plan (counts, medians, 235 / 99 / 102 / 47 building-size combinations, 71 buildings with both sale and rent, median yield 2.3%) | 13 | **0** |
+| Parameters in the code (`FIN_ASSUMPTIONS`, `MC_SETTINGS`, `SCENARIOS`) against the value in `Assumptions_Summary.csv` and `Scenarios_Sensitivity.csv`, in the same unit | 48 | **0** |
+| Listing statistics recomputed from the data embedded in the HTML against the numbers in the plan (counts, medians, 235 / 99 / 102 / 47 building-size combinations, 71 buildings with both sale and rent, median yield 2.3%); recomputed by script on 24 Oct 2026 | 13 | **0** |
 
 ---
 
 ## 6. Where to find each number
 
-| To check | Open |
+| To check | Open (in `data/financial_assumptions/`) |
 |---|---|
-| Any assumption, its σ, status and source | `FIN_ASSUMPTIONS_tong_hop` |
-| Scenario values and their base years | `Kich_ban_do_nhay` |
-| Raw series | `Inflation - kan`, `GDP per capita - kan`, `Giá vàng SJC - kan`, `Return Bond (kan)`, `VNIndex return - npp`, `Lãi huy động (kan)`, `Biến động thu nhập household`, `Lạm phát giá mua bds - kan` |
-| Loan packages and LTVs | `Loan value - npp`, `Lãi suất vay nhà - npp` |
-| Reference rate options | `Lai_tham_chieu` |
-| Changes between v4 and v6 | `Nhat_ky_v6` |
-| Code versus workbook | `Doi_chieu_index_html` |
+| Any assumption, its σ, status and source | `Assumptions_Summary.csv` |
+| Scenario values and their base years | `Scenarios_Sensitivity.csv` |
+| Raw series | `CPI_Inflation.csv`, `GDP_Per_Capita.csv`, `Gold_Price_SJC.csv`, `Gov_Bond_Yields.csv`, `VNIndex_Returns.csv`, `Deposit_Rates.csv`, `Household_Income.csv`, `Property_Price_Growth.csv` |
+| Loan packages and LTVs | `Bank_LTV_Products.csv`, `Mortgage_Rates_Market.csv`, `mb_bank_rate.jpg` |
+| Reference rate options | `Reference_Rate.csv` |
+| Changes between v4 and v6 | `Change_Log_v6.csv` |
+| Code versus data | `Code_Cross_Check.csv` |
+| Apartment listings | `data/sample_data/` (`PROJECT_MASTER.csv`, `BUY_RAW.csv`, `RENT_RAW.csv`) |
 
 ---
 
@@ -227,7 +244,7 @@ The workbook has a sheet `Doi_chieu_index_html` that compares the final HTML wit
 
 ## 8. Full link list
 
-Links are taken from the hyperlinks in the Final Plan v5 (56 links). FiinPro (paid database) and the MB rate sheet (a photo in `docs/assets/`) have no public link.
+Links are taken from the hyperlinks in the Final Plan v5 (56 links). FiinPro (paid database) and the MB rate sheet (a photo, `mb_bank_rate.jpg`) have no public link.
 
 ### Loans, rates and banks
 
@@ -293,7 +310,7 @@ Links are taken from the hyperlinks in the Final Plan v5 (56 links). FiinPro (pa
 | [HouseNow (Savills)](https://www.housenow.com.vn/news/gia-chung-cu-ha-noi-tang-hon-200-sau-5-nam-xu-huong-2026-va-khu-vuc-tiem-nang-212) | Cross-check about 26% a year |
 | [Global Property Guide – price history](https://www.globalpropertyguide.com/asia/vietnam/price-history) | Cross-check +21% primary, +13% resale |
 | [VnExpress – Ministry of Construction, 17 Dec 2025](https://vnexpress.net/bo-xay-dung-gia-nha-o-tang-binh-quan-10-15-moi-nam-4994992.html) | Cross-check 10–15% a year |
-| [Thanh Tra – Hanoi apartment prices](https://thanhtra.com.vn/nha-dat-57A4B2310/gia-chung-cu-ha-noi-tang-3050-chi-sau-mot-nam-hang-loat-du-an-vuot-moc-100-trieu-fd59f5bb8.html) | Cross-check (press) |
+| [Thanh Tra – Hanoi apartment prices](https://thanhtra.com.vn/nha-dat-57A4B2310/gia-chung-cu-ha-noi-tang-3050-chi-sau-mot-nam-hang-loat-du-an-vuot-moc-100-trieum-fd59f5bb8.html) | Cross-check (press) |
 | [NSO – Living Standards Survey 2024](https://www.nso.gov.vn/wp-content/uploads/2026/03/Sach-Khao-sat-muc-song-dan-cu-2024.pdf) | Income growth |
 | [World Bank – CPI](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?end=2025&locations=VN&start=2016&view=chart) | CPI and long-run growth |
 | [World Bank – GDP per capita growth](https://data.worldbank.org/indicator/NY.GDP.PCAP.KD.ZG?end=2025&locations=VN&start=2016) | Long-run growth |
