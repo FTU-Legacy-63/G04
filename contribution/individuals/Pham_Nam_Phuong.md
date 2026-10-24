@@ -63,7 +63,7 @@ My work covers three layers of FinFlow:
 - Five-step flow, finances first; Step 4 "How you invest spare money" holds the Calculate button.
 - Filters for district, beltway zone, ward and building name in the project step.
 - "Same filters as Buy": when ticked, the RENT filters lock and follow the BUY filters; if no rental project matches, they relax in the order building name, ward, beltway zone, district, and the page says what was relaxed.
-- Functions: `readProjectFilter`, `fillFilterSelects`, `syncRentFilters`, `resetSelections` in [src/index.html](../../src/index.html); [user_flow.md](../user_flow.md).
+- Functions: `readProjectFilter`, `fillFilterSelects`, `syncRentFilters`, `resetSelections` in [src/index.html](../../src/index.html); [(user_flow.md)](https://github.com/FTU-Legacy-63/G04/blob/main/docs/user_flow.md).
 
 ### 3.5. Test of the web demo (after the midterm)
 - Tested the web demo after the midterm (recorded in the credit table). Cases tested and bugs found: **[FILE NEEDED: `web_demo_test_log.md` → put in `tests/`]** (Nam Phương's section).
