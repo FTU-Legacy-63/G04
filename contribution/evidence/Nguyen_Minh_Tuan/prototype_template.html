@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FinFlow — Mua hay thuê căn 2 phòng ngủ ở Hà Nội (prototype giao diện)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#EEF1F4;--sheet:#FFFFFF;--ink:#1F2A44;--ink-2:#4A5570;--line:#C9D1DB;--buy:#C24E6B;--rent:#2E7D78;--warn:#B7791F;--err:#A8322D;
+  --font:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,sans-serif;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141A26;--sheet:#1C2433;--ink:#E6EAF2;--ink-2:#A9B3C7;--line:#34405A;--buy:#E07C95;--rent:#5FB7AF;--warn:#E0A84A;--err:#E3746D}}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;font-variant-numeric:tabular-nums}
+header{position:relative;overflow:hidden;padding:2.2rem 1.25rem 1.6rem;border-bottom:1px solid var(--line);background:var(--sheet)}
+header .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto}
+h1{font-size:clamp(1.6rem,3.2vw,2.35rem);line-height:1.15;margin:0 0 .4rem;font-weight:700;letter-spacing:-.01em;max-width:24ch}
+header p{margin:0;max-width:62ch;color:var(--ink-2)}
+#rings{position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:420px;height:420px;opacity:.9;pointer-events:none}
+#rings circle{fill:none;stroke:var(--line);stroke-width:1.2}
+#rings circle.on{stroke:var(--buy);stroke-width:3}
+#rings text{font:500 11px var(--font);fill:var(--ink-2)}
+.layout{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:210px 1fr;gap:2rem;padding:1.5rem 1.25rem 4rem}
+nav ol{list-style:none;margin:0;padding:0;position:sticky;top:calc(1rem + env(safe-area-inset-top,0px))}
+nav li a{display:grid;grid-template-columns:2rem 1fr;align-items:baseline;padding:.45rem 0;color:var(--ink-2);text-decoration:none;border-left:2px solid transparent}
+nav li a b{font-weight:600;color:var(--ink);padding-left:.6rem}
+nav li a:hover,nav li a:focus-visible{color:var(--ink);border-left-color:var(--buy)}
+section{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:1.4rem 1.5rem;margin-bottom:1.4rem}
+h2{font-size:1.3rem;margin:0 0 .2rem;font-weight:700}
+h2 span{color:var(--ink-2);font-weight:500;margin-right:.5rem}
+.lead{margin:.1rem 0 1.1rem;color:var(--ink-2);max-width:70ch}
+.row{display:grid;gap:1rem;margin-bottom:1rem}
+.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:repeat(3,1fr)}.row.four{grid-template-columns:repeat(4,1fr)}
+label{display:block;font-weight:600;font-size:.92rem;margin-bottom:.3rem}
+label small{font-weight:400;color:var(--ink-2)}
+select,input[type=number]{width:100%;font:inherit;padding:.55rem .65rem;border:1px solid var(--line);border-radius:4px;background:var(--sheet);color:var(--ink)}
+select:disabled,input:disabled{opacity:.55}
+:focus-visible{outline:3px solid var(--rent);outline-offset:2px}
+fieldset{border:1px solid var(--line);border-radius:4px;padding:.7rem .9rem;margin:0}
+legend{font-weight:600;font-size:.92rem;padding:0 .3rem}
+.seg{display:flex;gap:.4rem;flex-wrap:wrap}
+.seg label{font-weight:500;display:flex;align-items:center;gap:.35rem;margin:0;padding:.35rem .7rem;border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.seg input{accent-color:var(--ink)}
+fieldset.buy{border-color:var(--buy)}fieldset.rent{border-color:var(--rent)}
+button{font:inherit;font-weight:600;padding:.65rem 1.1rem;border-radius:4px;border:1px solid var(--ink);background:var(--ink);color:var(--sheet);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+.hint{font-size:.9rem;color:var(--ink-2);margin:.35rem 0 0}
+.hint.err,.errbox{color:var(--err)}
+.errbox{font-weight:600;margin:.6rem 0 0}
+.note{border-left:3px solid var(--warn);padding:.5rem .8rem;margin:.8rem 0;background:color-mix(in srgb,var(--warn) 9%,transparent)}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.2rem}
+.col h3{margin:0 0 .4rem;font-size:1.05rem}
+.col.buy h3{color:var(--buy)}.col.rent h3{color:var(--rent)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:.1rem .8rem;font-size:.88rem;margin:0 0 .8rem;color:var(--ink-2)}
+.facts dt{font-weight:600;color:var(--ink)}.facts dd{margin:0}
+.tier{margin:.9rem 0 .3rem;font-weight:700;font-size:.95rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:.2rem}
+.tier small{font-weight:500;color:var(--ink-2)}
+.item{padding:.5rem 0;border-bottom:1px dashed var(--line);display:grid;grid-template-columns:4.2rem 1fr auto;gap:.2rem .7rem;align-items:baseline}
+.chip{font-size:.78rem;font-weight:700;text-align:center;border-radius:3px;padding:.1rem .2rem;border:1.5px solid var(--ink)}
+.chip.TARGET{background:var(--ink);color:var(--sheet)}.chip.HIGH{background:color-mix(in srgb,var(--ink) 78%,transparent);color:var(--sheet)}
+.chip.MEDIUM{background:color-mix(in srgb,var(--ink) 18%,transparent)}.chip.WARNING{border-color:var(--warn);color:var(--warn)}
+.item .name{font-weight:600}.item .num{text-align:right;white-space:nowrap}
+.item .why{grid-column:2/4;font-size:.84rem;color:var(--ink-2)}
+.banner{background:color-mix(in srgb,var(--warn) 14%,transparent);border:1px solid var(--warn);padding:.5rem .7rem;border-radius:4px;font-size:.88rem;margin-top:.6rem}
+.alloc{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.alloc .ch small{display:block;color:var(--ink-2);font-size:.8rem;line-height:1.35;margin-top:.25rem}
+.sum{font-weight:700}.sum.bad{color:var(--err)}.sum.ok{color:var(--rent)}
+.disc p{margin:.4rem 0}.disc .dyn{border-left:3px solid var(--buy);padding-left:.7rem}
+.mock{position:relative}
+.mock::before{content:"DỮ LIỆU GIẢ — chỉ để duyệt bố cục, chưa phải kết quả mô hình";display:block;font-size:.8rem;font-weight:700;color:var(--warn);margin-bottom:.6rem}
+.dash{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.dash figure{margin:0;border:1px solid var(--line);border-radius:4px;padding:.8rem}
+.dash figcaption{font-weight:600;font-size:.95rem;margin-bottom:.4rem}
+.dash svg{width:100%;height:auto;display:block}
+.dash svg text{font:12px var(--font);fill:var(--ink-2)}
+.axis{stroke:var(--line)}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav{display:none}.results,.dash,.row.two,.row.three,.row.four,.alloc{grid-template-columns:1fr}#rings{opacity:.35}}
+</style>
+</head>
+<body>
+<header>
+  <svg id="rings" viewBox="-210 -210 420 420" aria-hidden="true"></svg>
+  <div class="wrap">
+    <h1>Mua hay thuê căn 2 phòng ngủ ở Hà Nội</h1>
+    <p>Bản prototype giao diện FinFlow (29/09/2026). Step 1–5 chạy bằng dữ liệu thật của 3 quận và engine đã kiểm thử; dashboard ở Step 6 dùng dữ liệu giả để duyệt bố cục.</p>
+  </div>
+</header>
+<div class="layout">
+<nav aria-label="Các bước">
+  <ol>
+    <li><a href="#s1"><span>1</span><b>Khu vực</b></a></li>
+    <li><a href="#s2"><span>2</span><b>Tòa nhà và kích cỡ</b></a></li>
+    <li><a href="#s3"><span>3</span><b>Hồ sơ tài chính</b></a></li>
+    <li><a href="#s4"><span>4</span><b>Kết quả và lưu ý</b></a></li>
+    <li><a href="#s5"><span>5</span><b>Mô phỏng Monte Carlo</b></a></li>
+    <li><a href="#s6"><span>6</span><b>Dashboard</b></a></li>
+  </ol>
+</nav>
+<main>
+<section id="s1" aria-labelledby="h-s1">
+  <h2 id="h-s1"><span>1</span>Khu vực</h2>
+  <p class="lead">Chọn quận để thu hẹp danh sách tòa nhà. Phường và vành đai không bắt buộc.</p>
+  <div class="row"><div><label for="district">Quận (địa giới cũ)</label><select id="district" required></select></div></div>
+  <div class="row two">
+    <div><label for="ward">Phường (địa giới cũ) <small>— không bắt buộc</small></label><select id="ward"></select></div>
+    <div><label for="beltway">Vành đai <small>— không bắt buộc</small></label><select id="beltway"></select></div>
+  </div>
+  <p class="hint" id="s1-count"></p>
+</section>
+
+<section id="s2" aria-labelledby="h-s2">
+  <h2 id="h-s2"><span>2</span>Tòa nhà và kích cỡ căn</h2>
+  <p class="lead">Tòa bạn chọn là mốc so sánh (TARGET). Kích cỡ căn mua và căn thuê được chọn riêng, nên hệ thống tìm căn tương đồng hai lần độc lập.</p>
+  <div class="row"><div><label for="project">Tên tòa nhà</label><select id="project" required disabled></select></div></div>
+  <div class="row two">
+    <fieldset class="buy"><legend>Kích cỡ căn muốn mua</legend><div class="seg" id="sb-buy"></div></fieldset>
+    <fieldset class="rent"><legend>Kích cỡ căn muốn thuê</legend><div class="seg" id="sb-rent"></div></fieldset>
+  </div>
+  <p class="hint">Nhỏ: dưới 60 m² · Vừa: 60–80 m² · Lớn: trên 80 m² (theo size band trong DATA.xlsx).</p>
+  <button id="run-s2" type="button" class="ghost">Tìm lại căn tương đồng</button>
+  <p class="errbox" id="s2-error" role="alert"></p>
+  <p class="note" id="coord-note" hidden>Tọa độ tòa này đã được sửa theo Google Places (tra cứu 29/09/2026) vì dữ liệu gốc bị trùng với 2 tòa khác. Team cần xác minh lại trước khi chốt.</p>
+  <div class="results" id="s2-results" hidden>
+    <div class="col buy"><h3>Căn để mua tương đồng</h3><div id="list-buy"></div></div>
+    <div class="col rent"><h3>Căn để thuê tương đồng</h3><div id="list-rent"></div></div>
+  </div>
+</section>
+
+<section id="s3" aria-labelledby="h-s3">
+  <h2 id="h-s3"><span>3</span>Hồ sơ tài chính</h2>
+  <p class="lead">Thời hạn vay tối đa được tính từ tuổi người vay lớn tuổi nhất và giới hạn của ngân hàng.</p>
+  <div class="row"><label style="display:flex;gap:.5rem;align-items:center;font-weight:500"><input type="checkbox" id="couple"> Vay chung với vợ/chồng</label></div>
+  <div class="row four">
+    <div><label for="age1">Tuổi người vay 1</label><input type="number" id="age1" min="18" step="1" value="30"></div>
+    <div><label for="inc1">Thu nhập người vay 1 <small>(triệu/tháng)</small></label><input type="number" id="inc1" min="0" step="0.5" value="30"></div>
+    <div class="p2"><label for="age2">Tuổi người vay 2</label><input type="number" id="age2" min="18" step="1" value="28" disabled></div>
+    <div class="p2"><label for="inc2">Thu nhập người vay 2 <small>(triệu/tháng)</small></label><input type="number" id="inc2" min="0" step="0.5" value="20" disabled></div>
+  </div>
+  <div class="row three">
+    <div><label for="savings">Tiết kiệm hiện có <small>(triệu)</small></label><input type="number" id="savings" min="0" step="10" value="1700"></div>
+    <div><label for="living">Chi phí sinh hoạt <small>(triệu/tháng)</small></label><input type="number" id="living" min="0" step="0.5" value="12"></div>
+    <div><label for="debt">Trả nợ khác <small>(triệu/tháng)</small></label><input type="number" id="debt" min="0" step="0.5" value="0"></div>
+  </div>
+  <div class="row two">
+    <div><label for="term">Thời hạn vay <small>(tháng)</small></label><input type="number" id="term" min="25" step="12" value="360"><p class="hint" id="term-max" aria-live="polite"></p></div>
+    <div><label for="promo">Gói lãi suất ưu đãi</label><select id="promo"></select><p class="hint" id="promo-hint"></p></div>
+  </div>
+  <fieldset><legend>Phân bổ tiền nhàn rỗi vào 4 kênh (tổng phải bằng 100%)</legend>
+    <div class="alloc" id="alloc"></div>
+    <p class="hint">Tổng hiện tại: <span class="sum" id="alloc-sum"></span></p>
+  </fieldset>
+</section>
+
+<section id="s4" aria-labelledby="h-s4">
+  <h2 id="h-s4"><span>4</span>Kết quả và lưu ý</h2>
+  <div class="disc" id="disc"><p>Chọn tòa nhà và kích cỡ ở Step 2 để xem lưu ý so sánh.</p></div>
+  <p class="errbox" id="s4-check"></p>
+  <p class="hint">Kết quả BUY/RENT, Net worth và break-even được tính bằng engine Python (finflow.evaluate) — prototype này chỉ kiểm tra đầu vào và hiển thị lưu ý.</p>
+</section>
+
+<section id="s5" aria-labelledby="h-s5">
+  <h2 id="h-s5"><span>5</span>Mô phỏng Monte Carlo</h2>
+  <p class="lead">Số lần mô phỏng chỉ chọn từ các mức có sẵn. Bản nộp cuối chạy 10.000 lần.</p>
+  <div class="row two"><div><label for="nsel">Số lần mô phỏng</label><select id="nsel"></select><p class="hint" id="n-hint"></p></div></div>
+</section>
+
+<section id="s6" aria-labelledby="h-s6" class="mock">
+  <h2 id="h-s6"><span>6</span>Dashboard</h2>
+  <div class="dash">
+    <figure><figcaption>Safety margin tháng tệ nhất so với ngưỡng</figcaption><svg id="g-gauge" viewBox="0 0 320 190" role="img" aria-label="Đồng hồ safety margin"></svg></figure>
+    <figure><figcaption>Net worth MUA và THUÊ theo năm</figcaption><svg id="g-nw" viewBox="0 0 420 240" role="img" aria-label="Biểu đồ Net worth"></svg></figure>
+    <figure><figcaption>Độ nhạy chênh lệch Net worth năm 30 (±1 độ lệch chuẩn)</figcaption><svg id="g-tornado" viewBox="0 0 420 220" role="img" aria-label="Biểu đồ tornado"></svg></figure>
+    <figure><figcaption>Phân phối chênh lệch Net worth MUA − THUÊ (Monte Carlo)</figcaption><svg id="g-hist" viewBox="0 0 420 220" role="img" aria-label="Histogram"></svg></figure>
+  </div>
+</section>
+</main>
+</div>
+<script>/*__ENGINE__*/</script>
+<script>
+"use strict";
+const DATA = /*__DATA__*/null;
+const E = window.FinFlowEngine;
+Object.assign(E.LOAN, DATA.config.loan);
+const $ = (s) => document.querySelector(s);
+const SIZE_LABEL = { Small: "Nhỏ", Medium: "Vừa", Large: "Lớn" };
+const state = { district: "", ward: "", beltway: "", project: "", sbBuy: "Medium", sbRent: "Medium", couple: false };
+const vi = (x, d) => Number(x).toLocaleString("vi-VN", { maximumFractionDigits: d === undefined ? 1 : d });
+
+function uniq(a) { return [...new Set(a.filter((v) => v !== null && v !== undefined && v !== ""))].sort((x, y) => String(x).localeCompare(String(y), "vi")); }
+function fillSelect(sel, items, placeholder, selected) {
+  sel.innerHTML = "";
+  const o = document.createElement("option"); o.value = ""; o.textContent = placeholder; sel.appendChild(o);
+  for (const it of items) {
+    const [v, t] = Array.isArray(it) ? it : [it, it];
+    const op = document.createElement("option"); op.value = v; op.textContent = t;
+    if (String(v) === String(selected)) op.selected = true;
+    sel.appendChild(op);
+  }
+}
+function esc(s) { return String(s === null || s === undefined ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+/* ---------- vành đai ở header: sáng vòng của tòa TARGET ---------- */
+const RINGS = [1, 2, 2.5, 3, 3.5, 4];
+function drawRings() {
+  const svg = $("#rings"), ns = "http://www.w3.org/2000/svg";
+  RINGS.forEach((r, i) => {
+    const c = document.createElementNS(ns, "circle"); c.setAttribute("r", 34 + i * 33); c.dataset.ring = r; svg.appendChild(c);
+    const t = document.createElementNS(ns, "text"); t.setAttribute("x", 4); t.setAttribute("y", -(34 + i * 33) - 3); t.textContent = "VĐ" + String(r).replace(".", ","); svg.appendChild(t);
+  });
+}
+function highlightRings(zone) {
+  const nums = zone ? String(zone).split("-").map(Number) : [];
+  const lo = Math.min(...nums), hi = Math.max(...nums);
+  document.querySelectorAll("#rings circle").forEach((c) => { const r = Number(c.dataset.ring); c.classList.toggle("on", nums.length > 0 && r >= lo && r <= hi); });
+}
+
+/* ---------- Step 1 ---------- */
+function initStep1() {
+  fillSelect($("#district"), uniq(Object.values(DATA.projects).map((p) => p.district_old)), "Chọn quận");
+  $("#district").addEventListener("change", (e) => { state.district = e.target.value; state.ward = ""; state.beltway = ""; refreshStep1(); });
+  $("#ward").addEventListener("change", (e) => { state.ward = e.target.value; refreshBuildings(); });
+  $("#beltway").addEventListener("change", (e) => { state.beltway = e.target.value; refreshBuildings(); });
+  refreshStep1();
+}
+function refreshStep1() {
+  const inD = Object.values(DATA.projects).filter((p) => p.district_old === state.district);
+  fillSelect($("#ward"), uniq(inD.map((p) => p.ward_old)), "Tất cả phường", state.ward);
+  fillSelect($("#beltway"), uniq(inD.map((p) => p.beltway_zone)), "Tất cả vành đai", state.beltway);
+  $("#ward").disabled = $("#beltway").disabled = !state.district;
+  refreshBuildings();
+}
+function refreshBuildings() {
+  const sel = $("#project");
+  if (!state.district) { fillSelect(sel, [], "Chọn quận ở Step 1 trước"); sel.disabled = true; $("#s1-count").textContent = ""; state.project = ""; return; }
+  const ids = E.filterBuildings(DATA.projects, state.district, state.ward || null, state.beltway || null);
+  if (!ids.includes(state.project)) state.project = "";
+  fillSelect(sel, ids.map((id) => [id, DATA.projects[id].project_name + " (" + id + ")"]), ids.length ? "Chọn tòa nhà" : "Không có tòa nào khớp bộ lọc", state.project);
+  sel.disabled = ids.length === 0;
+  $("#s1-count").textContent = ids.length + " tòa khớp bộ lọc. Bộ lọc này chỉ thu hẹp danh sách tòa ở Step 2, không giới hạn phạm vi tìm căn tương đồng.";
+}
+
+/* ---------- Step 2 ---------- */
+function initStep2() {
+  for (const [id, key] of [["#sb-buy", "sbBuy"], ["#sb-rent", "sbRent"]]) {
+    const box = $(id);
+    for (const sb of ["Small", "Medium", "Large"]) {
+      const lab = document.createElement("label");
+      lab.innerHTML = '<input type="radio" name="' + key + '" value="' + sb + '"' + (state[key] === sb ? " checked" : "") + "> " + SIZE_LABEL[sb];
+      lab.querySelector("input").addEventListener("change", () => { state[key] = sb; renderDisclaimers(); if (state.project) runStep2(); });
+      box.appendChild(lab);
+    }
+  }
+  $("#project").addEventListener("change", (e) => { state.project = e.target.value; highlightRings(state.project ? DATA.projects[state.project].beltway_zone : null); renderDisclaimers(); if (state.project) runStep2(); else $("#s2-results").hidden = true; });
+  $("#run-s2").addEventListener("click", runStep2);
+}
+function runStep2() {
+  const err = $("#s2-error");
+  if (!state.project) { err.textContent = "Chọn tòa nhà trước khi tìm căn tương đồng."; return; }
+  err.textContent = "";
+  try {
+    const buy = E.runRelevanceEngine(DATA.buy, DATA.projects, state.project, state.sbBuy, "buy");
+    const rent = E.runRelevanceEngine(DATA.rent, DATA.projects, state.project, state.sbRent, "rent");
+    renderList($("#list-buy"), buy, "buy");
+    renderList($("#list-rent"), rent, "rent");
+    $("#s2-results").hidden = false;
+    $("#coord-note").hidden = !DATA.projects[state.project].coord_fixed;
+  } catch (e) { err.textContent = e.message; }
+}
+function renderList(el, res, mode) {
+  const m = res.meta, unit = mode === "buy" ? (v) => vi(v / 1e6) + " tr/m²" : (v) => vi(v / 1e3, 0) + " nghìn/m²";
+  const nT = (m.counts.TARGET || 0);
+  let h = '<dl class="facts"><dt>Căn cùng kích cỡ</dt><dd>' + m.n_pool + " căn " + SIZE_LABEL[m.size_band].toLowerCase() + "</dd>";
+  h += "<dt>Mốc giá</dt><dd>" + (m.reference_price_m2 ? unit(m.reference_price_m2) + (m.reference_source === "TARGET" ? " — trung vị " + nT + " căn của tòa bạn chọn" : " — trung vị toàn bộ căn cùng kích cỡ (tòa bạn chọn không có căn nào)") : "chưa có") + "</dd>";
+  h += "<dt>Chấm theo giá</dt><dd>" + (m.price_scoring_enabled ? "có (sai số cho phép ±" + (m.tolerance * 100) + "%)" : "tắt — dưới " + m.n_min + " căn nên điểm tối đa 55") + "</dd></dl>";
+  if (m.reference_source === "TARGET" && nT < 3) h += '<p class="note">Mốc giá chỉ dựa trên ' + nT + " căn của tòa bạn chọn nên độ tin cậy thấp.</p>";
+  for (const lv of E.LEVEL_ORDER) {
+    const total = m.counts[lv] || 0;
+    if (!total) continue;
+    const shown = res.display.filter((r) => r.relevance_level === lv);
+    h += '<div class="tier">' + lv + "<small>hiển thị " + shown.length + " / " + total + "</small></div>";
+    for (const r of shown) {
+      h += '<div class="item"><span class="chip ' + lv + '">' + (r.relevance_score === null ? "mốc" : r.relevance_score + " đ") + "</span>";
+      h += '<span class="name">' + esc(r.project_name) + " <small>" + vi(r.area_m2, 1) + " m²</small></span>";
+      h += '<span class="num">' + unit(r.price_m2) + "<br><small>" + (r.distance_km === null ? "không có tọa độ" : vi(r.distance_km, 2) + " km") + "</small></span>";
+      h += '<span class="why">' + esc(r.warning_reason) + "</span></div>";
+    }
+  }
+  if (res.show_warning_banner) h += '<p class="banner">' + esc(res.warning_banner) + "</p>";
+  el.innerHTML = h;
+}
+
+/* ---------- Step 3 ---------- */
+function num(id) { const v = $(id).value.trim(); if (v === "") return null; const n = Number(v); return Number.isFinite(n) ? n : NaN; }
+function initStep3() {
+  $("#couple").addEventListener("change", (e) => { state.couple = e.target.checked; document.querySelectorAll(".p2 input").forEach((i) => { i.disabled = !state.couple; }); updateTerm(); });
+  for (const id of ["#age1", "#age2", "#term"]) $(id).addEventListener("input", updateTerm);
+  const promo = $("#promo");
+  for (const p of DATA.config.promo) {
+    const o = document.createElement("option"); o.value = p.months;
+    o.textContent = p.months + " tháng — " + (p.rate === null ? "chưa có lãi suất" : vi(p.rate) + "%/năm");
+    o.disabled = p.rate === null; if (p.months === 12) o.selected = true; promo.appendChild(o);
+  }
+  $("#promo-hint").textContent = "Các gói chưa có lãi suất bị khoá cho đến khi có văn bản của MB Bank CN Vạn Phúc.";
+  const box = $("#alloc");
+  for (const [key, ch] of Object.entries(DATA.config.channels)) {
+    const d = document.createElement("div"); d.className = "ch";
+    d.innerHTML = '<label for="al-' + key + '">' + ch.label + ' <small>(%)</small></label><input type="number" id="al-' + key + '" min="0" max="100" step="5" value="' + (key === "savings" ? 100 : 0) + '">' +
+      "<small>Kỳ vọng " + vi(ch.return_pct, 2) + "%/năm, độ lệch chuẩn " + vi(ch.std_dev_pct, 2) + "% — số liệu đề xuất, chờ duyệt</small>";
+    d.querySelector("input").addEventListener("input", updateAlloc); box.appendChild(d);
+  }
+  updateTerm(); updateAlloc();
+}
+function updateTerm() {
+  const box = $("#term-max"); box.classList.remove("err");
+  const a1 = num("#age1"), a2 = state.couple ? num("#age2") : null;
+  try {
+    if (a1 === null) throw new Error("Nhập tuổi người vay 1 để tính thời hạn vay tối đa.");
+    if (state.couple && a2 === null) throw new Error("Nhập tuổi người vay 2.");
+    const info = E.calcMaxLoanTerm(a1, state.couple ? a2 : null);
+    let msg = "Tối đa " + info.final_max_term_months + " tháng (" + vi(info.final_max_term_months / 12) + " năm), " +
+      (info.binding_constraint === "age" ? "giới hạn bởi tuổi người vay lớn tuổi nhất (" + info.older_borrower_age + " tuổi)." : "giới hạn bởi ngân hàng.");
+    const t = num("#term");
+    if (t === null || Number.isNaN(t) || !Number.isInteger(t)) msg += " Nhập thời hạn vay là số tháng nguyên.";
+    else if (t <= info.grace_period_months) { msg += " Thời hạn vay phải lớn hơn " + info.grace_period_months + " tháng ân hạn gốc."; box.classList.add("err"); }
+    else if (t > info.final_max_term_months) { msg += " Thời hạn bạn nhập (" + t + " tháng) vượt mức tối đa."; box.classList.add("err"); }
+    box.textContent = msg;
+  } catch (e) { box.textContent = e.message; box.classList.add("err"); }
+  renderChecks();
+}
+function updateAlloc() {
+  let s = 0; for (const key of Object.keys(DATA.config.channels)) { const v = num("#al-" + key); s += v === null || Number.isNaN(v) ? 0 : v; }
+  const el = $("#alloc-sum"); el.textContent = vi(s, 2) + "%";
+  el.className = "sum " + (Math.abs(s - 100) < 1e-9 ? "ok" : "bad");
+  renderChecks();
+}
+
+/* ---------- Step 4 ---------- */
+function renderDisclaimers() {
+  const d = E.sizeBandDisclaimers(state.sbBuy, state.sbRent);
+  $("#disc").innerHTML = "<p>" + esc(d.static) + "</p>" + (d.dynamic ? '<p class="dyn">' + esc(d.dynamic.replace("[" + state.sbBuy + "]", "[" + SIZE_LABEL[state.sbBuy] + "]").replace("[" + state.sbRent + "]", "[" + SIZE_LABEL[state.sbRent] + "]")) + "</p>" : "");
+}
+function renderChecks() {
+  const errs = [];
+  if ($("#term-max").classList.contains("err")) errs.push("thời hạn vay");
+  if ($("#alloc-sum").classList.contains("bad")) errs.push("phân bổ 4 kênh chưa bằng 100%");
+  $("#s4-check").textContent = errs.length ? "Cần sửa ở Step 3: " + errs.join("; ") + "." : "";
+}
+
+/* ---------- Step 5 ---------- */
+function initStep5() {
+  const sel = $("#nsel");
+  for (const n of DATA.config.mc.presets) { const o = document.createElement("option"); o.value = n; o.textContent = n.toLocaleString("vi-VN") + (n === DATA.config.mc.default ? " (mặc định)" : ""); if (n === DATA.config.mc.default) o.selected = true; sel.appendChild(o); }
+  const upd = () => { const n = Number(sel.value); $("#n-hint").textContent = n < DATA.config.mc.warn_below ? "Dưới " + DATA.config.mc.warn_below + " lần: phân phối kém mượt, P10/P50/P90 kém tin cậy." : "Kết quả hiển thị % an toàn suốt kỳ, P10/P50/P90 và histogram."; };
+  sel.addEventListener("change", upd); upd();
+}
+
+/* ---------- Step 6: dashboard dữ liệu giả ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent, text) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text !== undefined) e.textContent = text; if (parent) parent.appendChild(e); return e; }
+function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function polar(cx, cy, r, deg) { const a = (deg - 180) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+function arc(cx, cy, r, d0, d1) { const [x0, y0] = polar(cx, cy, r, d0), [x1, y1] = polar(cx, cy, r, d1); return "M" + x0 + " " + y0 + " A" + r + " " + r + " 0 " + (d1 - d0 > 180 ? 1 : 0) + " 1 " + x1 + " " + y1; }
+function drawGauge() {
+  const s = $("#g-gauge"), lo = -0.2, hi = 0.6, val = 0.27, thr = 0.30, toDeg = (v) => (v - lo) / (hi - lo) * 180;
+  el("path", { d: arc(160, 160, 120, 0, 180), stroke: "var(--line)", "stroke-width": 22, fill: "none" }, s);
+  el("path", { d: arc(160, 160, 120, 0, toDeg(val)), stroke: val >= thr ? "var(--rent)" : "var(--buy)", "stroke-width": 22, fill: "none" }, s);
+  const [tx0, ty0] = polar(160, 160, 100, toDeg(thr)), [tx1, ty1] = polar(160, 160, 140, toDeg(thr));
+  el("line", { x1: tx0, y1: ty0, x2: tx1, y2: ty1, stroke: "var(--ink)", "stroke-width": 3 }, s);
+  el("text", { x: tx1 + 4, y: ty1 - 4 }, s, "ngưỡng 30%");
+  el("text", { x: 160, y: 150, "text-anchor": "middle", style: "font-size:34px;font-weight:700;fill:var(--ink)" }, s, "27%");
+  el("text", { x: 160, y: 176, "text-anchor": "middle" }, s, "dưới ngưỡng ở tháng 25 (hết ân hạn)");
+}
+function drawNetWorth() {
+  const s = $("#g-nw"), W = 420, H = 240, m = { l: 44, r: 12, t: 12, b: 28 }, yrs = 30;
+  const buy = [], rent = [];
+  for (let y = 0; y <= yrs; y++) { buy.push(0.4 + 0.02 * y * y + 0.05 * y); rent.push(1.6 + 0.19 * y + 0.004 * y * y); }
+  const max = Math.max(...buy, ...rent), X = (y) => m.l + (W - m.l - m.r) * y / yrs, Y = (v) => H - m.b - (H - m.t - m.b) * v / max;
+  el("line", { x1: m.l, y1: H - m.b, x2: W - m.r, y2: H - m.b, class: "axis" }, s); el("line", { x1: m.l, y1: m.t, x2: m.l, y2: H - m.b, class: "axis" }, s);
+  for (const y of [0, 10, 20, 30]) el("text", { x: X(y), y: H - 8, "text-anchor": "middle" }, s, "năm " + y);
+  for (const v of [0, Math.round(max / 2), Math.round(max)]) el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }, s, v + " tỷ");
+  const path = (arr) => arr.map((v, y) => (y ? "L" : "M") + X(y) + " " + Y(v)).join(" ");
+  el("path", { d: path(buy), fill: "none", stroke: "var(--buy)", "stroke-width": 2.5 }, s);
+  el("path", { d: path(rent), fill: "none", stroke: "var(--rent)", "stroke-width": 2.5 }, s);
+  let be = null; for (let y = 1; y <= yrs; y++) if ((buy[y - 1] - rent[y - 1]) * (buy[y] - rent[y]) <= 0) { be = y; break; }
+  if (be !== null) { el("line", { x1: X(be), y1: m.t, x2: X(be), y2: H - m.b, stroke: "var(--ink)", "stroke-dasharray": "4 4" }, s); el("text", { x: X(be) + 5, y: m.t + 12 }, s, "hoà vốn năm " + be); }
+  el("text", { x: X(yrs) - 4, y: Y(buy[yrs]) - 6, "text-anchor": "end", style: "fill:var(--buy);font-weight:600" }, s, "MUA");
+  el("text", { x: X(yrs) - 4, y: Y(rent[yrs]) + 16, "text-anchor": "end", style: "fill:var(--rent);font-weight:600" }, s, "THUÊ");
+}
+function drawTornado() {
+  const s = $("#g-tornado"), rows = [["Tăng giá BĐS ±4 điểm %", -9.5, 11.2], ["Lãi thả nổi ±0,75 điểm %", -2.1, 1.8], ["Tăng thu nhập ±5,7 điểm %", -1.6, 1.9], ["Tăng giá thuê ±1,25 điểm %", -1.2, 1.1], ["Lợi suất đầu tư ±1σ", -1.0, 0.9]];
+  const W = 420, cx = 270, sc = 12.5, rowH = 36;
+  el("line", { x1: cx, y1: 6, x2: cx, y2: rows.length * rowH + 6, stroke: "var(--ink)" }, s);
+  rows.forEach(([name, lo, hi], i) => {
+    const y = 12 + i * rowH;
+    el("text", { x: 4, y: y + 14 }, s, name);
+    el("rect", { x: cx + lo * sc, y, width: -lo * sc, height: 20, fill: "var(--rent)" }, s);
+    el("rect", { x: cx, y, width: hi * sc, height: 20, fill: "var(--buy)" }, s);
+  });
+  el("text", { x: cx, y: rows.length * rowH + 22, "text-anchor": "middle" }, s, "thay đổi chênh lệch Net worth (tỷ đồng)");
+}
+function drawHist() {
+  const s = $("#g-hist"), r = rng(7), bins = new Array(24).fill(0), lo = -20, hi = 60;
+  for (let i = 0; i < 1000; i++) { const z = Math.sqrt(-2 * Math.log(r() || 1e-9)) * Math.cos(2 * Math.PI * r()); const v = 18 + 14 * z; const b = Math.floor((v - lo) / (hi - lo) * 24); if (b >= 0 && b < 24) bins[b]++; }
+  const W = 420, H = 220, m = { l: 12, r: 12, t: 10, b: 30 }, bw = (W - m.l - m.r) / 24, max = Math.max(...bins);
+  bins.forEach((c, i) => { const v0 = lo + (hi - lo) * i / 24, h = (H - m.t - m.b) * c / max; el("rect", { x: m.l + i * bw + 1, y: H - m.b - h, width: bw - 2, height: h, fill: v0 < 0 ? "var(--rent)" : "var(--buy)" }, s); });
+  const x0 = m.l + (0 - lo) / (hi - lo) * (W - m.l - m.r);
+  el("line", { x1: x0, y1: m.t, x2: x0, y2: H - m.b, stroke: "var(--ink)", "stroke-dasharray": "4 4" }, s);
+  el("text", { x: x0 - 6, y: H - 10, "text-anchor": "end" }, s, "THUÊ thắng"); el("text", { x: x0 + 6, y: H - 10 }, s, "MUA thắng");
+}
+
+drawRings(); initStep1(); initStep2(); initStep3(); initStep5(); renderDisclaimers();
+drawGauge(); drawNetWorth(); drawTornado(); drawHist();
+</script>
+</body>
+</html>

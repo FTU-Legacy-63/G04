@@ -1,0 +1,6 @@
+{
+  "_note": "Sửa toạ độ #13: 3 dự án Hà Đông có toạ độ trùng hệt nhau (20.96069, 105.742059) trong PROJECT_MASTER. Toạ độ mới lấy từ Google Maps/Places (tra cứu 29/09/2026) — team cần xác minh (tòa cụ thể trong dự án) trước khi ghi đè vào DATA.xlsx. ward_old của cả 3 đều là 'Yen Nghia' — cũng cần kiểm tra lại.",
+  "HD072": {"expected_name_contains": "Vesta", "latitude": 20.9451528, "longitude": 105.7558822, "source": "Google Maps/Places: 'Toà V8 The Vesta' (Phú Lương)", "retrieved": "2026-09-29"},
+  "HD073": {"expected_name_contains": "Victoria", "latitude": 20.9579161, "longitude": 105.7691591, "source": "Google Maps/Places: 'Toà Văn Phú Victoria' (KĐT Văn Phú); tòa V1 ở 20.9601278, 105.7678317", "retrieved": "2026-09-29"},
+  "HD074": {"expected_name_contains": "21", "latitude": 20.9567772, "longitude": 105.7563336, "source": "Google Maps/Places: 'Chung cư Vinaconex 21', 804 Quang Trung", "retrieved": "2026-09-29"}
+}
