@@ -207,7 +207,7 @@ Growth is applied in steps once a year, starting in year 2. The three rates must
 |---|---|---|
 | Household income | 5.56% | Red River Delta income per capita, NSO living standards survey 2024, 2019–2024 |
 | Living cost | 3.09% (CPI) | World Bank CPI average 2016–2025 |
-| Rent | 6% (decided 9 Oct 2026; sensitivity 3% / 7% / 10%) | Anchored between income growth (5.56%) and the 5–10% seen in press reports for 2025 |
+| Rent | 6% (decided 9 Oct 2026; sensitivity 3% / 7% / 10%) | Anchored between income growth (5.56%) and the 5–15% rises seen in press reports for 2025 (short-term, in some projects only) |
 | Service fee, fire insurance | 3.09% (CPI) | Follows living cost |
 | Existing debt payment | None | Fixed amount, stops after the number of months the user enters (blank = whole term) |
 
@@ -217,7 +217,7 @@ Growth is applied in steps once a year, starting in year 2. The three rates must
 
 | Cost | BUY | RENT | Rule |
 |---|---|---|---|
-| Service (management) fee | Yes | Yes | 10,000 VND per m² per month × floor area, grows with CPI. Hanoi's official range is 1,200–16,500 VND/m² (Decision 33/2025); real buildings quoted 5,000–14,000. The person living in the unit pays, and rent listings usually exclude it |
+| Service (management) fee | Yes | Yes | 10,000 VND per m² per month × floor area, grows with CPI. Hanoi's official range for buildings with lifts is 1,200–16,500 VND/m² (Decision 33/2025); real buildings quoted 5,000–14,000. The person living in the unit pays, and rent listings usually exclude it |
 | Fire insurance (compulsory) | 0.05% of price per year | No | Decree 67/2023 and 105/2025. Applied to price, which is an upper bound |
 | Repairs inside the unit | 0 in the base case | No | Weakest-sourced item; 1% of price per year is run only as a sensitivity |
 | Selling cost | 1.5% of home value, deducted from BUY net worth every year (also year 0) | No | Broker fee 1–2%. The 2% income tax is exempt for a sole home held 183+ days (3.5% total in the sensitivity) |
@@ -279,7 +279,7 @@ Money that is not needed for housing is invested in four channels. The user choo
 | Gold (SJC) | 11.12% | FiinPro, February 2016 – December 2024. The 2025 spike (+81.5%) is excluded on purpose; including it gives 14.89%, run as a sensitivity |
 | Stocks (VN-Index) | 7.99% | investing.com, May 2021 – August 2026, dividends not included |
 
-Each month a channel grows by its annual return ÷ 12.
+Each channel earns its yearly return. In Monte Carlo the rate used for a year can differ from the average (Part F3).
 
 ### E2. Two pockets and the rules for moving money
 
@@ -340,7 +340,7 @@ Principles: (1) each scenario mirrors a period that actually happened in the 201
 | Government bond yield | 2.40% | **4.02%** | 5.04% | Same periods |
 | CPI, stocks, gold, running costs | same | same | same | No link to the housing cycle in the data |
 
-Resulting home price paths (price multiple after 30 years: Boom ×23.7, Stable ×16.8, Downturn ×9.5; 10-year average growth: 14.98%, 12.66%, 6.67%).
+The resulting home price paths: the price multiple after 30 years is ×23.7 in Boom, ×16.8 in Stable and ×9.5 in Downturn, and the average growth over the first 10 years is 14.98%, 12.66% and 6.67%.
 
 ### F2. The sensitivity table
 
