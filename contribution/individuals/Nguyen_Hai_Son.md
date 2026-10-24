@@ -147,11 +147,9 @@ The three contributions that best show my individual mark on FinFlow:
 - **Age cap:** 70 comes from the common range at other banks, and "use the older borrower's age" for joint loans is a team assumption ([[limitations.md]](https://github.com/FTU-Legacy-63/G04/blob/main/docs/limitations.md), #16).
 - **Budget labels** are computed under the Stable scenario and for a typical unit (72 m² to buy, 80 m² to rent); pressing Boom / Downturn on the result screen does not update the labels in Step 3.
 - **Interface:** the Monte Carlo progress bar is a timed animation, not real progress; fonts load from Google Fonts and fall back without internet; a few faint grey hints still have low contrast; the code still contains an unused Chart.js loader; there is no deployment link yet.
-- **Evidence gaps:** the raw Ha Dong / Tay Ho scraping files and the relevance-engine unit tests are not stored in this repository; the data now lives inside `[src/index.html](../../src/index.html)`.
+- **Evidence gaps:** the raw Ha Dong / Tay Ho scraping files and the relevance-engine unit tests are not stored in this repository; the data now lives inside [src/index.html](../../src/index.html).
 
 ### 6.2. Personal lessons
 - **One number, one source of truth:** the slide deck once showed a different unit and price from the script (30 Pham Van Dong vs Hanoi Paragon, 4.2 vs 4.15 billion). Rebuilding the slides from screenshots of the actual web page, and using the same household in the report, removed this class of error.
 - **Design for thin data:** a scoring engine looks simple, but most of the work was in the fallback rules (median anchor, small-pool rule, L1/L2/L3) that keep the ranking sensible when a building has only one listing.
 - **Presentation is part of the product:** the same model can look unsafe or convincing depending on how the result is shown; labels such as *Tight* and the P10–P90 band help the audience read uncertainty instead of a single verdict.
-
-> **Note on AI assistance:** parts of the code, the slide build and the report formatting were produced with AI assistance (Claude), at my request and under my direction. I specified the rules, checked the outputs against the web page, and can explain and reproduce every rule listed above.
