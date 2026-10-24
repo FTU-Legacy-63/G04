@@ -32,8 +32,8 @@ My work covers four layers of FinFlow:
 | Area | Responsibility | Concrete Repository Deliverable |
 |---|---|---|
 | **Assumptions Framework & Sources** | Designed the FIN_ASSUMPTIONS structure and the project-master schema; kept the source register; read each problem-evidence source in full before citing it. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv), [data_and_sources.md](../../docs/data_and_sources.md), [assumptions.md](../../docs/assumptions.md), [input-dictionary.md (Week 3)](../../docs/archive/week3/input-dictionary.md), [source-register.md (Week 3)](../../docs/archive/week3/source-register.md) |
-| **BUY and RENT Calculation** | Down payment net of fees and emergency fund, loan, holding and selling costs, month-by-month cash flow, net worth, safety check over the whole term. | [src/index.html](../../src/index.html): [`loanCalc`](../../src/index.html#L1381), [`evaluateBuy`](../../src/index.html#L1558), [`evaluateRent`](../../src/index.html#L1777), [`buyRunningCostAt`](../../src/index.html#L1270), [`rentRunningCostAt`](../../src/index.html#L1277), [`stepPortfolio`](../../src/index.html#L1219), [`getSafetyMarginMinPct`](../../src/index.html#L1547), [`findBreakEven`](../../src/index.html#L2116); [financial_logic.md](../../docs/financial_logic.md) |
-| **Key Assumptions** | Chose and sourced the assumptions that drive the result: house-price path, rent growth, age cap, reference rate. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`propertyGrowthPctForYear`](../../src/index.html#L1128); [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); source links in section 8 |
+| **BUY and RENT Calculation** | Down payment net of fees and emergency fund, loan, holding and selling costs, month-by-month cash flow, net worth, safety check over the whole term. | [src/index.html](../../src/index.html): [`loanCalc`](../../src/index.html#L1580), [`evaluateBuy`](../../src/index.html#L1757), [`evaluateRent`](../../src/index.html#L1976), [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`stepPortfolio`](../../src/index.html#L1418), [`getSafetyMarginMinPct`](../../src/index.html#L1746), [`findBreakEven`](../../src/index.html#L2315); [financial_logic.md](../../docs/financial_logic.md) |
+| **Key Assumptions** | Chose and sourced the assumptions that drive the result: house-price path, rent growth, age cap, reference rate. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`propertyGrowthPctForYear`](../../src/index.html#L1327); [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); source links in section 8 |
 | **Integration & Interface Parts** | Merged the members' parts into one offline `index.html`; credited with the interface parts no other member claimed. | [src/index.html](../../src/index.html); [user_flow.md](../../docs/user_flow.md); commit links in [evidence_links.md](../evidence_links.md) **[FILE NEEDED: `evidence_links.md` → put in `contribution/`]** |
 | **Documentation & Testing** | Final Plan, change log, limitations; final test suite of 123 cases. | [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf), [limitations.md](../../docs/limitations.md), [testing.md](../../docs/testing.md), [revision_summary.md](../../docs/revision_summary.md), [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) **[FILE NEEDED: `FinFlow_Test_Cases_V5.xlsx` → put in `tests/`]** |
 | **Repository & Coordination** | Repository structure following the course guide; group contribution map and individual files. | [README.md](../../README.md) **[FILE NEEDED: `README.md` → put in `repository root`]**, [contribution_map.md](../contribution_map.md) |
@@ -44,7 +44,7 @@ My work covers four layers of FinFlow:
 
 ### 2.1 Down payment and loan (`loanCalc`, `financial_logic.md`)
 
-Code: [`loanCalc`](../../src/index.html#L1381) in [src/index.html](../../src/index.html). Logic description: [financial_logic.md](../../docs/financial_logic.md).
+Code: [`loanCalc`](../../src/index.html#L1580) in [src/index.html](../../src/index.html). Logic description: [financial_logic.md](../../docs/financial_logic.md).
 
 The 27 September version treated buying as cheap. In the final model the down payment is net of purchase fees and the emergency fund:
 
@@ -63,7 +63,7 @@ Loan         = Price − Down payment
 
 ### 2.2 Monthly cash flow and safety check (`evaluateBuy`, `evaluateRent`, `getSafetyMarginMinPct`)
 
-Code: [`evaluateBuy`](../../src/index.html#L1558), [`evaluateRent`](../../src/index.html#L1777), [`getSafetyMarginMinPct`](../../src/index.html#L1547), [`buyRunningCostAt`](../../src/index.html#L1270), [`rentRunningCostAt`](../../src/index.html#L1277).
+Code: [`evaluateBuy`](../../src/index.html#L1757), [`evaluateRent`](../../src/index.html#L1976), [`getSafetyMarginMinPct`](../../src/index.html#L1746), [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476).
 
 - **Spare money (BUY)** = income − living cost − existing debt − bank payment − holding costs. **Spare money (RENT)** = income − living cost − existing debt − rent − service fee.
 - Income grows 5.56% a year, living cost 3.09%, rent 6% (sources in 2.4).
@@ -72,11 +72,11 @@ Code: [`evaluateBuy`](../../src/index.html#L1558), [`evaluateRent`](../../src/in
   - Fire insurance 0.05%: [Luật Minh Khuê](https://luatminhkhue.vn/muc-phi-bao-hiem-chay-no-chung-cu-moi-nhat-va-cach-tinh.aspx); the compulsory-insurance rule for apartment buildings: [LSVN](https://lsvn.vn/tu-01-7-chung-cu-nha-o-tap-the-tu-05-tang-tro-len-phai-mua-bao-hiem-chay-no-bat-buoc-a158203.html).
   - In-unit repairs (1% rule, sensitivity row only): [Metrobank](https://www.metrobank.com.ph/articles/learn/home-maintenance-budget).
 - **Safety level:** the share of income that must stay free is 40 / 35 / 30 / 25% for income below 35 / 35–49 / 50–74 / 75 million and above, looked up in today's money for every month; both BUY and RENT are checked over the whole term. The "worst month" is the month with the smallest gap between the free share and the required level. The tiers are the group's proposal (the 25% top tier is interpolated); [CFPB Ability-to-Repay rule](https://files.consumerfinance.gov/f/201301_cfpb_final-rule_ability-to-repay-preamble.pdf) and [DNSE on debt-to-income](https://www.dnse.com.vn/hoc/ty-le-no-tren-thu-nhap) are qualitative references only, because a debt-to-income ratio does not subtract living costs.
-- Existing debt has a "months left" field; promo packages of 6 / 12 / 18 / 24 months; break-even year is rounded up ([`findBreakEven`](../../src/index.html#L2116)).
+- Existing debt has a "months left" field; promo packages of 6 / 12 / 18 / 24 months; break-even year is rounded up ([`findBreakEven`](../../src/index.html#L2315)).
 
 ### 2.3 Net worth (`evaluateBuy`, `stepPortfolio`)
 
-Code: [`evaluateBuy`](../../src/index.html#L1558), [`stepPortfolio`](../../src/index.html#L1219).
+Code: [`evaluateBuy`](../../src/index.html#L1757), [`stepPortfolio`](../../src/index.html#L1418).
 
 - **BUY:** house value − 1.5% selling cost − remaining debt − prepayment fee if settled that month + invested money. The year-0 point already deducts purchase and selling costs (selling cost is 75 million on a 5 billion unit), so net worth at year 0 is lower than savings. Sources for the selling cost: broker commission of 1–2% — [wiki.batdongsan](https://wiki.batdongsan.com.vn/wiki/phi-moi-gioi-nha-dat-109150); personal income tax of 2% on a sale — [Thư viện Pháp luật](https://thuvienphapluat.vn/ma-so-thue/phap-luat-thue/ban-nha-o-can-ho-chung-cu-nop-thue-tncn-bao-nhieu-phan-tram-127913-218677.html), with the exemption for the only home owned — [Báo Pháp luật](https://baophapluat.vn/ban-can-nha-duy-nhat-co-phai-nop-thue-thu-nhap-ca-nhan-khong.html) (the model applies 0%; 3.5% runs as a sensitivity row).
 - **RENT:** initial savings and monthly spare money invested in 4 channels (savings, bonds, gold, stocks) at the user's mix, rebalanced every 12 months; the emergency fund stays in savings. Return and volatility of each channel come from the series collected by Khánh An and Nam Phương ([Deposit_Rates.csv](../../data/financial_assumptions/Deposit_Rates.csv), [Gov_Bond_Yields.csv](../../data/financial_assumptions/Gov_Bond_Yields.csv), [Gold_Price_SJC.csv](../../data/financial_assumptions/Gold_Price_SJC.csv), [VNIndex_Returns.csv](../../data/financial_assumptions/VNIndex_Returns.csv)); see their files in this folder.
@@ -84,7 +84,7 @@ Code: [`evaluateBuy`](../../src/index.html#L1558), [`stepPortfolio`](../../src/i
 
 ### 2.4 Key assumptions and their sources (`propertyGrowthPctForYear`, `Assumptions_Summary.csv`)
 
-Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYear`](../../src/index.html#L1128), [`calcLoanTerm`](../../src/index.html#L1347). Values with status and source: [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv). Cross-check of the workbook against the code (48 parameters compared, no mismatches): [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv).
+Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYear`](../../src/index.html#L1327), [`calcLoanTerm`](../../src/index.html#L1546). Values with status and source: [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv). Cross-check of the workbook against the code (48 parameters compared, no mismatches): [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv).
 
 - **House-price path (base case):** a decaying path instead of a fixed 19%, where k is the year of the projection and k = 1 is the first year (this is how `propertyGrowthPctForYear` counts):
 
@@ -101,7 +101,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYea
 ### 2.5 Integration and interface parts (`src/index.html`)
 
 - Merged into one `index.html` with embedded data, no server and no internet connection: listings and figures (An, Nam Phương), Monte Carlo and dashboard framework (Tuấn), relevance engine, loan term and loan calculation (Sơn). Commit / pull-request links: [evidence_links.md](../evidence_links.md) **[FILE NEEDED: `evidence_links.md` → put in `contribution/`]**. (The repository has no pull requests; the evidence is in commits.)
-- Interface parts credited to me: two-line unit cards with "Show details" (the detailed rules sit behind it); shorter "Your budget" card; spare-money table in Step 4; "What is varied" in the Monte Carlo section as two tables ([`runMonteCarlo`](../../src/index.html#L1988) uses the same settings, [`MC_SETTINGS`](../../src/index.html#L1862)); monthly cash-flow table in short rows; 32 source links beside the numbers (the assumptions box is built by [`renderLoanAssumptionsBox`](../../src/index.html#L3265); the file contains 32 source addresses, listed in section 8); right-column summary box and scroll to the conclusion after Calculate ([`buildConclusionHTML`](../../src/index.html#L4023)).
+- Interface parts credited to me: two-line unit cards with "Show details" (the detailed rules sit behind it); shorter "Your budget" card; spare-money table in Step 4; "What is varied" in the Monte Carlo section as two tables ([`runMonteCarlo`](../../src/index.html#L2187) uses the same settings, [`MC_SETTINGS`](../../src/index.html#L2061)); monthly cash-flow table in short rows; 32 source links beside the numbers (the assumptions box is built by [`renderLoanAssumptionsBox`](../../src/index.html#L3464); the file contains 32 source addresses, listed in section 8); right-column summary box and scroll to the conclusion after Calculate ([`buildConclusionHTML`](../../src/index.html#L4254)).
 - These parts sit under the deep-gradient layout designed by Sơn and Khánh An, which is built on the version I made.
 
 ### 2.6 Documentation and final test suite
@@ -139,13 +139,13 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYea
 - Selling cost 1.5% deducted from BUY net worth, including year 0.
 - RENT wealth tracked month by month across 4 investment channels, rebalanced every year; RENT safety checked over the whole term.
 - Existing debt with a "months left" field; promo packages of 6 / 12 / 18 / 24 months; break-even year rounded up.
-- Functions: [`loanCalc`](../../src/index.html#L1381), [`evaluateBuy`](../../src/index.html#L1558), [`evaluateRent`](../../src/index.html#L1777), [`buyRunningCostAt`](../../src/index.html#L1270), [`rentRunningCostAt`](../../src/index.html#L1277), [`stepPortfolio`](../../src/index.html#L1219), [`findBreakEven`](../../src/index.html#L2116), [`getSafetyMarginMinPct`](../../src/index.html#L1547) in [src/index.html](../../src/index.html).
+- Functions: [`loanCalc`](../../src/index.html#L1580), [`evaluateBuy`](../../src/index.html#L1757), [`evaluateRent`](../../src/index.html#L1976), [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`stepPortfolio`](../../src/index.html#L1418), [`findBreakEven`](../../src/index.html#L2315), [`getSafetyMarginMinPct`](../../src/index.html#L1746) in [src/index.html](../../src/index.html).
 - Commit links for this upgrade: **[COMMIT LINK: loan / down payment — add from `git log`]**, **[COMMIT LINK: holding and selling costs — add from `git log`]**.
 
 ### 3.3 Key assumptions (Weeks 6–7)
 
 - House-price path 20.43% → 8.38%, τ = 3.24 years; rent growth 6%; age cap 70; reference rate 10.5% (details and sources in 2.4).
-- Evidence: [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`FIN_ASSUMPTIONS`](../../src/index.html#L1005) table and [`propertyGrowthPctForYear`](../../src/index.html#L1128) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md); [assumptions.md](../../docs/assumptions.md); [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv).
+- Evidence: [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`FIN_ASSUMPTIONS`](../../src/index.html#L1204) table and [`propertyGrowthPctForYear`](../../src/index.html#L1327) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md); [assumptions.md](../../docs/assumptions.md); [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv).
 - Commit link: **[COMMIT LINK: house-price path and assumption values — add from `git log`]**.
 
 ### 3.4 Integration, interface, documentation and repository (Weeks 6–7 and final build)
@@ -164,10 +164,10 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYea
 | :--- | :--- | :--- | :--- |
 | **Assumptions framework** | FIN_ASSUMPTIONS skeleton, project-master schema, input dictionary | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [assumptions.md](../../docs/assumptions.md); [input-dictionary.md (Week 3)](../../docs/archive/week3/input-dictionary.md) | Every assumption in the sheet has a value, a status and a source |
 | **Source register** | CFPB, deposit-rate report, floating-rate sources, three legal citations | [data_and_sources.md](../../docs/data_and_sources.md); [source-register.md (Week 3)](../../docs/archive/week3/source-register.md); source links in section 8 | Open each cited link and compare the figure |
-| **Down payment and loan** | Savings − 2.6% fee − emergency fund; loan = price − down payment | [`loanCalc`](../../src/index.html#L1381) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md) | Price 5 billion, savings 1.5 billion, living cost 15 million → loan 3.72 billion |
-| **Holding and selling costs** | Service fee, fire insurance, 1.5% selling cost | [`buyRunningCostAt`](../../src/index.html#L1270), [`rentRunningCostAt`](../../src/index.html#L1277), [`evaluateBuy`](../../src/index.html#L1558) | Net worth at year 0 is lower than savings by the purchase and selling costs |
-| **RENT portfolio** | 4 channels, yearly rebalancing, safety over the whole term | [`stepPortfolio`](../../src/index.html#L1219), [`evaluateRent`](../../src/index.html#L1777) | Change the mix in Step 4: RENT net worth changes, BUY does not |
-| **House-price path** | 20.43% → 8.38%, τ = 3.24 | [`propertyGrowthPctForYear`](../../src/index.html#L1128); [Property_Price_Growth.csv](../../data/financial_assumptions/Property_Price_Growth.csv) | First-year growth 20.43% (k = 1); 10-year average 12.66% |
+| **Down payment and loan** | Savings − 2.6% fee − emergency fund; loan = price − down payment | [`loanCalc`](../../src/index.html#L1580) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md) | Price 5 billion, savings 1.5 billion, living cost 15 million → loan 3.72 billion |
+| **Holding and selling costs** | Service fee, fire insurance, 1.5% selling cost | [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`evaluateBuy`](../../src/index.html#L1757) | Net worth at year 0 is lower than savings by the purchase and selling costs |
+| **RENT portfolio** | 4 channels, yearly rebalancing, safety over the whole term | [`stepPortfolio`](../../src/index.html#L1418), [`evaluateRent`](../../src/index.html#L1976) | Change the mix in Step 4: RENT net worth changes, BUY does not |
+| **House-price path** | 20.43% → 8.38%, τ = 3.24 | [`propertyGrowthPctForYear`](../../src/index.html#L1327); [Property_Price_Growth.csv](../../data/financial_assumptions/Property_Price_Growth.csv) | First-year growth 20.43% (k = 1); 10-year average 12.66% |
 | **Other key assumptions** | Rent 6%, age cap 70, reference rate 10.5% | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [financial_logic.md](../../docs/financial_logic.md); [Reference_Rate.csv](../../data/financial_assumptions/Reference_Rate.csv) | Assumption box in Step 1 shows the same values |
 | **Workbook-to-code check** | Compared the assumptions workbook with the code | [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv) | 48 parameters compared; no mismatch |
 | **Integration** | One offline `index.html` | [src/index.html](../../src/index.html); [evidence_links.md](../evidence_links.md) **[FILE NEEDED]** | Open the file without internet and run a full case |
@@ -196,9 +196,9 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYea
 3. **Where the evidence is located:**
    [`src/index.html`](../../src/index.html), [`data/financial_assumptions/Assumptions_Summary.csv`](../../data/financial_assumptions/Assumptions_Summary.csv), [`docs/`](../../docs/) (Final Plan, change log, `financial_logic.md`, `limitations.md`, `testing.md`), [`tests/`](../../tests/), [`contribution/`](../).
 4. **How my output supports the group product:**
-   - It gives **Tuấn** the calculation that the Monte Carlo reruns 1,000 times ([`runMonteCarlo`](../../src/index.html#L1988)), and the assumptions around which the scenarios shift ([`SCENARIOS`](../../src/index.html#L1887)).
+   - It gives **Tuấn** the calculation that the Monte Carlo reruns 1,000 times ([`runMonteCarlo`](../../src/index.html#L2187)), and the assumptions around which the scenarios shift ([`SCENARIOS`](../../src/index.html#L2086)).
    - It gives **An and Nam Phương** the structure in which their series become assumptions (CPI, income, VN-Index, gold, LTV).
-   - It passes **Sơn's** age-based term ([`calcLoanTerm`](../../src/index.html#L1347)) and prepayment fee through the loan calculation, and uses his relevance engine in Step 3 ([`muaCalc`](../../src/index.html#L2454), [`thueCalc`](../../src/index.html#L2456)).
+   - It passes **Sơn's** age-based term ([`calcLoanTerm`](../../src/index.html#L1546)) and prepayment fee through the loan calculation, and uses his relevance engine in Step 3 ([`muaCalc`](../../src/index.html#L2653), [`thueCalc`](../../src/index.html#L2655)).
    - It puts all of these into the one file users open.
 5. **Remaining limitation:** see section 7.
 
@@ -208,7 +208,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1005), [`propertyGrowthPctForYea
 
 - **Model scope:** repairs inside the unit (sensitivity only), building depreciation, rental deposit and furnishing costs are not in the main result; the 2% income tax on a sale is not applied; when the whole emergency fund runs out, the shortfall accumulates without interest ([limitations.md](../../docs/limitations.md), #11, #12, #17, #19, #23).
 - **Assumptions:** τ rests on the idea that the next 10 years grow like the last 10; rent growth of 6% is a reasoned judgment, not a measurement, because there is no historical rent series; the 10.5% reference rate is extrapolated because the MB document gives no value; "use the older borrower's age" is a group assumption ([limitations.md](../../docs/limitations.md), #5, #10, #16).
-- **Maintenance fee:** 2% may not apply to resale units (about 0.56%); the model keeps 2.6% as a conservative level (#26 — **[TO ADD to `docs/limitations.md` as item #26: in the Final Plan this appears only as an addendum under section C, so the list there stops at #25]**). Source: [Article 152, Law on Housing 2023](https://hethongphapluat.com/law-no-27-2023-qh15-dated-december-27-2023-on-housing/dieu-152) — the 2% obligation is set for buyers from the investor.
+- **Maintenance fee:** 2% may not apply to resale units (about 0.56%); the model keeps 2.6% as a conservative level ([limitations.md](../../docs/limitations.md), #26; in the Final Plan this appears only as an unnumbered addendum under section C, and `limitations.md` numbers it #26 for easy reference). Source: [Article 152, Law on Housing 2023](https://hethongphapluat.com/law-no-27-2023-qh15-dated-december-27-2023-on-housing/dieu-152) — the 2% obligation is set for buyers from the investor.
 - **Build:** Boom / Downturn on the result screen do not update the budget labels in Step 3; the code still contains an unused Chart.js loader and old comments; there is no deployment link yet.
 
 ---
