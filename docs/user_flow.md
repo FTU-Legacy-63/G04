@@ -1,13 +1,13 @@
 # User Flow
 
-This document describes exactly what the final product (`FinFlow-deep-gradient-2.html`) does. Button names and labels in quotation marks are the text shown in the interface. The calculation logic is in [`financial_logic.md`](financial_logic.md) and the data sources are in [`data_and_sources.md`](data_and_sources.md).
+This document describes exactly what the final product (`src/index.html`) does. Button names and labels in quotation marks are the text shown in the interface. The calculation logic is in [`financial_logic.md`](financial_logic.md) and the data sources are in [`data_and_sources.md`](data_and_sources.md).
 
 ## 1. Target user and decision supported
 
 - **Target user:** young couples or single people in Hanoi who are deciding whether to buy or rent a 2-bedroom apartment.
 - **Question answered:** "Buy or rent a 2-bedroom apartment in Hanoi?" The tool checks two things: (1) after housing payments, holding costs and living costs, is there enough money left each month to stay above the safe level; (2) after many years, which option leaves higher net worth.
 - **Scope:** 2-bedroom apartments in Cau Giay, Ha Dong and Tay Ho. The data are listings from batdongsan.com.vn as of 9 Sep 2026.
-- **How to run:** open the HTML file in a browser. The data and the engine are embedded, so no server or internet connection is needed.
+- **How to run:** open the HTML file in a browser. The data and the engine are embedded, so no server is needed and no data is sent anywhere. (Only the page's web fonts are fetched from Google Fonts when online; without them the browser uses default fonts.)
 
 ## 2. Flow overview
 
@@ -39,7 +39,7 @@ Steps 1–4 are on one scrolling page (on desktop a preview rail stays fixed on 
 | Fixed-rate promo package | MB Bank – Van Phuc branch: fixed for 6 / 12 / 18 / 24 months, then floating |
 
 Also in this step:
-- A box shows the **maximum loan term** (based on the older borrower's age, age cap 70, at most 360 months).
+- A box shows the **maximum loan term**, worked out from the older borrower's age (age cap 70, at most 360 months). There is no separate loan-term input: the calculation uses this maximum term.
 - "Loan & projection assumptions (click to view)" lists the loan, cost, growth and safety-level assumptions, with source links next to the numbers.
 - The **"Your budget"** card updates as the user types: maximum safe purchase price, maximum rent, number of units within budget, and a district × size table. Until Income 1, Savings, Minimum living cost and Age 1 are filled in, the card only asks the user to fill them in.
 
@@ -52,8 +52,8 @@ Also in this step:
 
 ### Step 3. Choose a BUY unit and a RENT unit
 
-- Each side shows a list of units: units in the selected project and size (the target) plus similar units in other buildings, ranked by relevance (score out of 100).
-- **Sorting:** Relevance, Within budget first, price low→high / high→low, name A→Z / Z→A, area large→small / small→large. There is an **"Only within budget"** checkbox and a **"Load more"** button.
+- Each side shows a list of units: units in the selected project and size (the target) plus similar units in other buildings, ranked by relevance (score out of 100). The default view shows the target, all high-relevance units and up to 8 medium-relevance units; "Show details" explains the scoring rules.
+- **Sorting:** Relevance, Within budget first, Price low → high / high → low, Name A → Z / Z → A, Area large → small / small → large. There is an **"Only within budget"** checkbox and a **"Load more"** button.
 - Each unit card has a **budget label**, computed with the same engine as Step 5 for that exact unit:
 
 | Label | Applies to | Meaning |
@@ -78,7 +78,7 @@ The **"← Edit inputs"** button returns to Steps 1–4. Blocks from top to bott
 1. **Conclusion block.** One line: BOTH PASS / ONLY BUY / ONLY RENT / NEITHER OPTION PASSES THE SAFETY CHECK. Each side (Buy, Rent) has a **Comfortable / Tight / Not safe** label, a line giving the tightest month, and a Monte Carlo risk line. The collapsed **"How we check"** section explains the method. The conclusion is a check on average assumptions, not advice; the user decides.
 2. **Scenario buttons** Boom / Stable / Downturn (default Stable). Clicking one recalculates the whole page.
 3. **"Reality check: rent vs price".** Gross rental yield per m², years of rent needed to equal the price, yield in year 10, compared with market references of 2.3% and 3.74%.
-4. **"Net worth over time".** BUY vs RENT net worth chart (P50 line and P10–P90 band) and the break-even year. Buttons choose the comparison horizon: 10 years (default), 20 years, or end of loan. The **Nominal / In today's money** buttons change how money is displayed.
+4. **"Net worth over time".** BUY vs RENT net worth chart (P50 line and P10–P90 band) and the break-even year. Buttons choose the comparison horizon: "10 years" (default), "20 years", or "End of loan (N years)". The **Nominal / In today's money** buttons change how money is displayed.
 5. **"1,000 simulated futures".** % of scenarios where BUY net worth is higher than RENT, % that need the emergency fund, % that run out of money, and P10 / P50 / P90 final net worth.
 6. **"What drives the result? (sensitivity)".** Collapsed by default and run only on click; changes one assumption at a time to show which assumptions the result depends on most.
 7. **Detailed Buy and Rent cards:** monthly cash flow by phase, holding costs, money left over, safety label.
@@ -93,7 +93,7 @@ The **"← Edit inputs"** button returns to Steps 1–4. Blocks from top to bott
 | Changes the scenario in Step 5 | Recalculates the safety check, chart and Monte Carlo; keeps the chosen horizon N and money display |
 | Changes the horizon N in Step 5 | Only reads the result at that year; Monte Carlo is not rerun; the safety check still covers the whole loan term |
 
-Invalid or missing input shows messages such as "Check the numbers in Step 1" or "Check income, living cost and age in Step 1". These cases are covered by the test suite (see [`testing.md`](testing.md)).
+Invalid or missing input shows a specific message and no result, for example "Please fill in Income 1, Savings, Minimum living cost, and Age 1.", "Check income, living cost and age in Step 1.", "Not eligible for a loan due to age", or "The maximum loan term by age is only … months, but the loan term must be longer than the … months grace period". These cases are covered by the test suite (see [`testing.md`](testing.md)).
 
 ## 5. Input, process, output
 
