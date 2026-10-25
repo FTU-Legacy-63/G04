@@ -1,8 +1,9 @@
 # Testing
 
 **Product tested:** FINAL-PRODUCT-V5 (single HTML file, runs in the browser)
-**Test workbook:** [`tests/FinFlow_Test_Cases_V5.xlsx`](../tests/FinFlow_Test_Cases_V5.xlsx)
+**Test workbook:** [`tests/FinFlow_Test_Cases.xlsx](https://github.com/FTU-Legacy-63/G04/tree/main/testings)
 **Run conditions:** Stable scenario, Monte Carlo 1,000 runs, fixed random seed (20260909), data snapshot of 9 Sep 2026
+**How the tests were run:** by hand in the interface, in Microsoft Edge and Google Chrome on a laptop, on 9 Oct 2026
 **Related documents:** [financial_logic.md](financial_logic.md) · [data_and_sources.md](data_and_sources.md) · [limitations.md](limitations.md) · [revision_summary.md](revision_summary.md)
 
 ---
@@ -21,7 +22,7 @@ FinFlow answers one question: *with the money I have, should I buy or rent a 2-b
 | Layer | Who / when | What it covers | Evidence |
 |---|---|---|---|
 | **A. Developer checks during the build** | Group, 27 Sep – 9 Oct 2026, after each version (V1 → V5) | Regression: a new version must give the same results as the old one when new features are switched off. Consistency: labels on the cards must equal the live safety check. | [revision_summary.md](revision_summary.md) (sections on V2–V5) |
-| **B. Structured test workbook** | Built from V5, 9 Oct 2026 | 123 written cases with inputs, expected output, and a place to record the actual output and Pass / Fail | `tests/FinFlow_Test_Cases_V5.xlsx` |
+| **B. Structured test workbook** | Built from V5 and run by hand in Edge and Chrome, 9 Oct 2026 | 123 written cases with inputs, expected output, the actual output and Pass / Fail | `tests/FinFlow_Test_Cases_V5.xlsx` |
 
 ### Layer A: checks already done by the developers
 
@@ -99,22 +100,24 @@ The workbook has six sheets.
 | S.04 | RENT: tick "Same filters as Buy" | RENT district jumps to Cau Giay; 34 RENT projects |
 | S.05 | Building name = "Chelsea" | 2 projects (Chelsea Park, Chelsea Residences); 15 cards |
 | S.06 | Building name = "zzzz" | "No project matches these filters"; 0 cards |
-| S.07 | Sorting and "Only within budget" | No expected numbers yet; tester records observed behaviour |
+| S.07 | Sorting and "Only within budget" | No expected numbers; the tester recorded observed behaviour (see section 4) |
 
 ## 4. Results
 
-> **Status: to be completed by the team.** The workbook records the expected output of V5 for every case. The "actual result" columns (banner, labels, % using the fund, Pass / Fail) are filled in as each case is run in the browser. In the workbook version reviewed for this document, no case had been run yet.
+All 123 cases were run by hand on FINAL-PRODUCT-V5 in Microsoft Edge and Google Chrome on a laptop on 9 Oct 2026, and the actual results were recorded in the workbook. **123 passed, 0 failed, 0 not run.**
 
 | Group | Cases | Pass | Fail | Not yet run |
 |---|---|---|---|---|
-| Calculation (G1–G13) | 88 | | | 88 |
-| Input errors | 28 | | | 28 |
-| Step 2–3 filters | 7 | | | 7 |
-| **Total** | **123** | | | **123** |
+| Calculation (G1–G13) | 88 | 88 | 0 | 0 |
+| Input errors | 28 | 28 | 0 | 0 |
+| Step 2–3 filters | 7 | 7 | 0 | 0 |
+| **Total** | **123** | **123** | **0** | **0** |
 
-**Pass rule.** Labels and banner must match exactly. Percentages may differ by at most 1 percentage point, because the interface shows whole percentages.
+**Pass rule.** Labels and banner must match exactly. Percentages may differ by at most 1 percentage point, because the interface shows whole percentages. In all 88 calculation cases the self-check column reads "Khớp" (match).
 
-**Important about "expected".** The expected values are what V5 itself returned, so they are a **baseline for regression** (they catch future changes), not an independent answer key. A few values were also checked by hand: the safety level by income band, the loan term by age, and the shortfall in case G1.07. V4 and V5 gave identical results across 48 comparison runs.
+**Case S.07 (observed behaviour, no expected numbers).** Tested with BUY = PCC1 Complex (Medium) and RENT = The Charm An Hung (Medium) on profile A. All 8 sort options (Relevance, Within budget first, price up and down, name A→Z and Z→A, area large→small and small→large) order the cards correctly inside each relevance group, and the groups are not mixed. "Within budget first" puts within-budget units on top (BUY: the 3.2 billion unit before the 3.6 billion unit). "Only within budget" reduces BUY from 14 cards to 6, all labelled "Within budget" (the list is topped up from lower relevance groups: 1 target, 1 medium, 4 low); RENT stays at 17 cards because all 17 are within budget. Nothing unusual was seen.
+
+**Important about "expected".** The expected values are what V5 itself returned, so they are a **baseline for regression** (they catch future changes), not an independent answer key. A pass therefore means V5 behaves as recorded, not that the future will match. A few values were also checked by hand: the safety level by income band, the loan term by age, and the shortfall in case G1.07. V4 and V5 gave identical results across 48 comparison runs.
 
 ## 5. Findings
 
@@ -128,19 +131,20 @@ The workbook has six sheets.
 | BUY ends richer than RENT in 92–99% of futures at 10 years even when only RENT passes (G2). It drops to 42–66% only in Downturn (G11) | Net worth and monthly safety measure different risks; the result page shows both rather than merging them |
 | Income 34 → 35 million flips RENT from Not safe to pass (G6) | The required safety level changes in steps (40% → 35%). This is a known design limit; the sensitivity table has a "smooth" option |
 | The conclusion sentence shows whole percentages | Display rounding; the check allows 1 point |
+| RENT net worth can be negative in the "ran out of money" cases (G1.09, G3.09–G3.11), for example −0.9 · −0.6 · −0.3 billion VND at P10 · P50 · P90 | The unfunded shortfall is subtracted from net worth (financial_logic.md, E2–E3) |
 
 ### 5.2 Issues found
 
 | # | Issue | Severity | Status |
 |---|---|---|---|
-| 1 | Error messages for negative savings (LI.09) and negative debt (LI.10) show raw variable names (`savings`, `existing_debt`) instead of the field labels | Cosmetic (wording only) | Open |
+| 1 | Error messages for negative savings (LI.09) and negative debt (LI.10) show raw variable names (`savings`, `existing_debt`) instead of the field labels | Cosmetic (wording only) | Open (team decision: not fixed) |
+| 2 | In the test workbook, the expected "Net worth RENT" values of G1.09, G3.09, G3.10 and G3.11 were written without the minus sign. The interface correctly shows negative values; all other columns of these cases match | Cosmetic (test workbook only, not the product) | Open: correct the four expected cells |
 
-No critical bug is recorded in the workbook at the time of writing. Bugs found while running the cases in Section 4 should be added to this table.
+No critical bug was found in the 123 cases. Bugs found later should be added to this table.
 
 ## 6. What is not covered
 
-- Mobile layout for each case (the page was only checked for errors on desktop and phone-size view during the V2 build)
-- Sorting options and the "Only within budget" button in Step 3 (case S.07)
+- Mobile layout for each case: the 123 cases were run on a laptop in Edge and Chrome only. A phone-size view was checked only for page errors during the V2 build. Other browsers (Firefox, Safari) were not tested.
 - The detailed BUY / RENT cards (monthly payment bar chart)
 - Real-money accuracy: the tool is a simulation on assumptions, so tests check that rules are applied correctly, not that the future will match. See [limitations.md](limitations.md).
 
