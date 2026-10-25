@@ -4,7 +4,7 @@
 
 Course: Technology Applications in Finance and Banking (NHA408E), FTU 2026 · Group 04 (G04) · Instructor: Assoc. Prof., Dr. Phan Tran Trung Dung
 
-**Final build:** `src/index.html` (FINAL-PRODUCT-V5) · **Live link:** [[DEPLOYMENT LINK](https://ftu-legacy-63.github.io/G04/src/)] · 
+**Final build:** `src/index.html` (FINAL-PRODUCT-V5) · **Live link:** [GitHub Pages](https://ftu-legacy-63.github.io/G04/src/)
 
 ---
 
@@ -44,7 +44,7 @@ Full description: [`docs/user_flow.md`](docs/user_flow.md).
 
 ## 5. How to run or access the product
 
-- **Online:** open the live link above.
+- **Online:** open the [live link](https://ftu-legacy-63.github.io/G04/src/).
 - **Locally:** download the repository and open [`src/index.html`](src/index.html) in any modern browser. No installation, server, API key or login is needed. The listing data and the calculation engine are embedded in the file, and the user's input never leaves the browser. (Only two web fonts are fetched from Google Fonts when online; without them the browser uses default fonts.)
 
 Technical details: [`docs/technical_readiness.md`](docs/technical_readiness.md).
@@ -91,7 +91,7 @@ Every number has a source and a status in [`docs/data_and_sources.md`](docs/data
 
 - **Test workbook:** 123 written cases: 88 calculation cases, 28 input-error cases and 7 filter cases (`tests/FinFlow_Test_Cases_V5.xlsx`).
 - **Developer checks during the build:** regression between versions V1 → V5, budget labels compared with the live safety check on all 756 + 277 listings, Monte Carlo with zero variance equal to the average path.
-- **Results of running the workbook:** [RESULTS: passed / failed / not yet run — copy from `docs/testing.md`].
+- **Results of running the workbook:** all 123 cases passed (88/88 calculation, 28/28 input errors, 7/7 filters), run by hand in Microsoft Edge and Google Chrome on a laptop on 9 Oct 2026. No critical bug was found; two cosmetic wording issues (negative savings and negative debt messages show raw variable names) remain open.
 - The expected values in the workbook are a baseline for regression (what V5 returns), not an independent answer key.
 
 Details: [`docs/testing.md`](docs/testing.md).
@@ -120,7 +120,7 @@ The product went from the 27 September MVP to the final V5 build (9 October 2026
 | Phạm Thị Khánh An | Macro and market figures, bank sources, initial idea | [Pham_Thi_Khanh_An.md](contribution/individuals/Pham_Thi_Khanh_An.md) |
 | Phạm Nam Phương | VN-Index, loan-to-value and bank loan rates, initial assumptions | [Pham_Nam_Phuong.md](contribution/individuals/Pham_Nam_Phuong.md) |
 
-Group contribution map: [contribution_map.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/contribution_map.md).
+Group contribution map: [`contribution/contribution_map.md`](contribution/contribution_map.md).
 
 ## 13. Repository structure
 
@@ -134,5 +134,7 @@ Group contribution map: [contribution_map.md](https://github.com/FTU-Legacy-63/G
 ├── docs/                          financial logic, sources, user flow, testing,
 │                                  limitations, revisions, Final Plan, change log
 ├── tests/                         FinFlow_Test_Cases_V5.xlsx
-└── contribution/                  contribution map and individual footprint files
+└── contribution/
+    ├── contribution_map.md        group contribution map
+    └── individuals/               one footprint file per member
 ```
