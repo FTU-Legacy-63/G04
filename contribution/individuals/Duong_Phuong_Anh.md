@@ -12,7 +12,7 @@
 | **Group** | Group 04 (G04) |
 | **Instructor** | Assoc. Prof., Dr. Phan Tran Trung Dung |
 
-> **Where this file sits:** `contribution/individual/phuong-anh.md`. Links to the repository are relative to this folder.
+> **Where this file sits:** `contribution/individuals/Duong_Phuong_Anh.md`. Links to the repository are relative to this folder.
 >
 > **How to read the links:** `src/index.html#L<number>` points to the line where a function starts in the final V5 build of the product; if the file is edited later, search for the function name instead. External sources are listed once more, grouped by topic, in section 8.
 
@@ -31,12 +31,12 @@ My work covers four layers of FinFlow:
 
 | Area | Responsibility | Concrete Repository Deliverable |
 |---|---|---|
-| **Assumptions Framework & Sources** | Designed the FIN_ASSUMPTIONS structure and the project-master schema; kept the source register; read each problem-evidence source in full before citing it. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv), [data_and_sources.md](../../docs/data_and_sources.md), [assumptions.md](../../docs/assumptions.md), [input-dictionary.md (Week 3)](../../docs/archive/week3/input-dictionary.md), [source-register.md (Week 3)](../../docs/archive/week3/source-register.md) |
+| **Assumptions Framework & Sources** | Designed the FIN_ASSUMPTIONS structure and the project-master schema; kept the source register; read each problem-evidence source in full before citing it. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv), [data_and_sources.md](../../docs/data_and_sources.md), [assumptions.md](../../docs/assumptions.md), [input-dictionary.md (Week 3)](../../archive/Week%203/input-dictionary.md), [sources-register.md (Week 3)](../../archive/Week%203/sources-register.md) |
 | **BUY and RENT Calculation** | Down payment net of fees and emergency fund, loan, holding and selling costs, month-by-month cash flow, net worth, safety check over the whole term. | [src/index.html](../../src/index.html): [`loanCalc`](../../src/index.html#L1580), [`evaluateBuy`](../../src/index.html#L1757), [`evaluateRent`](../../src/index.html#L1976), [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`stepPortfolio`](../../src/index.html#L1418), [`getSafetyMarginMinPct`](../../src/index.html#L1746), [`findBreakEven`](../../src/index.html#L2315); [financial_logic.md](../../docs/financial_logic.md) |
 | **Key Assumptions** | Chose and sourced the assumptions that drive the result: house-price path, rent growth, age cap, reference rate. | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [`propertyGrowthPctForYear`](../../src/index.html#L1327); [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); source links in section 8 |
-| **Integration & Interface Parts** | Merged the members' parts into one offline `index.html`; credited with the interface parts no other member claimed. | [src/index.html](../../src/index.html); [user_flow.md](../../docs/user_flow.md); commit links in [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png) |
-| **Documentation & Testing** | Final Plan, change log, limitations; final test suite of 123 cases. | [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf), [limitations.md](../../docs/limitations.md), [testing.md](../../docs/testing.md), [revision_summary.md](../../docs/revision_summary.md), [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) **[FILE NEEDED: `FinFlow_Test_Cases_V5.xlsx` → put in `tests/`]** |
-| **Repository & Coordination** | Repository structure following the course guide; group contribution map and individual files. | [README.md](https://github.com/FTU-Legacy-63/G04/blob/main/README.md), [contribution_map.md](../contribution_map.md) |
+| **Integration & Interface Parts** | Merged the members' parts into one offline `index.html`; credited with the interface parts no other member claimed. | [src/index.html](../../src/index.html); [user_flow.md](../../docs/user_flow.md); commit links in [evidence_links.png](../evidence/Duong_Phuong_Anh/evidence_links.png) |
+| **Documentation & Testing** | Final Plan, change log, limitations; final test suite of 123 cases, all passed. | [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf), [limitations.md](../../docs/limitations.md), [testing.md](../../docs/testing.md), [revision_summary.md](../../docs/revision_summary.md), [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) |
+| **Repository & Coordination** | Repository structure following the course guide; group contribution map and individual files. | [README.md](../../README.md), [contribution_map.md](../contribution_map.md) |
 
 ---
 
@@ -59,7 +59,7 @@ Loan         = Price − Down payment
   - Notary fee about 0.05–0.07%: [LuatVietnam](https://luatvietnam.vn/hanh-chinh/muc-phi-cong-chung-moi-nhat-570-21497-article.html).
 - Eligibility: savings ≥ 20% of price + 2.6% of price + emergency fund.
 - **Worked example:** price 5 billion VND, savings 1.5 billion, living cost 15 million/month (6-month fund = 90 million): 1.5 billion − 130 million − 90 million = **1.28 billion** down payment; loan **3.72 billion** (it was 3.5 billion in the 27 September version).
-- Evidence for the worked example: a screenshot of the product with exactly these inputs, saved in `docs/assets/screenshots/` **[SCREENSHOT NEEDED: `worked_example_5bn.png` → put in `docs/assets/screenshots/`]**.
+- **How to check:** the same steps are worked out for other prices in [financial_logic.md](../../docs/financial_logic.md) (A3 and D4), and the formulas are in `loanCalc`.
 
 ### 2.2 Monthly cash flow and safety check (`evaluateBuy`, `evaluateRent`, `getSafetyMarginMinPct`)
 
@@ -100,15 +100,15 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 
 ### 2.5 Integration and interface parts (`src/index.html`)
 
-- Merged into one `index.html` with embedded data, no server and no internet connection: listings and figures (An, Nam Phương), Monte Carlo and dashboard framework (Tuấn), relevance engine, loan term and loan calculation (Sơn). Commit / pull-request links: [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png). (The repository has no pull requests; the evidence is in commits.)
+- Merged into one `index.html` with embedded data, no server and no internet connection: listings and figures (An, Nam Phương), Monte Carlo and dashboard framework (Tuấn), relevance engine, loan term and loan calculation (Sơn). Commit links: [evidence_links.png](../evidence/Duong_Phuong_Anh/evidence_links.png). (The repository has no pull requests; the evidence is in commits.)
 - Interface parts credited to me: two-line unit cards with "Show details" (the detailed rules sit behind it); shorter "Your budget" card; spare-money table in Step 4; "What is varied" in the Monte Carlo section as two tables ([`runMonteCarlo`](../../src/index.html#L2187) uses the same settings, [`MC_SETTINGS`](../../src/index.html#L2061)); monthly cash-flow table in short rows; 32 source links beside the numbers (the assumptions box is built by [`renderLoanAssumptionsBox`](../../src/index.html#L3464); the file contains 32 source addresses, listed in section 8); right-column summary box and scroll to the conclusion after Calculate ([`buildConclusionHTML`](../../src/index.html#L4254)).
 - These parts sit under the deep-gradient layout designed by Sơn and Khánh An, which is built on the version I made.
 
 ### 2.6 Documentation and final test suite
 
 - Final Plan (v2 to v5, written from Khánh An's initial idea; the final product follows it): [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); change log (batches 1–11): [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf); limitations: [limitations.md](../../docs/limitations.md); and the summaries in `docs/` ([revision_summary.md](../../docs/revision_summary.md), [financial_logic.md](../../docs/financial_logic.md), [assumptions.md](../../docs/assumptions.md), [user_flow.md](../../docs/user_flow.md)).
-- Test suite: 88 calculation cases, 28 input-error cases, 7 filter cases (123 in total); expected values are the V5 baseline ([testing.md](../../docs/testing.md); workbook [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) **[FILE NEEDED: `FinFlow_Test_Cases_V5.xlsx` → put in `tests/`]**).
-- Results of running the suite: **[RESULTS TO ADD: passed / mismatched / not run — copy from `testing.md` after the run]**.
+- Test suite: 88 calculation cases, 28 input-error cases, 7 filter cases (123 in total); expected values are the V5 baseline ([testing.md](../../docs/testing.md); workbook [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx)).
+- Results of running the suite: **123 of 123 cases passed** (88/88 calculation, 28/28 input-error, 7/7 filter), run by hand in Microsoft Edge and Google Chrome on a laptop on 9 Oct 2026. Two cosmetic wording issues (negative-savings and negative-debt messages, LI.09 and LI.10) remain open; details in [testing.md](../../docs/testing.md), section 5.2.
 
 ---
 
@@ -116,20 +116,20 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 
 ### 3.1 Framework, sources and early logic (Weeks 1–5)
 
-- Refined the initial HTML financial-simulator concept and coordinated group discussions and project development (week 1, recorded in the credit table: [Week 1 README](../../docs/archive/week1/README.md)).
-- Project-master schema and listing-filtering logic; the FIN_ASSUMPTIONS table skeleton ([ownership.md, Week 3](../../docs/archive/week3/ownership.md)).
-- Input dictionary listing and describing every input ([input-dictionary.md, Week 3](../../docs/archive/week3/input-dictionary.md)).
-- Co-authored the **data-flow diagram** Source → Input → Validation → Process → Output, with Phạm Thị Khánh An and Nguyễn Hải Sơn ([data-flow.md](../../docs/archive/week3/data-flow.md)).
-- Input validation in the Calculate-button handler ([validation-and-early-logic-test.md, section 1](../../docs/archive/week3/validation-and-early-logic-test.md)).
-- **Early logic test:** designed test cases, calculated them by hand and cross-checked them against the code ([validation-and-early-logic-test.md](../../docs/archive/week3/validation-and-early-logic-test.md), later extended in the Week 4 [sample calculation](../../docs/archive/week4/sample-calculation-and-logic-test.md)).
-- Declining-balance repayment method, with Phạm Nam Phương and Phạm Thị Khánh An ([formulas-rules-scoring.md, Week 4](../../docs/archive/week4/formulas-rules-scoring.md)).
+- Refined the initial HTML financial-simulator concept and coordinated group discussions and project development (week 1, recorded in the credit table: [Week 1 README](../../archive/Week%201/README.md)).
+- Project-master schema and listing-filtering logic; the FIN_ASSUMPTIONS table skeleton ([assumptions.md, Week 3](../../archive/Week%203/assumptions.md)).
+- Input dictionary listing and describing every input ([input-dictionary.md, Week 3](../../archive/Week%203/input-dictionary.md)).
+- Co-authored the **data-flow diagram** Source → Input → Validation → Process → Output, with Phạm Thị Khánh An and Nguyễn Hải Sơn ([data-flow.md](../../archive/Week%203/data-flow.md)).
+- Input validation in the Calculate-button handler ([Input Validation & Early Logic Test.md, section 1](../../archive/Week%203/Input%20Validation%20%26%20Early%20Logic%20Test.md)).
+- **Early logic test:** designed test cases, calculated them by hand and cross-checked them against the code ([Input Validation & Early Logic Test.md](../../archive/Week%203/Input%20Validation%20%26%20Early%20Logic%20Test.md), later extended in the Week 4 [Sample Calculation & Logic Test.md](../../archive/Week%204/Sample%20Calculation%20%26%20Logic%20Test.md)).
+- Declining-balance repayment method, with Phạm Nam Phương and Phạm Thị Khánh An ([financial-logic.md, Week 4](../../archive/Week%204/financial-logic.md)).
 - **Two-point safety-margin rule** and the rule that adds closing costs to the minimum-savings check, designed with Nguyễn Minh Tuấn; implemented together with interface text updates and the auto-generated assumptions box (AI-assisted).
-- **Source register:** ([source-register.md, Week 3](../../docs/archive/week3/source-register.md))
+- **Source register:** ([sources-register.md, Week 3](../../archive/Week%203/sources-register.md))
   - CFPB Ability-to-Repay reference (qualitative support for the safety-margin idea): [CFPB final rule](https://files.consumerfinance.gov/f/201301_cfpb_final-rule_ability-to-repay-preamble.pdf).
   - State Bank of Vietnam deposit-rate report: [div.gov.vn](https://div.gov.vn/lai-suat-tiet-kiem-tang-trong-tam-kiem-soat-mt-bang-cho-vay-du-kien-tiep-tuc-on-dinh); floating-rate sources behind the 10.5% reference rate (with An): [Thanh Niên](https://thanhnien.vn/nguoi-vay-mua-nha-dang-chiu-lai-suat-bao-nhieu-185260825101722042.htm), [Dân trí](https://dantri.com.vn/kinh-doanh/lai-suat-tha-noi-tren-14nam-ngan-hang-giam-cho-vay-mua-nha-20260823171410442.htm).
   - Three legal citations behind the 2.6% closing costs (registration tax, maintenance fund, notary fee): see 2.1.
-  - I read the four problem-evidence sources in full and confirmed the exact figures and links before citing them (with An): [source-register.md, section 2](../../docs/archive/week3/source-register.md).
-- Evidence for this phase: [contribution.md, Week 5](../../docs/archive/week5/contribution.md); commit links in [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png).
+  - I read the four problem-evidence sources in full and confirmed the exact figures and links before citing them (with An): [sources-register.md, section 2](../../archive/Week%203/sources-register.md).
+- Evidence for this phase: [contribution.md, Week 5](../../archive/Week%205/contribution.md); commit links in [evidence_links.png](../evidence/Duong_Phuong_Anh/evidence_links.png).
 
 ### 3.2 BUY and RENT calculation upgrade (Weeks 6–7)
 
@@ -151,7 +151,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 - Integration and interface parts: see 2.5.
 - Documentation and final test suite: see 2.6.
 - Repository structure following the course guide: README, docs/, contribution/, src/, data/, tests/ ([repository](https://github.com/FTU-Legacy-63/G04)).
-- Group contribution map and the individual footprint files: [contribution_map.md](../contribution_map.md); root [README.md](https://github.com/FTU-Legacy-63/G04/blob/main/README.md).
+- Group contribution map and the individual footprint files: [contribution_map.md](../contribution_map.md); root [README.md](../../README.md).
 
 ---
 
@@ -159,18 +159,18 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 
 | Item | What I contributed | Evidence file | How to check |
 | :--- | :--- | :--- | :--- |
-| **Assumptions framework** | FIN_ASSUMPTIONS skeleton, project-master schema, input dictionary | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [assumptions.md](../../docs/assumptions.md); [input-dictionary.md (Week 3)](../../docs/archive/week3/input-dictionary.md) | Every assumption in the sheet has a value, a status and a source |
-| **Source register** | CFPB, deposit-rate report, floating-rate sources, three legal citations | [data_and_sources.md](../../docs/data_and_sources.md); [source-register.md (Week 3)](../../docs/archive/week3/source-register.md); source links in section 8 | Open each cited link and compare the figure |
+| **Assumptions framework** | FIN_ASSUMPTIONS skeleton, project-master schema, input dictionary | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [assumptions.md](../../docs/assumptions.md); [input-dictionary.md (Week 3)](../../archive/Week%203/input-dictionary.md) | Every assumption in the sheet has a value, a status and a source |
+| **Source register** | CFPB, deposit-rate report, floating-rate sources, three legal citations | [data_and_sources.md](../../docs/data_and_sources.md); [sources-register.md (Week 3)](../../archive/Week%203/sources-register.md); source links in section 8 | Open each cited link and compare the figure |
 | **Down payment and loan** | Savings − 2.6% fee − emergency fund; loan = price − down payment | [`loanCalc`](../../src/index.html#L1580) in [src/index.html](../../src/index.html); [financial_logic.md](../../docs/financial_logic.md) | Price 5 billion, savings 1.5 billion, living cost 15 million → loan 3.72 billion |
 | **Holding and selling costs** | Service fee, fire insurance, 1.5% selling cost | [`buyRunningCostAt`](../../src/index.html#L1469), [`rentRunningCostAt`](../../src/index.html#L1476), [`evaluateBuy`](../../src/index.html#L1757) | Net worth at year 0 is lower than savings by the purchase and selling costs |
 | **RENT portfolio** | 4 channels, yearly rebalancing, safety over the whole term | [`stepPortfolio`](../../src/index.html#L1418), [`evaluateRent`](../../src/index.html#L1976) | Change the mix in Step 4: RENT net worth changes, BUY does not |
 | **House-price path** | 20.43% → 8.38%, τ = 3.24 | [`propertyGrowthPctForYear`](../../src/index.html#L1327); [Property_Price_Growth.csv](../../data/financial_assumptions/Property_Price_Growth.csv) | First-year growth 20.43% (k = 1); 10-year average 12.66% |
 | **Other key assumptions** | Rent 6%, age cap 70, reference rate 10.5% | [Assumptions_Summary.csv](../../data/financial_assumptions/Assumptions_Summary.csv); [financial_logic.md](../../docs/financial_logic.md); [Reference_Rate.csv](../../data/financial_assumptions/Reference_Rate.csv) | Assumption box in Step 1 shows the same values |
 | **Workbook-to-code check** | Compared the assumptions workbook with the code | [Code_Cross_Check.csv](../../data/financial_assumptions/Code_Cross_Check.csv) | 48 parameters compared; no mismatch |
-| **Integration** | One offline `index.html` | [src/index.html](../../src/index.html); [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/README.md) | Open the file without internet and run a full case |
+| **Integration** | One offline `index.html` | [src/index.html](../../src/index.html); [evidence_links.png](../evidence/Duong_Phuong_Anh/evidence_links.png) | Open the file without internet and run a full case |
 | **Interface parts** | Unit cards, budget card, spare-money table, "What is varied", cash-flow table, source links, summary box | [src/index.html](../../src/index.html); [user_flow.md](../../docs/user_flow.md) | Compare each element with the description in the user flow |
 | **Documentation** | Final Plan, change log, limitations | [FinFlow - Final Plan.pdf](../../docs/FinFlow%20-%20Final%20Plan.pdf); [FinFlow - Change log (Midterm to Final).pdf](../../docs/FinFlow%20-%20Change%20log%20%28Midterm%20to%20Final%29.pdf); [revision_summary.md](../../docs/revision_summary.md); [limitations.md](../../docs/limitations.md) | Numbers in these files match the web page and the workbook |
-| **Final test suite** | 88 + 28 + 7 = 123 cases | [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx) **[FILE NEEDED: `FinFlow_Test_Cases_V5.xlsx` → put in `tests/`]**; [testing.md](../../docs/testing.md) | Enter a case's inputs and compare the expected columns |
+| **Final test suite** | 88 + 28 + 7 = 123 cases, all passed | [FinFlow_Test_Cases_V5.xlsx](../../tests/FinFlow_Test_Cases_V5.xlsx); [testing.md](../../docs/testing.md) | Enter a case's inputs and compare the expected columns |
 
 ---
 
@@ -178,7 +178,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 
 | Phase | Recorded in the team's progress | Confirmed output | What it shows about my contribution |
 | :---: | :--- | :--- | :--- |
-| **Weeks 1–5** | Concept refinement, schema, assumptions skeleton, input dictionary, data-flow diagram, validation, early logic test, source register, Final Plan | [data-flow.md](../../docs/archive/week3/data-flow.md); [contribution.md](../../docs/archive/week5/contribution.md) | Framework and sources the model is built on |
+| **Weeks 1–5** | Concept refinement, schema, assumptions skeleton, input dictionary, data-flow diagram, validation, early logic test, source register, Final Plan | [data-flow.md](../../archive/Week%203/data-flow.md); [contribution.md](../../archive/Week%205/contribution.md) | Framework and sources the model is built on |
 | **Weeks 6–7** | Calculation upgrade, key assumptions, integration | [src/index.html](../../src/index.html) | The financial logic of the final product and the merged build |
 | **Final** | Interface parts, documentation, test suite, repository | [src/index.html](../../src/index.html); [testing.md](../../docs/testing.md); [revision_summary.md](../../docs/revision_summary.md) | The documented, tested and organized version the group submits |
 
@@ -206,7 +206,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 - **Model scope:** repairs inside the unit (sensitivity only), building depreciation, rental deposit and furnishing costs are not in the main result; the 2% income tax on a sale is not applied; when the whole emergency fund runs out, the shortfall accumulates without interest ([limitations.md](../../docs/limitations.md), #11, #12, #17, #19, #23).
 - **Assumptions:** τ rests on the idea that the next 10 years grow like the last 10; rent growth of 6% is a reasoned judgment, not a measurement, because there is no historical rent series; the 10.5% reference rate is extrapolated because the MB document gives no value; "use the older borrower's age" is a group assumption ([limitations.md](../../docs/limitations.md), #5, #10, #16).
 - **Maintenance fee:** 2% may not apply to resale units (about 0.56%); the model keeps 2.6% as a conservative level ([limitations.md](../../docs/limitations.md), #26; in the Final Plan this appears only as an unnumbered addendum under section C, and `limitations.md` numbers it #26 for easy reference). Source: [Article 152, Law on Housing 2023](https://hethongphapluat.com/law-no-27-2023-qh15-dated-december-27-2023-on-housing/dieu-152) — the 2% obligation is set for buyers from the investor.
-- **Build:** Boom / Downturn on the result screen do not update the budget labels in Step 3; the code still contains an unused Chart.js loader and old comments; there is no deployment link yet.
+- **Build:** Boom / Downturn on the result screen do not update the budget labels in Step 3; the code still contains an unused Chart.js loader and old comments.
 
 ---
 
@@ -240,6 +240,7 @@ Code: [`FIN_ASSUMPTIONS`](../../src/index.html#L1204), [`propertyGrowthPctForYea
 | MB Bank rate sheet | [mb_bank_rate.jpg](../../data/financial_assumptions/mb_bank_rate.jpg) |
 | Listing data | [data/sample_data/](../../data/sample_data/) |
 | Documentation | [docs/](../../docs/) |
+| Weekly records (Weeks 1–5) | [archive/](../../archive/) |
 | Tests | [tests/](../../tests/) |
 | Group contribution map | [contribution_map.md](../contribution_map.md) |
-| Commit links with a note on what each commit shows | [evidence_links.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/evidence/Duong_Phuong_Anh/evidence_links.png) |
+| Commit links with a note on what each commit shows | [evidence_links.png](../evidence/Duong_Phuong_Anh/evidence_links.png) |
