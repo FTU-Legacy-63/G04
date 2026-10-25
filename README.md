@@ -115,12 +115,12 @@ The product went from the 27 September MVP to the final V5 build (9 October 2026
 | Member | Main responsibility | Individual footprint |
 |---|---|---|
 | Dương Phương Anh | Coordinator, repository owner, financial model and assumptions, integration | [Duong_Phuong_Anh.md](contribution/individuals/Duong_Phuong_Anh.md) |
-| Nguyễn Minh Tuấn | Cau Giay data, Monte Carlo and dashboard framework | [Nguyen_Hai_Son.md](contribution/individuals/Nguyen_Hai_Son.md) |
-| Nguyễn Hải Sơn | Ha Dong and Tay Ho data, relevance engine, loan term by age, loan calculation link | [`FILE NEEDED`](contribution/individuals/) |
+| Nguyễn Minh Tuấn | Cau Giay data, Monte Carlo and dashboard framework | [Nguyen_Minh_Tuan.md](contribution/individuals/Nguyen_Minh_Tuan.md) |
+| Nguyễn Hải Sơn | Ha Dong and Tay Ho data, relevance engine, loan term by age, loan calculation link | [Nguyen_Hai_Son.md](contribution/individuals/Nguyen_Hai_Son.md) |
 | Phạm Thị Khánh An | Macro and market figures, bank sources, initial idea | [Pham_Thi_Khanh_An.md](contribution/individuals/Pham_Thi_Khanh_An.md) |
 | Phạm Nam Phương | VN-Index, loan-to-value and bank loan rates, initial assumptions | [Pham_Nam_Phuong.md](contribution/individuals/Pham_Nam_Phuong.md) |
 
-Group contribution map: [`contribution/contribution_map.md`](contribution/contribution_map.md).
+Group contribution map: [contribution_map.md](https://github.com/FTU-Legacy-63/G04/blob/main/contribution/contribution_map.md).
 
 ## 13. Repository structure
 
