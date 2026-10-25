@@ -5,7 +5,7 @@
 | Item | Details |
 | :--- | :--- |
 | **Full name** | **Phạm Thị Khánh An** |
-| **Student ID** | [2412380003] |
+| **Student ID** | 2412380003 |
 | **Main role** | **Macro and Market Data / Workbook Reviewer / Final Layout Co-designer** |
 | **Project** | **FinFlow — Buy vs Rent** |
 | **Course** | Information Technology Applications in Finance and Banking (NHA408E) |
