@@ -5,7 +5,7 @@
 | Item | Details |
 | :--- | :--- |
 | **Full name** | **Nguyễn Minh Tuấn** |
-| **Student ID** | [add student ID] |
+| **Student ID** | 2412380045 |
 | **Main role** | **Cau Giay Data / Monte Carlo, Dashboard, Scenario and Sensitivity Developer** |
 | **Project** | **FinFlow — Buy vs Rent** |
 | **Course** | Information Technology Applications in Finance and Banking (NHA408E) |
