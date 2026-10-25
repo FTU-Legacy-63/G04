@@ -1,0 +1,36 @@
+﻿FinFlow – Bộ case test cho FINAL-PRODUCT-V5,,,,
+"Chạy ngày 09/10/2026 trên V5 (HTML), Stable, Monte Carlo 1.000 lần, seed cố định. Đơn vị tiền: triệu VND (tr) trừ khi ghi tỷ.",,,,
+,,,,
+Cách dùng,,,,
+"1. Mở sheet 'Case test'. Mỗi hàng là một case: cột xanh dương là số cần nhập vào giao diện (Bước 1 → Bước 4), cột xanh lá là kết quả V5 trả ra.",,,,
+2. Chọn căn bằng ID ở cột 'Căn BUY (ID)' / 'Căn RENT (ID)'. Cách tìm từng căn trong giao diện nằm ở sheet 'Căn nhà'.,,,,
+"3. Bấm Calculate, đọc kết quả ở khối kết luận (đầu Bước 5), rồi điền vào các cột nền vàng: banner, nhãn BUY / RENT, và % dùng quỹ khẩn cấp (cả kỳ vay).",,,,
+4. Cột 'Tự kiểm' tự báo Khớp / Lệch (nhãn phải đúng; % lệch tối đa 1 điểm). Chọn 'Đạt' / 'Không đạt' ở cột 'Kết quả'.,,,,
+"5. Lỗi nhập liệu và lọc Bước 2-3 nằm ở hai sheet riêng, cùng cách điền.",,,,
+,,,,
+Mặc định khi một case không ghi khác,,,,
+Gói ưu đãi 12 tháng · Mix 100% tiết kiệm · Quỹ khẩn cấp 6 tháng · Kịch bản Stable · So sánh tại 10 năm · Hiển thị danh nghĩa.,,,,
+"Hồ sơ A (nhập ở Bước 1): Thu nhập 1 = 25, Thu nhập 2 = 15, Tiết kiệm = 2000, Sống tối thiểu = 8, Nợ = 0, Tuổi 1 = 32, Tuổi 2 = 30.",,,,
+"Hồ sơ R2: Thu nhập 1 = 20, Tiết kiệm = 800, Sống tối thiểu = 8, Tuổi 1 = 30 (để trống Thu nhập 2 và Tuổi 2).",,,,
+,,,,
+"Ví dụ điền (case G1.02 – hồ sơ A, BHD0175 / RCG0117)",,,,
+Banner thực tế: Both pass · BUY nhãn thực tế: TIGHT · BUY dùng quỹ % thực tế: 0% · RENT nhãn thực tế: COMFORTABLE · RENT dùng quỹ % thực tế: 0% → Tự kiểm: Khớp → Kết quả: Đạt,,,,
+,,,,
+Tổng hợp tiến độ (tự tính),,,,
+Nhóm,Số case,Đạt,Không đạt,Chưa chạy
+Kết luận (các kiểu banner),10,10,0,0
+Quỹ KC – phía BUY,10,10,0,0
+Quỹ KC – phía RENT,11,11,0,0
+Đạt nhưng vẫn dùng quỹ,2,2,0,0
+Số tháng quỹ KC,8,8,0,0
+Mốc thu nhập,6,6,0,0
+Tuổi / kỳ hạn vay,7,7,0,0
+Nợ đang trả,5,5,0,0
+Gói lãi ưu đãi,4,4,0,0
+Tỉ lệ đầu tư (mix),5,5,0,0
+Kịch bản Boom/Stable/Downturn,12,12,0,0
+Tiết kiệm lớn hơn giá nhà,2,2,0,0
+So sánh tại N & kiểu hiển thị tiền,6,6,0,0
+Lỗi nhập liệu,28,28,0,0
+Lọc Bước 2-3,7,7,0,0
+Tổng,123,123,0,0

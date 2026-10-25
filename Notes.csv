@@ -1,0 +1,11 @@
+﻿Điều cần biết khi đọc kết quả,
+,
+An toàn và quỹ khẩn cấp là hai tín hiệu riêng,"Chip rủi ro đếm tỉ lệ future bị rút đến quỹ KC. Một bên NOT SAFE vẫn có thể 0% (G1.06, G1.08). Trong 5.678 tổ hợp ngẫu nhiên dò thêm, bên đạt kiểm tra chỉ có khoảng 0–1% (G4). MODERATE và HIGH chỉ gặp ở bên NOT SAFE."
+"Quỹ nhiều tháng hơn: 'dùng quỹ' tăng, 'hết tiền' giảm","G5: BUY 4.9 tỷ, quỹ 0 → 12 tháng: dùng quỹ 52% → 68%, hết tiền 52% → 44%. Đây là cách đếm (chạm quỹ vs cạn quỹ), không phải lỗi."
+Net worth và an toàn có thể ngược nhau,G2: BUY 'hơn RENT' 92–99% sau 10 năm dù chỉ RENT đạt kiểm tra an toàn. Chỉ ở Downturn mới tụt (G11: 42–66%).
+Mốc thu nhập là vách đá,G6: thu nhập 34 → 35 làm RENT từ NOT SAFE sang đạt vì mức an toàn đổi 40% → 35%. Đây là thiết kế (sheet độ nhạy có phương án nối thẳng).
+Làm tròn khi đọc giao diện,"Câu kết luận chỉ hiện % nguyên (vd 'In 16% of 1,000…'). Cột 'Tự kiểm' cho phép lệch ≤ 1 điểm % (0.01). Nhãn và banner phải khớp chính xác."
+Monte Carlo có seed cố định,Cùng input luôn ra cùng số. Nếu chạy lại mà số khác với cột dự kiến thì có thay đổi trong code hoặc dữ liệu.
+Số dự kiến là baseline của V5,"Đây là kết quả V5 trả ra, không phải đáp án độc lập. Đã tự kiểm tay: mức an toàn theo bậc thu nhập, kỳ hạn theo tuổi, số tiền thiếu của G1.07. V4 và V5 cho cùng kết quả trên 48 lần chạy đối chiếu."
+Hai thông báo lỗi dùng tên biến thô,"LI.09 và LI.10 hiện ""savings"" và ""existing_debt"" thay vì tên hiển thị. Chỉ là câu chữ."
+Chưa phủ,"Mobile cho từng case, sắp xếp / nút 'Only within budget' ở Bước 3 (xem sheet 'Lọc Bước 2-3', S.07), và thẻ MUA / THUÊ chi tiết (biểu đồ cột thanh toán)."
