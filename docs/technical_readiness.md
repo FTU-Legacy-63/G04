@@ -8,7 +8,7 @@
 | Data | Listing data embedded as JSON arrays in the file: 205 buildings, 756 BUY and 277 RENT listings, snapshot 2026-09-09. No database |
 | User input | Kept in the browser's memory only; never sent anywhere, no cookies, no `localStorage` or `sessionStorage` |
 | External requests | No data or calculation request leaves the page. The only external call is the stylesheet for two web fonts (DM Sans, Fraunces) from Google Fonts; if it cannot load, the browser uses its default fonts and everything else works. The net-worth chart is drawn as inline SVG, so no chart library is downloaded |
-| Deployment | Static file: open it directly in a browser, or host on GitHub Pages. Link: [[DEPLOYMENT LINK](https://ftu-legacy-63.github.io/G04/src/)] |
+| Deployment | Static file: open it directly in a browser, or host on GitHub Pages. Link: [DEPLOYMENT LINK] |
 | Engine | Loan, safety check, net worth, Monte Carlo, scenarios and sensitivity all run in the browser |
 
 ## 2. Computation and performance
@@ -26,7 +26,7 @@
 |---|---|
 | Excel assumptions vs code | 48 parameters compared in sheet `Doi_chieu_index_html` of the assumptions workbook: 0 mismatches |
 | Listing figures | 13 numbers recomputed from the embedded data (same sheet) match |
-| Test suite | 123 cases (88 calculation, 28 input-error, 7 filter) in `FinFlow_Test_Cases_V5.xlsx`: [RESULTS TO BE ADDED]; see [testing.md](testing.md) |
+| Test suite | 123 cases (88 calculation, 28 input-error, 7 filter) in `FinFlow_Test_Cases_V5.xlsx`, run by hand in Edge and Chrome on 9 Oct 2026: **123 passed, 0 failed**; see [testing.md](testing.md) |
 | Regression check | With all four new cost fields set to 0, V3 reproduces V2 results (same verdict, safety margin, final net worth and "BUY richer" share) |
 
 ## 4. Fallbacks
@@ -55,5 +55,6 @@ AI assistance was used to implement and adjust logic and interface text at the t
 - No backend: no saved history, no accounts, no live data; changing listings means editing the file.
 - Data is a fixed snapshot of asking prices, not a feed.
 - Dead code remains in the file: an unused Chart.js loader with CDN addresses (cdnjs, jsDelivr, unpkg) and the old Chart.js drawing functions. They are never run, because the page now starts with the chart-loading step switched off and draws the chart as SVG. A comment at the top of the file still describes the old Chart.js behaviour. [CLEAN UP OR KEEP]
-- Automated browser tests ran in headless Chromium only. The page loaded without errors at desktop and phone widths in batch 8 (V2). [ADD MOBILE / OTHER BROWSERS IF TESTED FOR V5]
+- The 123 test cases were run by hand on a laptop in Microsoft Edge and Google Chrome. Phone layouts and other browsers (Firefox, Safari) were not tested; a phone-size view was only checked for page errors during the V2 build.
+- Two input-error messages (negative savings, negative debt) show raw variable names instead of field labels; this is a known cosmetic issue left open (see [testing.md](testing.md), section 5.2).
 - Scope is deliberately narrow: 2-bedroom apartments in three districts. Expansion is a separate phase.
