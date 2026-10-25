@@ -1,7 +1,7 @@
 # Testing
 
 **Product tested:** FINAL-PRODUCT-V5 (single HTML file, runs in the browser)
-**Test workbook:** [`tests/FinFlow_Test_Cases.xlsx](https://github.com/FTU-Legacy-63/G04/tree/main/testings)
+**Test workbook:** [tests/FinFlow_Test_Cases.xlsx](https://github.com/FTU-Legacy-63/G04/tree/main/testings)
 **Run conditions:** Stable scenario, Monte Carlo 1,000 runs, fixed random seed (20260909), data snapshot of 9 Sep 2026
 **How the tests were run:** by hand in the interface, in Microsoft Edge and Google Chrome on a laptop, on 9 Oct 2026
 **Related documents:** [financial_logic.md](financial_logic.md) · [data_and_sources.md](data_and_sources.md) · [limitations.md](limitations.md) · [revision_summary.md](revision_summary.md)
