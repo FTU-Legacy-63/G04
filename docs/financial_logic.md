@@ -76,7 +76,7 @@ The loan follows one real product: **MBBank, Van Phuc branch** (rate sheet recei
 | Margin | +1.5% for the first 12 months after the promotion, +3.5% afterwards | From the MB sheet |
 | Grace period (interest only) | 24 months | From the MB sheet |
 | Repayment method | Equal principal, interest on the declining balance | After the grace period |
-| Prepayment fee | 1% of the amount repaid in years 1–5, free from year 6 | Matters only when the comparison year N is 5 or less |
+| Prepayment fee | 1% of the remaining balance if the loan is repaid early, in years 1–5; free from year 6 | Matters only when the comparison year N is 5 or less |
 | Maximum loan-to-value (LTV) | 80% (Stable and Boom), 70% (Downturn) | LTV = loan ÷ price |
 | Maximum term | 360 months | MB's other 35-year "young people" product is not used |
 
@@ -114,11 +114,12 @@ An older borrower gets a shorter term, so the monthly principal is higher and th
 
 ### B4. Can the user borrow at all?
 
-Three conditions must hold, otherwise the BUY side shows "Not enough savings" or "No loan available" and no BUY result is calculated:
+Two conditions must hold, otherwise the BUY side shows "Not enough savings" or "No loan available" and no BUY result is calculated:
 
 1. **Savings are enough for the down payment.** Savings ≥ (1 − LTV) × price + 2.6% × price + emergency fund. At 80% LTV this is price × 22.6% + emergency fund.
 2. **Age.** The older borrower is under 70, and the maximum term is more than 24 months.
-3. **LTV.** Loan ÷ price does not exceed 80% (70% in Downturn).
+
+The loan-to-value limit is not a separate test: condition 1 already keeps loan ÷ price within 80% (70% in Downturn).
 
 **Purchase fees (2.6% of price)** = maintenance fund 2% + registration fee 0.5% + notary about 0.06%. They are paid on day one, so BUY net worth starts below the savings figure by exactly the fees.
 
@@ -137,7 +138,9 @@ Continue the example from A3: loan 2,152 million, borrowers aged 32 and 30, 12-m
 | 13 | 12.0% | 2,152 × 12% ÷ 12 = 21.5 million | 0 (grace) | **21.5 million** |
 | 25 | 14.0% | 2,152 × 14% ÷ 12 = 25.1 million | 6.4 million | **31.5 million** |
 
-In month 25 two things happen at once: the grace period ends (principal starts) and the margin rises from 1.5% to 3.5%. The payment more than doubles compared with month 1. This is why the "tightest month" in the test cases is usually month 25 (see [testing.md](testing.md)). With an 18-month package the jump moves to month 31, and with 24 months to month 37.
+With the 12-month package, two things happen in month 25 at once: the grace period ends (principal starts) and the margin rises from 1.5% to 3.5%. The payment more than doubles compared with month 1. This is why the "tightest month" in the test cases is usually month 25 (see [testing.md](testing.md)).
+
+With other packages the two steps separate. Principal always starts in month 25 (the grace period is 24 months for every package), but the margin steps up to +3.5% in month 19 (6-month package), month 31 (18 months) or month 37 (24 months). The payment then rises in two steps, and the tightest month can be month 25 or the month the margin steps up.
 
 **Early repayment.** If the user compares at year 5 or earlier, the model deducts a 1% fee on the remaining balance from BUY net worth. From year 6 there is no fee.
 
@@ -270,7 +273,7 @@ This matches the tool's output (15.7 left, 0.1 above the safe level), so the wri
 
 ### E1. Four investment channels
 
-Money that is not needed for housing is invested in four channels. The user chooses the split in Step 4 (default: 100% savings deposits, because no appetite for risk is assumed).
+Money that is not needed for housing is invested in four channels. The user chooses the split in Step 4 (default: 100% savings deposits; the user can change it).
 
 | Channel | Average return per year | Source and note |
 |---|---|---|
@@ -279,7 +282,7 @@ Money that is not needed for housing is invested in four channels. The user choo
 | Gold (SJC) | 11.12% | FiinPro, February 2016 – December 2024. The 2025 spike (+81.5%) is excluded on purpose; including it gives 14.89%, run as a sensitivity |
 | Stocks (VN-Index) | 7.99% | investing.com, May 2021 – August 2026, dividends not included |
 
-Each channel earns its yearly return. In Monte Carlo the rate used for a year can differ from the average (Part F3).
+Each month a channel grows by its annual return ÷ 12. In Monte Carlo the rate used for a year can differ from the average (Part F3).
 
 ### E2. Two pockets and the rules for moving money
 
