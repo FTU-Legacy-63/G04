@@ -5,7 +5,7 @@
 | Item | Details |
 | :--- | :--- |
 | **Full name** | **Phạm Nam Phương** |
-| **Student ID** | [add student ID] |
+| **Student ID** | 2412380041 |
 | **Main role** | **Stock and Bank-Loan Data / Workbook Reviewer (gold, VN-Index) / Input Flow and Filters Developer** |
 | **Project** | **FinFlow — Buy vs Rent** |
 | **Course** | Information Technology Applications in Finance and Banking (NHA408E) |
